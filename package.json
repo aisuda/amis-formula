@@ -1,0 +1,110 @@
+{
+  "name": "amis-tpl",
+  "version": "1.0.0",
+  "description": "负责 amis 里面的表达式实现，内置公式，编辑器等",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npm run clean-dist && webpack --config=configs/webpack/prod.js && npm run declaration",
+    "clean-dist": "rimraf dist/*",
+    "declaration": "tsc --allowJs --declaration --emitDeclarationOnly --declarationDir ./dist --rootDir ./src",
+    "test": "jest",
+    "coverage": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aisuda/amis-tpl.git"
+  },
+  "keywords": [
+    "amis",
+    "tpl",
+    "parser",
+    "formula"
+  ],
+  "author": "fex",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aisuda/amis-tpl/issues"
+  },
+  "homepage": "https://github.com/aisuda/amis-tpl#readme",
+  "dependencies": {
+    "moment": "^2.19.3"
+  },
+  "devDependencies": {
+    "mini-css-extract-plugin": "^2.4.5",
+    "rimraf": "^3.0.2",
+    "@types/jest": "^27.0.2",
+    "jest": "^27.2.1",
+    "jest-canvas-mock": "^2.3.0",
+    "moment-timezone": "^0.5.33",
+    "ts-jest": "^27.0.5",
+    "sass": "^1.36.0",
+    "sass-loader": "^12.1.0",
+    "style-loader": "^3.2.1",
+    "stylelint": "^13.0.0",
+    "ts-loader": "^9.2.3",
+    "typescript": "^4.3.5",
+    "webpack": "^5.46.0",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^3.11.2",
+    "webpack-merge": "^5.8.0",
+    "webpack-node-externals": "^3.0.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "collectCoverageFrom": [
+      "src/**/*"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "\\.(ts|tsx)$": "ts-jest"
+    },
+    "setupFiles": [
+      "jest-canvas-mock"
+    ],
+    "testRegex": "/.*\\.test\\.(ts|tsx|js)$",
+    "moduleNameMapper": {
+      "\\.(css|less|sass|scss)$": "<rootDir>/__mocks__/styleMock.js",
+      "\\.(svg)$": "<rootDir>/__mocks__/svgMock.js"
+    },
+    "setupFilesAfterEnv": [
+      "<rootDir>/__tests__/jest.setup.js"
+    ],
+    "globals": {
+      "ts-jest": {
+        "diagnostics": false,
+        "tsconfig": {
+          "module": "commonjs",
+          "target": "es5",
+          "lib": [
+            "es6",
+            "dom",
+            "ES2015"
+          ],
+          "sourceMap": true,
+          "jsx": "react",
+          "moduleResolution": "node",
+          "rootDir": ".",
+          "importHelpers": true,
+          "esModuleInterop": true,
+          "allowSyntheticDefaultImports": true,
+          "sourceRoot": ".",
+          "noImplicitReturns": true,
+          "noImplicitThis": true,
+          "noImplicitAny": true,
+          "strictNullChecks": true,
+          "experimentalDecorators": true,
+          "emitDecoratorMetadata": false,
+          "typeRoots": [
+            "./node_modules/@types",
+            "./types"
+          ],
+          "skipLibCheck": true
+        }
+      }
+    }
+  }
+}

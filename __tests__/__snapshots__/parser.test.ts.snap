@@ -1,0 +1,121 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`parser:evalMode 1`] = `
+Object {
+  "left": Object {
+    "type": "variable",
+    "value": "a",
+  },
+  "op": "+",
+  "right": Object {
+    "type": "variable",
+    "value": "b",
+  },
+  "type": "add",
+}
+`;
+
+exports[`parser:number 1`] = `
+Object {
+  "body": Array [
+    Object {
+      "body": Object {
+        "left": Object {
+          "left": Object {
+            "type": "literal",
+            "value": -1,
+          },
+          "op": "+",
+          "right": Object {
+            "type": "literal",
+            "value": 2.5,
+          },
+          "type": "add",
+        },
+        "op": "+",
+        "right": Object {
+          "type": "literal",
+          "value": 3,
+        },
+        "type": "add",
+      },
+      "type": "script",
+    },
+  ],
+  "type": "content",
+}
+`;
+
+exports[`parser:simple 1`] = `
+Object {
+  "body": Array [
+    Object {
+      "type": "raw",
+      "value": "expression result is ",
+    },
+    Object {
+      "body": Object {
+        "left": Object {
+          "type": "variable",
+          "value": "a",
+        },
+        "op": "+",
+        "right": Object {
+          "type": "variable",
+          "value": "b",
+        },
+        "type": "add",
+      },
+      "type": "script",
+    },
+  ],
+  "type": "content",
+}
+`;
+
+exports[`parser:string 1`] = `
+Object {
+  "body": Array [
+    Object {
+      "body": Object {
+        "type": "literal",
+        "value": "string literall, escape \\"",
+      },
+      "type": "script",
+    },
+  ],
+  "type": "content",
+}
+`;
+
+exports[`parser:template 1`] = `
+Object {
+  "body": Array [
+    Object {
+      "body": Object {
+        "body": Array [
+          Object {
+            "type": "template_raw",
+            "value": "abc",
+          },
+          Object {
+            "left": Object {
+              "type": "variable",
+              "value": "a",
+            },
+            "op": "+",
+            "right": Object {
+              "type": "variable",
+              "value": "b",
+            },
+            "type": "add",
+          },
+        ],
+        "type": "template",
+      },
+      "type": "script",
+    },
+  ],
+  "type": "content",
+}
+`;
