@@ -1,5 +1,151 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`parser:array-literall 1`] = `
+Object {
+  "members": Array [
+    Object {
+      "type": "variable",
+      "value": "a",
+    },
+    Object {
+      "type": "variable",
+      "value": "b",
+    },
+    Object {
+      "type": "literal",
+      "value": 1,
+    },
+    Object {
+      "type": "literal",
+      "value": 2,
+    },
+    Object {
+      "members": Array [
+        Object {
+          "key": "a",
+          "value": Object {
+            "type": "literal",
+            "value": 1,
+          },
+        },
+      ],
+      "type": "object",
+    },
+  ],
+  "type": "array",
+}
+`;
+
+exports[`parser:binary-expression 1`] = `
+Object {
+  "left": Object {
+    "left": Object {
+      "type": "variable",
+      "value": "a",
+    },
+    "op": "&&",
+    "right": Object {
+      "type": "variable",
+      "value": "b",
+    },
+    "type": "and",
+  },
+  "op": "&&",
+  "right": Object {
+    "type": "variable",
+    "value": "c",
+  },
+  "type": "and",
+}
+`;
+
+exports[`parser:binary-expression 2`] = `
+Object {
+  "left": Object {
+    "left": Object {
+      "type": "variable",
+      "value": "a",
+    },
+    "op": "&&",
+    "right": Object {
+      "type": "variable",
+      "value": "b",
+    },
+    "type": "and",
+  },
+  "op": "||",
+  "right": Object {
+    "type": "variable",
+    "value": "c",
+  },
+  "type": "or",
+}
+`;
+
+exports[`parser:binary-expression 3`] = `
+Object {
+  "left": Object {
+    "type": "variable",
+    "value": "a",
+  },
+  "op": "||",
+  "right": Object {
+    "left": Object {
+      "type": "variable",
+      "value": "b",
+    },
+    "op": "&&",
+    "right": Object {
+      "type": "variable",
+      "value": "c",
+    },
+    "type": "and",
+  },
+  "type": "or",
+}
+`;
+
+exports[`parser:binary-expression 4`] = `
+Object {
+  "left": Object {
+    "left": Object {
+      "type": "variable",
+      "value": "a",
+    },
+    "op": "!==",
+    "right": Object {
+      "type": "variable",
+      "value": "b",
+    },
+    "type": "strneq",
+  },
+  "op": "===",
+  "right": Object {
+    "type": "variable",
+    "value": "c",
+  },
+  "type": "streq",
+}
+`;
+
+exports[`parser:conditional 1`] = `
+Object {
+  "alternate": Object {
+    "type": "variable",
+    "value": "c",
+  },
+  "consequent": Object {
+    "type": "variable",
+    "value": "b",
+  },
+  "test": Object {
+    "type": "variable",
+    "value": "a",
+  },
+  "type": "conditional",
+}
+`;
+
 exports[`parser:evalMode 1`] = `
 Object {
   "left": Object {
@@ -15,34 +161,223 @@ Object {
 }
 `;
 
-exports[`parser:number 1`] = `
+exports[`parser:filter 1`] = `
 Object {
   "body": Array [
     Object {
+      "type": "raw",
+      "value": "$abc is ",
+    },
+    Object {
       "body": Object {
-        "left": Object {
-          "left": Object {
-            "type": "literal",
-            "value": -1,
-          },
-          "op": "+",
-          "right": Object {
-            "type": "literal",
-            "value": 2.5,
-          },
-          "type": "add",
+        "args": Array [],
+        "fnName": "html",
+        "input": Object {
+          "type": "variable",
+          "value": "abc",
         },
-        "op": "+",
-        "right": Object {
-          "type": "literal",
-          "value": 3,
-        },
-        "type": "add",
+        "type": "filter",
       },
-      "type": "script",
+      "type": "expression",
     },
   ],
-  "type": "content",
+  "type": "document",
+}
+`;
+
+exports[`parser:filter-escape 1`] = `
+Object {
+  "body": Array [
+    Object {
+      "type": "raw",
+      "value": "$abc is ",
+    },
+    Object {
+      "body": Object {
+        "args": Array [
+          "YYYY-MM-DD HH:mm:ss",
+        ],
+        "fnName": "date",
+        "input": Object {
+          "type": "variable",
+          "value": "abc",
+        },
+        "type": "filter",
+      },
+      "type": "expression",
+    },
+  ],
+  "type": "document",
+}
+`;
+
+exports[`parser:functionCall 1`] = `
+Object {
+  "args": Array [
+    Object {
+      "type": "variable",
+      "value": "a",
+    },
+    Object {
+      "args": Array [
+        Object {
+          "type": "variable",
+          "value": "b",
+        },
+      ],
+      "identifier": "doAction",
+      "type": "func_call",
+    },
+  ],
+  "identifier": "doAction",
+  "type": "func_call",
+}
+`;
+
+exports[`parser:group-expression 1`] = `
+Object {
+  "left": Object {
+    "type": "variable",
+    "value": "a",
+  },
+  "op": "&&",
+  "right": Object {
+    "left": Object {
+      "type": "variable",
+      "value": "b",
+    },
+    "op": "&&",
+    "right": Object {
+      "type": "variable",
+      "value": "c",
+    },
+    "type": "and",
+  },
+  "type": "and",
+}
+`;
+
+exports[`parser:multi-expression 1`] = `
+Object {
+  "body": Array [
+    Object {
+      "host": Object {
+        "type": "variable",
+        "value": "a",
+      },
+      "key": Object {
+        "type": "variable",
+        "value": "b",
+      },
+      "type": "get",
+    },
+    Object {
+      "host": Object {
+        "type": "variable",
+        "value": "a",
+      },
+      "key": "b",
+      "type": "get",
+    },
+    Object {
+      "host": Object {
+        "type": "variable",
+        "value": "a",
+      },
+      "key": Object {
+        "type": "string",
+        "value": "c",
+      },
+      "type": "get",
+    },
+    Object {
+      "host": Object {
+        "type": "variable",
+        "value": "a",
+      },
+      "key": Object {
+        "body": Array [
+          Object {
+            "type": "template_raw",
+            "value": "d",
+          },
+        ],
+        "type": "template",
+      },
+      "type": "get",
+    },
+  ],
+  "type": "expression-list",
+}
+`;
+
+exports[`parser:number 1`] = `
+Object {
+  "left": Object {
+    "left": Object {
+      "type": "literal",
+      "value": -1,
+    },
+    "op": "+",
+    "right": Object {
+      "type": "literal",
+      "value": 2.5,
+    },
+    "type": "add",
+  },
+  "op": "+",
+  "right": Object {
+    "type": "literal",
+    "value": 3,
+  },
+  "type": "add",
+}
+`;
+
+exports[`parser:object-literall 1`] = `
+Object {
+  "members": Array [
+    Object {
+      "key": "a",
+      "value": Object {
+        "type": "literal",
+        "value": 1,
+      },
+    },
+    Object {
+      "key": Object {
+        "type": "string",
+        "value": "b",
+      },
+      "value": Object {
+        "type": "literal",
+        "value": 2,
+      },
+    },
+    Object {
+      "key": Object {
+        "body": Array [
+          Object {
+            "type": "template_raw",
+            "value": "c",
+          },
+        ],
+        "type": "template",
+      },
+      "value": Object {
+        "type": "literal",
+        "value": 3,
+      },
+    },
+    Object {
+      "key": "d",
+      "value": Object {
+        "members": Array [],
+        "type": "object",
+      },
+    },
+  ],
+  "type": "object",
 }
 `;
 
@@ -66,25 +401,24 @@ Object {
         },
         "type": "add",
       },
-      "type": "script",
+      "type": "expression",
     },
   ],
-  "type": "content",
+  "type": "document",
+}
+`;
+
+exports[`parser:single-string 1`] = `
+Object {
+  "type": "literal",
+  "value": "string",
 }
 `;
 
 exports[`parser:string 1`] = `
 Object {
-  "body": Array [
-    Object {
-      "body": Object {
-        "type": "literal",
-        "value": "string literall, escape \\"",
-      },
-      "type": "script",
-    },
-  ],
-  "type": "content",
+  "type": "literal",
+  "value": "string literall, escape \\"",
 }
 `;
 
@@ -92,30 +426,163 @@ exports[`parser:template 1`] = `
 Object {
   "body": Array [
     Object {
-      "body": Object {
+      "type": "template_raw",
+      "value": "abc",
+    },
+    Object {
+      "left": Object {
+        "type": "variable",
+        "value": "a",
+      },
+      "op": "+",
+      "right": Object {
+        "type": "variable",
+        "value": "b",
+      },
+      "type": "add",
+    },
+  ],
+  "type": "template",
+}
+`;
+
+exports[`parser:unary-expression 1`] = `
+Object {
+  "op": "!",
+  "type": "unary",
+  "value": Object {
+    "op": "!",
+    "type": "unary",
+    "value": Object {
+      "type": "variable",
+      "value": "a",
+    },
+  },
+}
+`;
+
+exports[`parser:variable-geter 1`] = `
+Object {
+  "args": Array [
+    Object {
+      "host": Object {
+        "type": "variable",
+        "value": "a",
+      },
+      "key": Object {
+        "type": "variable",
+        "value": "b",
+      },
+      "type": "get",
+    },
+    Object {
+      "host": Object {
+        "type": "variable",
+        "value": "a",
+      },
+      "key": "b",
+      "type": "get",
+    },
+    Object {
+      "host": Object {
+        "type": "variable",
+        "value": "a",
+      },
+      "key": Object {
+        "type": "string",
+        "value": "c",
+      },
+      "type": "get",
+    },
+    Object {
+      "host": Object {
+        "type": "variable",
+        "value": "a",
+      },
+      "key": Object {
         "body": Array [
           Object {
             "type": "template_raw",
-            "value": "abc",
-          },
-          Object {
-            "left": Object {
-              "type": "variable",
-              "value": "a",
-            },
-            "op": "+",
-            "right": Object {
-              "type": "variable",
-              "value": "b",
-            },
-            "type": "add",
+            "value": "d",
           },
         ],
         "type": "template",
       },
-      "type": "script",
+      "type": "get",
     },
   ],
-  "type": "content",
+  "identifier": "doAction",
+  "type": "func_call",
+}
+`;
+
+exports[`parser:variable-geter2 1`] = `
+Object {
+  "host": Object {
+    "host": Object {
+      "host": Object {
+        "host": Object {
+          "type": "variable",
+          "value": "a",
+        },
+        "key": "b",
+        "type": "get",
+      },
+      "key": Object {
+        "type": "string",
+        "value": "c",
+      },
+      "type": "get",
+    },
+    "key": "d",
+    "type": "get",
+  },
+  "key": Object {
+    "body": Array [
+      Object {
+        "type": "template_raw",
+        "value": "x",
+      },
+    ],
+    "type": "template",
+  },
+  "type": "get",
+}
+`;
+
+exports[`parser:variable-geter2 2`] = `
+Object {
+  "host": Object {
+    "host": Object {
+      "host": Object {
+        "host": Object {
+          "type": "variable",
+          "value": "a",
+        },
+        "key": "b",
+        "type": "get",
+      },
+      "key": Object {
+        "type": "string",
+        "value": "c",
+      },
+      "type": "get",
+    },
+    "key": Object {
+      "type": "variable",
+      "value": "d",
+    },
+    "type": "get",
+  },
+  "key": Object {
+    "body": Array [
+      Object {
+        "type": "template_raw",
+        "value": "x",
+      },
+    ],
+    "type": "template",
+  },
+  "type": "get",
 }
 `;

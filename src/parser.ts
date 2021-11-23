@@ -122,15 +122,13 @@ export function parse(input: string, options?: ParserOptions) {
         fatal();
       }
 
-      next();
-
       if (matchPunctuator(':')) {
+        next();
         let alternate = assignmentExpression();
         if (!alternate) {
           fatal();
         }
 
-        next();
         return {
           type: 'conditional',
           test: ast,
@@ -269,59 +267,34 @@ export function parse(input: string, options?: ParserOptions) {
   }
 
   function postfixExpression() {
-    return binaryExpressionParser(
-      'get',
-      '.',
-      () => {
-        let ast = leftHandSideExpression();
-        if (!ast) {
-          return null;
-        }
+    let ast = leftHandSideExpression();
+    if (!ast) {
+      return null;
+    }
 
-        if (matchPunctuator('[')) {
-          const stack: Array<any> = [ast];
+    while (matchPunctuator('[') || matchPunctuator('.')) {
+      const isDot = matchPunctuator('.');
+      next();
+      const right = isDot ? identifier() : varibleKey();
+      if (!right) {
+        fatal();
+      }
 
-          while (matchPunctuator('[')) {
-            next();
-            const right = varibleKey();
-
-            if (!right) {
-              fatal();
-            }
-
-            stack.push(right);
-
-            if (matchPunctuator(']')) {
-              next();
-            } else {
-              fatal();
-            }
-          }
-
-          while (stack.length > 1) {
-            const right = stack.pop();
-            const left = stack.pop();
-            stack.push({
-              type: 'get',
-              host: left,
-              key: right
-            });
-          }
-          ast = stack[0];
-        }
-
-        return ast;
-      },
-      () => {
-        if (token.type === TokenName[TokenEnum.Identifier]) {
-          const cToken = token;
+      if (!isDot) {
+        if (matchPunctuator(']')) {
           next();
-          return cToken.value;
+        } else {
+          fatal();
         }
-      },
-      'host',
-      'key'
-    );
+      }
+      ast = {
+        type: 'get',
+        host: ast,
+        key: right
+      };
+    }
+
+    return ast;
   }
 
   function leftHandSideExpression() {
@@ -393,7 +366,7 @@ export function parse(input: string, options?: ParserOptions) {
     return null;
   }
 
-  function primaryExpression() {
+  function identifier() {
     if (token.type === TokenName[TokenEnum.Identifier]) {
       const cToken = token;
       next();
@@ -402,7 +375,26 @@ export function parse(input: string, options?: ParserOptions) {
         value: cToken.value
       };
     }
-    return literal() || template() || arrayLiteral() || objectLiteral();
+    return null;
+  }
+
+  function primaryExpression() {
+    return (
+      identifier() ||
+      literal() ||
+      template() ||
+      arrayLiteral() ||
+      objectLiteral() ||
+      (() => {
+        const ast = expressionList();
+
+        if (ast?.body.length === 1) {
+          return ast.body[0];
+        }
+
+        return ast;
+      })()
+    );
   }
 
   function literal() {
@@ -431,7 +423,7 @@ export function parse(input: string, options?: ParserOptions) {
         return {
           type: 'func_call',
           identifier: id.value,
-          args: argList
+          args: argList?.body
         };
       } else {
         back();
@@ -444,8 +436,8 @@ export function parse(input: string, options?: ParserOptions) {
     if (matchPunctuator('[')) {
       const argList = expressionList('[', ']');
       return {
-        type: 'object',
-        members: argList
+        type: 'array',
+        members: argList?.body
       };
     }
     return null;
@@ -475,7 +467,10 @@ export function parse(input: string, options?: ParserOptions) {
           break;
         }
       }
-      return args;
+      return {
+        type: 'expression-list',
+        body: args
+      };
     }
     return null;
   }
@@ -539,7 +534,7 @@ export function parse(input: string, options?: ParserOptions) {
 
   function contents() {
     const node: any = {
-      type: 'content',
+      type: 'document',
       body: []
     };
     while (token.type !== TokenName[TokenEnum.EOF]) {
@@ -586,13 +581,16 @@ export function parse(input: string, options?: ParserOptions) {
     next();
 
     return {
-      type: 'script',
+      type: 'expression',
       body: exp
     };
   }
 
   next();
   const ast = options?.evalMode ? expression() : contents();
+  if (token!?.type !== TokenName[TokenEnum.EOF]) {
+    fatal();
+  }
 
   return ast;
 }
