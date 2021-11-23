@@ -4,12 +4,12 @@ exports[`parser:array-literall 1`] = `
 Object {
   "members": Array [
     Object {
+      "name": "a",
       "type": "variable",
-      "value": "a",
     },
     Object {
+      "name": "b",
       "type": "variable",
-      "value": "b",
     },
     Object {
       "type": "literal",
@@ -40,20 +40,20 @@ exports[`parser:binary-expression 1`] = `
 Object {
   "left": Object {
     "left": Object {
+      "name": "a",
       "type": "variable",
-      "value": "a",
     },
     "op": "&&",
     "right": Object {
+      "name": "b",
       "type": "variable",
-      "value": "b",
     },
     "type": "and",
   },
   "op": "&&",
   "right": Object {
+    "name": "c",
     "type": "variable",
-    "value": "c",
   },
   "type": "and",
 }
@@ -63,20 +63,20 @@ exports[`parser:binary-expression 2`] = `
 Object {
   "left": Object {
     "left": Object {
+      "name": "a",
       "type": "variable",
-      "value": "a",
     },
     "op": "&&",
     "right": Object {
+      "name": "b",
       "type": "variable",
-      "value": "b",
     },
     "type": "and",
   },
   "op": "||",
   "right": Object {
+    "name": "c",
     "type": "variable",
-    "value": "c",
   },
   "type": "or",
 }
@@ -85,19 +85,19 @@ Object {
 exports[`parser:binary-expression 3`] = `
 Object {
   "left": Object {
+    "name": "a",
     "type": "variable",
-    "value": "a",
   },
   "op": "||",
   "right": Object {
     "left": Object {
+      "name": "b",
       "type": "variable",
-      "value": "b",
     },
     "op": "&&",
     "right": Object {
+      "name": "c",
       "type": "variable",
-      "value": "c",
     },
     "type": "and",
   },
@@ -109,20 +109,20 @@ exports[`parser:binary-expression 4`] = `
 Object {
   "left": Object {
     "left": Object {
+      "name": "a",
       "type": "variable",
-      "value": "a",
     },
     "op": "!==",
     "right": Object {
+      "name": "b",
       "type": "variable",
-      "value": "b",
     },
     "type": "strneq",
   },
   "op": "===",
   "right": Object {
+    "name": "c",
     "type": "variable",
-    "value": "c",
   },
   "type": "streq",
 }
@@ -150,8 +150,8 @@ Object {
               },
               Object {
                 "left": Object {
+                  "name": "a",
                   "type": "variable",
-                  "value": "a",
                 },
                 "op": "+",
                 "right": Object {
@@ -176,16 +176,16 @@ Object {
 exports[`parser:conditional 1`] = `
 Object {
   "alternate": Object {
+    "name": "c",
     "type": "variable",
-    "value": "c",
   },
   "consequent": Object {
+    "name": "b",
     "type": "variable",
-    "value": "b",
   },
   "test": Object {
+    "name": "a",
     "type": "variable",
-    "value": "a",
   },
   "type": "conditional",
 }
@@ -194,13 +194,13 @@ Object {
 exports[`parser:evalMode 1`] = `
 Object {
   "left": Object {
+    "name": "a",
     "type": "variable",
-    "value": "a",
   },
   "op": "+",
   "right": Object {
+    "name": "b",
     "type": "variable",
-    "value": "b",
   },
   "type": "add",
 }
@@ -218,8 +218,8 @@ Object {
         "args": Array [],
         "fnName": "html",
         "input": Object {
+          "name": "abc",
           "type": "variable",
-          "value": "abc",
         },
         "type": "filter",
       },
@@ -244,8 +244,8 @@ Object {
         ],
         "fnName": "date",
         "input": Object {
+          "name": "abc",
           "type": "variable",
-          "value": "abc",
         },
         "type": "filter",
       },
@@ -260,14 +260,14 @@ exports[`parser:functionCall 1`] = `
 Object {
   "args": Array [
     Object {
+      "name": "a",
       "type": "variable",
-      "value": "a",
     },
     Object {
       "args": Array [
         Object {
+          "name": "b",
           "type": "variable",
-          "value": "b",
         },
       ],
       "identifier": "doAction",
@@ -282,19 +282,19 @@ Object {
 exports[`parser:group-expression 1`] = `
 Object {
   "left": Object {
+    "name": "a",
     "type": "variable",
-    "value": "a",
   },
   "op": "&&",
   "right": Object {
     "left": Object {
+      "name": "b",
       "type": "variable",
-      "value": "b",
     },
     "op": "&&",
     "right": Object {
+      "name": "c",
       "type": "variable",
-      "value": "c",
     },
     "type": "and",
   },
@@ -307,27 +307,27 @@ Object {
   "body": Array [
     Object {
       "host": Object {
+        "name": "a",
         "type": "variable",
-        "value": "a",
       },
       "key": Object {
+        "name": "b",
         "type": "variable",
-        "value": "b",
       },
       "type": "get",
     },
     Object {
       "host": Object {
+        "name": "a",
         "type": "variable",
-        "value": "a",
       },
       "key": "b",
       "type": "get",
     },
     Object {
       "host": Object {
+        "name": "a",
         "type": "variable",
-        "value": "a",
       },
       "key": Object {
         "type": "string",
@@ -337,8 +337,8 @@ Object {
     },
     Object {
       "host": Object {
+        "name": "a",
         "type": "variable",
-        "value": "a",
       },
       "key": Object {
         "body": Array [
@@ -436,13 +436,13 @@ Object {
     Object {
       "body": Object {
         "left": Object {
+          "name": "a",
           "type": "variable",
-          "value": "a",
         },
         "op": "+",
         "right": Object {
+          "name": "b",
           "type": "variable",
-          "value": "b",
         },
         "type": "add",
       },
@@ -476,13 +476,13 @@ Object {
     },
     Object {
       "left": Object {
+        "name": "a",
         "type": "variable",
-        "value": "a",
       },
       "op": "+",
       "right": Object {
+        "name": "b",
         "type": "variable",
-        "value": "b",
       },
       "type": "add",
     },
@@ -499,8 +499,8 @@ Object {
     "op": "!",
     "type": "unary",
     "value": Object {
+      "name": "a",
       "type": "variable",
-      "value": "a",
     },
   },
 }
@@ -511,27 +511,27 @@ Object {
   "args": Array [
     Object {
       "host": Object {
+        "name": "a",
         "type": "variable",
-        "value": "a",
       },
       "key": Object {
+        "name": "b",
         "type": "variable",
-        "value": "b",
       },
       "type": "get",
     },
     Object {
       "host": Object {
+        "name": "a",
         "type": "variable",
-        "value": "a",
       },
       "key": "b",
       "type": "get",
     },
     Object {
       "host": Object {
+        "name": "a",
         "type": "variable",
-        "value": "a",
       },
       "key": Object {
         "type": "string",
@@ -541,8 +541,8 @@ Object {
     },
     Object {
       "host": Object {
+        "name": "a",
         "type": "variable",
-        "value": "a",
       },
       "key": Object {
         "body": Array [
@@ -567,8 +567,8 @@ Object {
     "host": Object {
       "host": Object {
         "host": Object {
+          "name": "a",
           "type": "variable",
-          "value": "a",
         },
         "key": "b",
         "type": "get",
@@ -601,8 +601,8 @@ Object {
     "host": Object {
       "host": Object {
         "host": Object {
+          "name": "a",
           "type": "variable",
-          "value": "a",
         },
         "key": "b",
         "type": "get",
@@ -614,8 +614,8 @@ Object {
       "type": "get",
     },
     "key": Object {
+      "name": "d",
       "type": "variable",
-      "value": "d",
     },
     "type": "get",
   },

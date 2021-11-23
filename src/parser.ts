@@ -372,7 +372,7 @@ export function parse(input: string, options?: ParserOptions) {
       next();
       return {
         type: 'variable',
-        value: cToken.value
+        name: cToken.value
       };
     }
     return null;
