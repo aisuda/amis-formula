@@ -1,80 +1,90 @@
 import {parse} from '../src/index';
 test('parser:simple', () => {
-  const input = 'expression result is ${a + b}';
-  const ast = parse(input);
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse('expression result is ${a + b}', {
+      evalMode: false
+    })
+  ).toMatchSnapshot();
+});
+
+test('parser:complex', () => {
+  expect(
+    parse('raw content ${`es tempalte ${`deeper${a + 3}`}`}', {
+      evalMode: false
+    })
+  ).toMatchSnapshot();
 });
 
 test('parser:evalMode', () => {
-  const input = 'a + b';
-  const ast = parse(input, {
-    evalMode: true
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse('a + b', {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
 });
 
 test('parser:template', () => {
-  const input = '`abc${a + b}`';
-  const ast = parse(input, {
-    evalMode: true
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse('`abc${a + b}`', {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
 });
 
 test('parser:string', () => {
-  const input = '"string literall, escape \\""';
-  const ast = parse(input, {
-    evalMode: true
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse('"string literall, escape \\""', {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
 });
 
 test('parser:number', () => {
-  const input = '-1 + 2.5 + 3';
-  const ast = parse(input, {
-    evalMode: true
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse('-1 + 2.5 + 3', {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
 });
 
 test('parser:single-string', () => {
-  const input = "'string'";
-  const ast = parse(input, {
-    evalMode: true
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse("'string'", {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
 });
 
 test('parser:object-literall', () => {
-  const input = "{a: 1, 'b': 2, `c`: 3, d: {}}";
-  const ast = parse(input, {
-    evalMode: true
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse("{a: 1, 'b': 2, `c`: 3, d: {}}", {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
 });
 
 test('parser:array-literall', () => {
-  const input = '[a, b, 1, 2, {a: 1}]';
-  const ast = parse(input, {
-    evalMode: true
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse('[a, b, 1, 2, {a: 1}]', {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
 });
 
 test('parser:variable-geter', () => {
-  const input = 'doAction(a.b, a[b], a["c"], a[`d`])';
-  const ast = parse(input, {
-    evalMode: true
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse('doAction(a.b, a[b], a["c"], a[`d`])', {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
 });
 
 test('parser:variable-geter2', () => {
-  const input = 'a[b]["c"][d][`x`]';
-  const ast = parse(input, {
-    evalMode: true
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse('a[b]["c"][d][`x`]', {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
 
   expect(
     parse('a[b]["c"].d[`x`]', {
@@ -83,51 +93,51 @@ test('parser:variable-geter2', () => {
   ).toMatchSnapshot();
 });
 test('parser:multi-expression', () => {
-  const input = '(a.b, a[b], a["c"], a[`d`])';
-  const ast = parse(input, {
-    evalMode: true
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse('(a.b, a[b], a["c"], a[`d`])', {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
 });
 
 test('parser:functionCall', () => {
-  const input = 'doAction(a, doAction(b))';
-  const ast = parse(input, {
-    evalMode: true
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse('doAction(a, doAction(b))', {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
 });
 
 test('parser:filter', () => {
-  const input = '\\$abc is ${abc | html}';
-  const ast = parse(input, {
-    evalMode: false
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse('\\$abc is ${abc | html}', {
+      evalMode: false
+    })
+  ).toMatchSnapshot();
 });
 
 test('parser:filter-escape', () => {
-  const input = '\\$abc is ${abc | date: YYYY-MM-DD HH\\:mm\\:ss}';
-  const ast = parse(input, {
-    evalMode: false
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse('\\$abc is ${abc | date: YYYY-MM-DD HH\\:mm\\:ss}', {
+      evalMode: false
+    })
+  ).toMatchSnapshot();
 });
 
 test('parser:conditional', () => {
-  const input = 'a ? b : c';
-  const ast = parse(input, {
-    evalMode: true
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse('a ? b : c', {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
 });
 
 test('parser:binary-expression', () => {
-  const input = 'a && b && c';
-  const ast = parse(input, {
-    evalMode: true
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse('a && b && c', {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
 
   expect(
     parse('a && b || c', {
@@ -149,17 +159,17 @@ test('parser:binary-expression', () => {
 });
 
 test('parser:group-expression', () => {
-  const input = 'a && (b && c)';
-  const ast = parse(input, {
-    evalMode: true
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse('a && (b && c)', {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
 });
 
 test('parser:unary-expression', () => {
-  const input = '!!a';
-  const ast = parse(input, {
-    evalMode: true
-  });
-  expect(ast).toMatchSnapshot();
+  expect(
+    parse('!!a', {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
 });

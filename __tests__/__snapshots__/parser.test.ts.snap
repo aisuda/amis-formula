@@ -128,6 +128,51 @@ Object {
 }
 `;
 
+exports[`parser:complex 1`] = `
+Object {
+  "body": Array [
+    Object {
+      "type": "raw",
+      "value": "raw content ",
+    },
+    Object {
+      "body": Object {
+        "body": Array [
+          Object {
+            "type": "template_raw",
+            "value": "es tempalte ",
+          },
+          Object {
+            "body": Array [
+              Object {
+                "type": "template_raw",
+                "value": "deeper",
+              },
+              Object {
+                "left": Object {
+                  "type": "variable",
+                  "value": "a",
+                },
+                "op": "+",
+                "right": Object {
+                  "type": "literal",
+                  "value": 3,
+                },
+                "type": "add",
+              },
+            ],
+            "type": "template",
+          },
+        ],
+        "type": "template",
+      },
+      "type": "expression",
+    },
+  ],
+  "type": "document",
+}
+`;
+
 exports[`parser:conditional 1`] = `
 Object {
   "alternate": Object {
