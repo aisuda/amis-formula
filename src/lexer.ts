@@ -623,7 +623,10 @@ export function lexer(input: string, options?: LexerOptions) {
 
     if (isLiteral) {
       return {
-        type: TokenName[TokenEnum.Literal],
+        type:
+          value === true || value === false
+            ? TokenName[TokenEnum.BooleanLiteral]
+            : TokenName[TokenEnum.Literal],
         value,
         raw: keyword,
         start: position(),

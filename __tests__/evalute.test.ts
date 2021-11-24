@@ -148,3 +148,43 @@ test('evalute:oldVariable3', () => {
     a: 4
   });
 });
+
+test('evalute:old:conditional', () => {
+  expect(
+    evaluate(
+      '${a | isTrue: true : false}',
+      {
+        a: 4
+      },
+      {
+        defaultFilter: 'raw'
+      }
+    )
+  ).toBe(true);
+
+  expect(
+    evaluate(
+      '${a | isTrue: b : false}',
+      {
+        a: 4,
+        b: 5
+      },
+      {
+        defaultFilter: 'raw'
+      }
+    )
+  ).toBe(5);
+
+  expect(
+    evaluate(
+      '${a | isTrue: b : false}',
+      {
+        a: null,
+        b: 5
+      },
+      {
+        defaultFilter: 'raw'
+      }
+    )
+  ).toBe(false);
+});

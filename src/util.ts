@@ -1,6 +1,7 @@
 import isPlainObject from 'lodash/isPlainObject';
 import {Evaluator} from './evalutor';
 import {parse} from './parser';
+import moment from 'moment';
 
 // 方便取值的时候能够把上层的取到，但是获取的时候不会全部把所有的数据获取到。
 export function createObject(
@@ -209,4 +210,291 @@ export const tokenize = (
   return `${new Evaluator({
     defaultFilter
   }).evalute(ast, data)}`;
+};
+
+const UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+export const prettyBytes = (num: number) => {
+  if (!Number.isFinite(num)) {
+    throw new TypeError(`Expected a finite number, got ${typeof num}: ${num}`);
+  }
+
+  const neg = num < 0;
+
+  if (neg) {
+    num = -num;
+  }
+
+  if (num < 1) {
+    return (neg ? '-' : '') + num + ' B';
+  }
+
+  const exponent = Math.min(
+    Math.floor(Math.log(num) / Math.log(1000)),
+    UNITS.length - 1
+  );
+  const numStr = Number((num / Math.pow(1000, exponent)).toPrecision(3));
+  const unit = UNITS[exponent];
+
+  return (neg ? '-' : '') + numStr + ' ' + unit;
+};
+
+const entityMap: {
+  [propName: string]: string;
+} = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+  '/': '&#x2F;'
+};
+export const escapeHtml = (str: string) =>
+  String(str).replace(/[&<>"'\/]/g, function (s) {
+    return entityMap[s];
+  });
+
+export function formatDuration(value: number): string {
+  const unit = ['秒', '分', '时', '天', '月', '季', '年'];
+  const steps = [1, 60, 3600, 86400, 2592000, 7776000, 31104000];
+  let len = steps.length;
+  const parts = [];
+
+  while (len--) {
+    if (steps[len] && value >= steps[len]) {
+      parts.push(Math.floor(value / steps[len]) + unit[len]);
+      value %= steps[len];
+    } else if (len === 0 && value) {
+      parts.push((value.toFixed ? value.toFixed(2) : '0') + unit[0]);
+    }
+  }
+
+  return parts.join('');
+}
+
+const timeUnitMap: {
+  [propName: string]: string;
+} = {
+  year: 'Y',
+  month: 'M',
+  week: 'w',
+  weekday: 'W',
+  day: 'd',
+  hour: 'h',
+  minute: 'm',
+  min: 'm',
+  second: 's',
+  millisecond: 'ms'
+};
+
+export const relativeValueRe =
+  /^(.+)?(\+|-)(\d+)(minute|min|hour|day|week|month|year|weekday|second|millisecond)s?$/i;
+export const filterDate = (
+  value: string,
+  data: object = {},
+  format = 'X',
+  utc: boolean = false
+): moment.Moment => {
+  let m,
+    mm = utc ? moment.utc : moment;
+
+  if (typeof value === 'string') {
+    value = value.trim();
+  }
+
+  // todo
+  value = tokenize(value, data);
+
+  if (value && typeof value === 'string' && (m = relativeValueRe.exec(value))) {
+    const date = new Date();
+    const step = parseInt(m[3], 10);
+    const from = m[1]
+      ? filterDate(m[1], data, format, utc)
+      : mm(
+          /(minute|min|hour|second)s?/.test(m[4])
+            ? [
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate(),
+                date.getHours(),
+                date.getMinutes(),
+                date.getSeconds()
+              ]
+            : [date.getFullYear(), date.getMonth(), date.getDate()]
+        );
+
+    return m[2] === '-'
+      ? from.subtract(step, timeUnitMap[m[4]] as moment.DurationInputArg2)
+      : from.add(step, timeUnitMap[m[4]] as moment.DurationInputArg2);
+    //   return from[m[2] === '-' ? 'subtract' : 'add'](step, mapping[m[4]] || m[4]);
+  } else if (value === 'now') {
+    return mm();
+  } else if (value === 'today') {
+    const date = new Date();
+    return mm([date.getFullYear(), date.getMonth(), date.getDate()]);
+  } else {
+    return mm(value, format);
+  }
+};
+
+export function parseDuration(str: string): moment.Duration | undefined {
+  const matches =
+    /^((?:\-|\+)?(?:\d*\.)?\d+)(minute|min|hour|day|week|month|quarter|year|weekday|second|millisecond)s?$/.exec(
+      str
+    );
+
+  if (matches) {
+    const duration = moment.duration(parseFloat(matches[1]), matches[2] as any);
+
+    if (moment.isDuration(duration)) {
+      return duration;
+    }
+  }
+
+  return;
+}
+
+// 主要用于解决 0.1+0.2 结果的精度问题导致太长
+export function stripNumber(number: number) {
+  if (typeof number === 'number') {
+    return parseFloat(number.toPrecision(12));
+  } else {
+    return number;
+  }
+}
+
+export function pickValues(names: string, data: object) {
+  let arr: Array<string>;
+  if (!names || ((arr = names.split(',')) && arr.length < 2)) {
+    let idx = names.indexOf('~');
+    if (~idx) {
+      let key = names.substring(0, idx);
+      let target = names.substring(idx + 1);
+      return {
+        [key]: resolveVariable(target, data)
+      };
+    }
+    return resolveVariable(names, data);
+  }
+
+  let ret: any = {};
+  arr.forEach(name => {
+    let idx = name.indexOf('~');
+    let target = name;
+
+    if (~idx) {
+      target = name.substring(idx + 1);
+      name = name.substring(0, idx);
+    }
+
+    setVariable(ret, name, resolveVariable(target, data));
+  });
+  return ret;
+}
+
+function objectGet(data: any, path: string) {
+  if (typeof data[path] !== 'undefined') {
+    return data[path];
+  }
+
+  let parts = keyToPath(path.replace(/^{|}$/g, ''));
+  return parts.reduce((data, path) => {
+    if ((isObject(data) || Array.isArray(data)) && path in data) {
+      return (data as {[propName: string]: any})[path];
+    }
+
+    return undefined;
+  }, data);
+}
+
+function parseJson(str: string, defaultValue?: any) {
+  try {
+    return JSON.parse(str);
+  } catch (e) {
+    return defaultValue;
+  }
+}
+
+function getCookie(name: string) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    return parts.pop()!.split(';').shift();
+  }
+  return undefined;
+}
+
+export function resolveVariable(path?: string, data: any = {}): any {
+  if (!path || !data || typeof path !== 'string') {
+    return undefined;
+  }
+
+  let [ns, varname] = path.split(':');
+
+  if (!varname && ns) {
+    varname = ns;
+    ns = '';
+  }
+
+  if (ns === 'window') {
+    data = window;
+  } else if (ns === 'ls' || ns === 'ss') {
+    let parts = keyToPath(varname.replace(/^{|}$/g, ''));
+    const key = parts.shift()!;
+    const raw =
+      ns === 'ss' ? sessionStorage.getItem(key) : localStorage.getItem(key);
+
+    if (typeof raw === 'string') {
+      const data = parseJson(raw, raw);
+
+      if (isObject(data) && parts.length) {
+        return objectGet(data, parts.join('.'));
+      }
+
+      return data;
+    }
+
+    return undefined;
+  } else if (ns === 'cookie') {
+    const key = varname.replace(/^{|}$/g, '').trim();
+    return getCookie(key);
+  }
+
+  if (varname === '$$') {
+    return data;
+  } else if (varname[0] === '$') {
+    varname = path.substring(1);
+  } else if (varname === '&') {
+    return data;
+  }
+
+  return objectGet(data, varname);
+}
+
+export function isPureVariable(path?: any): path is string {
+  return typeof path === 'string'
+    ? /^\$(?:((?:\w+\:)?[a-z0-9_.][a-z0-9_.\[\]]*)|{[^}{]+})$/i.test(path)
+    : false;
+}
+
+export const resolveVariableAndFilter = (
+  str: string,
+  data: object,
+  defaultFilter: string = '| html',
+  fallbackValue = (value: any) => value
+) => {
+  if (!str || typeof str !== 'string') {
+    return str;
+  }
+
+  const ast = parse(str, {
+    evalMode: false,
+    allowFilter: true
+  });
+
+  const ret = new Evaluator({
+    defaultFilter
+  }).evalute(ast, data);
+
+  return ret == null ? fallbackValue(ret) : ret;
 };

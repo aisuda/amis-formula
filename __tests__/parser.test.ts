@@ -173,3 +173,15 @@ test('parser:unary-expression', () => {
     })
   ).toMatchSnapshot();
 });
+
+test('parser:test', () => {
+  console.log(
+    JSON.stringify(
+      parse('${a | isTrue: true : false}', {
+        evalMode: true
+      }),
+      null,
+      2
+    )
+  );
+});

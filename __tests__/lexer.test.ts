@@ -35,3 +35,7 @@ test('lexer:filter', () => {
     })
   ).toMatchSnapshot();
 });
+
+test('lexer:test', () => {
+  // console.log(getTokens('${a | isTrue: true : false}'));
+});

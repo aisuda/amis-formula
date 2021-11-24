@@ -94,12 +94,6 @@ export class Evaluator {
                 typeof item === 'string' ? item : this.evalute(item, data)
               )
               .join('');
-          } else if (typeof item === 'string' && ~item.indexOf('$')) {
-            try {
-              return new (this.constructor as typeof Evaluator)(
-                this.options
-              ).evalute(item, data);
-            } catch (e) {}
           } else if (item.type) {
             return this.evalute(item, data);
           }

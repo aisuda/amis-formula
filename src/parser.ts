@@ -133,6 +133,9 @@ export function parse(input: string, options?: ParserOptions) {
     }
     if (arg.length && typeof arg[arg.length - 1] === 'string') {
       arg[arg.length - 1] = arg[arg.length - 1].replace(/\s+$/, '');
+      if (!arg[arg.length - 1]) {
+        arg.pop();
+      }
     }
     return arg;
   }
@@ -457,6 +460,7 @@ export function parse(input: string, options?: ParserOptions) {
   function literal() {
     if (
       token.type === TokenName[TokenEnum.Literal] ||
+      token.type === TokenName[TokenEnum.BooleanLiteral] ||
       token.type === TokenName[TokenEnum.NumericLiteral] ||
       token.type === TokenName[TokenEnum.StringLiteral]
     ) {
