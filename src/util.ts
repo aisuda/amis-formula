@@ -70,6 +70,28 @@ export function string2regExp(value: string, caseSensitive = false) {
   );
 }
 
+export function getVariable(
+  data: {[propName: string]: any},
+  key: string | undefined,
+  canAccessSuper: boolean = true
+): any {
+  if (!data || !key) {
+    return undefined;
+  } else if (canAccessSuper ? key in data : data.hasOwnProperty(key)) {
+    return data[key];
+  }
+
+  return keyToPath(key).reduce(
+    (obj, key) =>
+      obj &&
+      typeof obj === 'object' &&
+      (canAccessSuper ? key in obj : obj.hasOwnProperty(key))
+        ? obj[key]
+        : undefined,
+    data
+  );
+}
+
 export function setVariable(
   data: {[propName: string]: any},
   key: string,
@@ -108,6 +130,36 @@ export function setVariable(
 
   data[last] = value;
 }
+
+export function deleteVariable(data: {[propName: string]: any}, key: string) {
+  if (!data) {
+    return;
+  } else if (data.hasOwnProperty(key)) {
+    delete data[key];
+    return;
+  }
+
+  const parts = keyToPath(key);
+  const last = parts.pop() as string;
+
+  while (parts.length) {
+    let key = parts.shift() as string;
+    if (isPlainObject(data[key])) {
+      data = data[key] = {
+        ...data[key]
+      };
+    } else if (data[key]) {
+      throw new Error(`目标路径不是纯对象，不能修改`);
+    } else {
+      break;
+    }
+  }
+
+  if (data && data.hasOwnProperty && data.hasOwnProperty(last)) {
+    delete data[last];
+  }
+}
+
 /**
  * 将例如像 a.b.c 或 a[1].b 的字符串转换为路径数组
  *

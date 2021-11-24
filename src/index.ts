@@ -2,6 +2,7 @@ import {Evaluator, EvaluatorOptions} from './evalutor';
 import {parse, ParserOptions} from './parser';
 import {lexer} from './lexer';
 export {parse, lexer, Evaluator};
+export * from './util';
 
 export function evaluate(
   astOrString: string,
