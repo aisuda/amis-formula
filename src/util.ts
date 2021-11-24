@@ -206,7 +206,7 @@ export const tokenize = (
     allowFilter: true
   });
 
-  return new Evaluator({
+  return `${new Evaluator({
     defaultFilter
-  }).evalute(ast, data);
+  }).evalute(ast, data)}`;
 };
