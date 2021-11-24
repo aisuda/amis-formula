@@ -691,18 +691,6 @@ export class Evaluator {
     return moment(endDate).diff(moment(startDate), 'days');
   }
 
-  fnWORKDAYS(endDate: Date, startDate: Date) {
-    if (!endDate || !startDate) {
-      return '-';
-    }
-
-    throw new Error('NeedBackendHelp');
-  }
-
-  fnISROLE(endDate: Date, startDate: Date) {
-    throw new Error('NeedBackendHelp');
-  }
-
   fnHOURS(endDate: Date, startDate: Date) {
     endDate = this.normalizeDate(endDate);
     startDate = this.normalizeDate(startDate);
