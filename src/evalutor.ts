@@ -8,23 +8,36 @@ export interface FilterMap {
   [propName: string]: (this: any, input: any, ...args: any[]) => any;
 }
 
+export interface FunctionMap {
+  [propName: string]: (this: Evaluator, ast: Object, data: any) => any;
+}
+
 export interface EvaluatorOptions {
-  filters?: {
-    [propName: string]: (this: any, input: any, ...args: any[]) => any;
-  };
+  /**
+   * 可以外部传入 ast 节点处理器，定制或者扩充自定义函数
+   */
+  functions?: FunctionMap;
+
+  /**
+   * 可以外部扩充 filter
+   */
+  filters?: FilterMap;
 }
 
 export class Evaluator {
-  constructor(options?: EvaluatorOptions) {
-    if (options?.filters) {
-      this.filters = {
-        ...this.filters,
-        ...options.filters
-      };
-    }
+  constructor(readonly options?: EvaluatorOptions) {
+    this.filters = {
+      ...this.filters,
+      ...options?.filters
+    };
+    this.functions = {
+      ...this.functions,
+      ...options?.functions
+    };
   }
   data: any;
   filters: FilterMap = {};
+  functions: FunctionMap = {};
 
   // 主入口
   evalute(ast: any, data: any = {}) {
@@ -33,7 +46,7 @@ export class Evaluator {
       const name = (ast.type as string).replace(/(?:_|\-)(\w)/g, (_, l) =>
         l.toUpperCase()
       );
-      const fn = (this as any)[name];
+      const fn = this.functions[name] || (this as any)[name];
 
       if (!fn) {
         throw new Error(`${ast.type} unkown.`);
@@ -57,10 +70,29 @@ export class Evaluator {
     if (!fn) {
       throw new Error(`filter \`${ast.fnName}\` not exits`);
     }
-    return fn.apply(data, [
-      this.evalute(ast.input, data),
-      ...ast.args.map(arg => this.evalute(arg, data))
-    ]);
+    return fn.apply(
+      data,
+      [this.evalute(ast.input, data)].concat(
+        ast.args.map((item: any) => {
+          if (item?.type === 'mixed') {
+            return item.body
+              .map((item: any) =>
+                typeof item === 'string' ? item : this.evalute(item, data)
+              )
+              .join('');
+          } else if (typeof item === 'string' && ~item.indexOf('$')) {
+            try {
+              return new (this.constructor as typeof Evaluator)(
+                this.options
+              ).evalute(item, data);
+            } catch (e) {}
+          } else if (item.type) {
+            return this.evalute(item, data);
+          }
+          return item;
+        })
+      )
+    );
   }
 
   raw(ast: {type: 'raw'; value: string}) {
@@ -300,7 +332,9 @@ export class Evaluator {
 
   funcCall(this: any, ast: {identifier: string; args: Array<any>}, data: any) {
     const fnName = `fn${ast.identifier}`;
-    const fn = this[fnName];
+    const fn =
+      this.functions[fnName] || this[fnName] || this.filters[ast.identifier];
+
     if (!fn) {
       throw new Error(`${ast.identifier}函数没有定义`);
     }

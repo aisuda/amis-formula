@@ -28,52 +28,46 @@ export const enum TokenEnum {
   TemplateLeftBrace,
   TemplateRightBrace,
   OpenFilter,
-  FilterFn,
-  FilterSep,
-  FilterArg,
+  Char
 }
 
 export type TokenTypeName =
-  | "Boolean"
-  | "Raw"
-  | "OpenScript"
-  | "CloseScript"
-  | "EOF"
-  | "Identifier"
-  | "Literal"
-  | "Numeric"
-  | "Punctuator"
-  | "String"
-  | "RegularExpression"
-  | "TemplateRaw"
-  | "TemplateLeftBrace"
-  | "TemplateRightBrace"
-  | "OpenFilter"
-  | "FilterFn"
-  | "FilterSep"
-  | "FilterArg";
+  | 'Boolean'
+  | 'Raw'
+  | 'OpenScript'
+  | 'CloseScript'
+  | 'EOF'
+  | 'Identifier'
+  | 'Literal'
+  | 'Numeric'
+  | 'Punctuator'
+  | 'String'
+  | 'RegularExpression'
+  | 'TemplateRaw'
+  | 'TemplateLeftBrace'
+  | 'TemplateRightBrace'
+  | 'OpenFilter'
+  | 'Char';
 
 export const TokenName: {
   [propName: string]: TokenTypeName;
 } = {};
-TokenName[TokenEnum.BooleanLiteral] = "Boolean";
-TokenName[TokenEnum.RAW] = "Raw";
-TokenName[TokenEnum.OpenScript] = "OpenScript";
-TokenName[TokenEnum.CloseScript] = "CloseScript";
-TokenName[TokenEnum.EOF] = "EOF";
-TokenName[TokenEnum.Identifier] = "Identifier";
-TokenName[TokenEnum.Literal] = "Literal";
-TokenName[TokenEnum.NumericLiteral] = "Numeric";
-TokenName[TokenEnum.Punctuator] = "Punctuator";
-TokenName[TokenEnum.StringLiteral] = "String";
-TokenName[TokenEnum.RegularExpression] = "RegularExpression";
-TokenName[TokenEnum.TemplateRaw] = "TemplateRaw";
-TokenName[TokenEnum.TemplateLeftBrace] = "TemplateLeftBrace";
-TokenName[TokenEnum.TemplateRightBrace] = "TemplateRightBrace";
-TokenName[TokenEnum.OpenFilter] = "OpenFilter";
-TokenName[TokenEnum.FilterFn] = "FilterFn";
-TokenName[TokenEnum.FilterSep] = "FilterSep";
-TokenName[TokenEnum.FilterArg] = "FilterArg";
+TokenName[TokenEnum.BooleanLiteral] = 'Boolean';
+TokenName[TokenEnum.RAW] = 'Raw';
+TokenName[TokenEnum.OpenScript] = 'OpenScript';
+TokenName[TokenEnum.CloseScript] = 'CloseScript';
+TokenName[TokenEnum.EOF] = 'EOF';
+TokenName[TokenEnum.Identifier] = 'Identifier';
+TokenName[TokenEnum.Literal] = 'Literal';
+TokenName[TokenEnum.NumericLiteral] = 'Numeric';
+TokenName[TokenEnum.Punctuator] = 'Punctuator';
+TokenName[TokenEnum.StringLiteral] = 'String';
+TokenName[TokenEnum.RegularExpression] = 'RegularExpression';
+TokenName[TokenEnum.TemplateRaw] = 'TemplateRaw';
+TokenName[TokenEnum.TemplateLeftBrace] = 'TemplateLeftBrace';
+TokenName[TokenEnum.TemplateRightBrace] = 'TemplateRightBrace';
+TokenName[TokenEnum.OpenFilter] = 'OpenFilter';
+TokenName[TokenEnum.Char] = 'Char';
 
 export interface Position {
   index: number;
@@ -92,13 +86,14 @@ export interface Token {
 const mainStates = {
   START: 0,
   SCRIPTING: 1,
-  TemplateRaw: 2,
-  FilterContent: 3,
+  BLOCK: 2,
+  Template: 3,
+  Filter: 4
 };
 
 const rawStates = {
   START: 0,
-  ESCAPE: 1,
+  ESCAPE: 1
 };
 
 const numberStates = {
@@ -109,112 +104,113 @@ const numberStates = {
   POINT: 4,
   DIGIT_FRACTION: 5,
   EXP: 6,
-  EXP_DIGIT_OR_SIGN: 7,
+  EXP_DIGIT_OR_SIGN: 7
 };
 
 const stringStates = {
   START: 0,
   START_QUOTE_OR_CHAR: 1,
-  ESCAPE: 2,
+  ESCAPE: 2
 };
 
 const filterStates = {
   START: 0,
   Func: 1,
   SEP: 2,
-  ESCAPE: 3,
+  ESCAPE: 3
 };
 
 const punctuatorList = [
-  "===",
-  "!==",
-  "==",
-  "!=",
-  "<>",
-  "<",
-  ">",
-  "<=",
-  ">=",
-  "||",
-  "&&",
-  "++",
-  "--",
-  "<<",
-  ">>",
-  ">>>",
-  "+=",
-  "*=",
-  "/=",
+  '===',
+  '!==',
+  '==',
+  '!=',
+  '<>',
+  '<',
+  '>',
+  '<=',
+  '>=',
+  '||',
+  '&&',
+  '++',
+  '--',
+  '<<',
+  '>>',
+  '>>>',
+  '+=',
+  '*=',
+  '/=',
 
-  "=",
-  "*",
-  "/",
-  "-",
-  "+",
-  "^",
-  "!",
-  "%",
-  "&",
-  "|",
-  "(",
-  ")",
-  "[",
-  "]",
-  "{",
-  "}",
-  "?",
-  ":",
-  ";",
-  ",",
-  ".",
+  '=',
+  '*',
+  '/',
+  '-',
+  '+',
+  '^',
+  '!',
+  '%',
+  '&',
+  '|',
+  '(',
+  ')',
+  '[',
+  ']',
+  '{',
+  '}',
+  '?',
+  ':',
+  ';',
+  ',',
+  '.',
+  '$'
 ];
 
 const escapes = {
   '"': 0, // Quotation mask
-  "\\": 1, // Reverse solidus
-  "/": 2, // Solidus
-  b: 3, // Backspace
-  f: 4, // Form feed
-  n: 5, // New line
-  r: 6, // Carriage return
-  t: 7, // Horizontal tab
-  u: 8, // 4 hexadecimal digits
+  '\\': 1, // Reverse solidus
+  '/': 2, // Solidus
+  'b': 3, // Backspace
+  'f': 4, // Form feed
+  'n': 5, // New line
+  'r': 6, // Carriage return
+  't': 7, // Horizontal tab
+  'u': 8 // 4 hexadecimal digits
 };
 
 function isDigit1to9(char: string) {
-  return char >= "1" && char <= "9";
+  return char >= '1' && char <= '9';
 }
 
 function isDigit(char: string) {
-  return char >= "0" && char <= "9";
+  return char >= '0' && char <= '9';
 }
 
 function isHex(char: string) {
   return (
     isDigit(char) ||
-    (char >= "a" && char <= "f") ||
-    (char >= "A" && char <= "F")
+    (char >= 'a' && char <= 'f') ||
+    (char >= 'A' && char <= 'F')
   );
 }
 
 function isExp(char: string) {
-  return char === "e" || char === "E";
+  return char === 'e' || char === 'E';
 }
 
 function escapeString(text: string, allowedLetter: Array<string> = []) {
   return text.replace(/\\(.)/g, function (_, text) {
-    return text === "b"
-      ? "\b"
-      : text === "f"
-      ? "\f"
-      : text === "n"
-      ? "\n"
-      : text === "r"
-      ? "\r"
-      : text === "t"
-      ? "\t"
-      : text === "v"
-      ? "\v"
+    return text === 'b'
+      ? '\b'
+      : text === 'f'
+      ? '\f'
+      : text === 'n'
+      ? '\n'
+      : text === 'r'
+      ? '\r'
+      : text === 't'
+      ? '\t'
+      : text === 'v'
+      ? '\v'
       : ~allowedLetter.indexOf(text)
       ? text
       : _;
@@ -230,26 +226,33 @@ export function lexer(input: string, options?: LexerOptions) {
   let column = 1;
   let index = 0;
   let mainState = mainStates.START;
-  let blockCount = 0;
-  let templateCount = 0;
+  const states: Array<any> = [mainState];
   let tokenCache: Array<Token> = [];
   const allowFilter = options?.allowFilter !== false;
 
   if (options?.evalMode) {
-    mainState = mainStates.SCRIPTING;
+    pushState(mainStates.SCRIPTING);
+  }
+
+  function pushState(state: any) {
+    states.push((mainState = state));
+  }
+  function popState() {
+    states.pop();
+    mainState = states[states.length - 1];
   }
 
   function position(value?: string) {
-    if (value && typeof value === "string") {
+    if (value && typeof value === 'string') {
       const lines = value.split(/[\r\n]+/);
       return {
         index: index + value.length,
         line: line + lines.length - 1,
-        column: column + lines[lines.length - 1].length,
+        column: column + lines[lines.length - 1].length
       };
     }
 
-    return { index: index, line, column };
+    return {index: index, line, column};
   }
 
   function eof(): Token | void | null {
@@ -258,7 +261,7 @@ export function lexer(input: string, options?: LexerOptions) {
         type: TokenName[TokenEnum.EOF],
         value: undefined,
         start: position(),
-        end: position(),
+        end: position()
       };
     }
   }
@@ -268,7 +271,7 @@ export function lexer(input: string, options?: LexerOptions) {
       return null;
     }
 
-    let buffer = "";
+    let buffer = '';
     let state = rawStates.START;
     let i = index;
 
@@ -276,7 +279,7 @@ export function lexer(input: string, options?: LexerOptions) {
       const ch = input[i];
 
       if (state === rawStates.ESCAPE) {
-        if (escapes.hasOwnProperty(ch) || ch === "$") {
+        if (escapes.hasOwnProperty(ch) || ch === '$') {
           buffer += ch;
           i++;
           state = rawStates.START;
@@ -287,14 +290,14 @@ export function lexer(input: string, options?: LexerOptions) {
           );
         }
       } else {
-        if (ch === "\\") {
+        if (ch === '\\') {
           buffer += ch;
           i++;
           state = rawStates.ESCAPE;
           continue;
-        } else if (ch === "$") {
+        } else if (ch === '$') {
           const nextCh = input[i + 1];
-          if (nextCh === "{") {
+          if (nextCh === '{') {
             break;
           }
         }
@@ -306,59 +309,42 @@ export function lexer(input: string, options?: LexerOptions) {
     if (i > index) {
       return {
         type: TokenName[TokenEnum.RAW],
-        value: escapeString(buffer, ["`", "$"]),
+        value: escapeString(buffer, ['`', '$']),
         raw: buffer,
         start: position(),
-        end: position(buffer),
+        end: position(buffer)
       };
     }
   }
 
   function openScript() {
-    if (mainState === mainStates.SCRIPTING) {
+    if (mainState !== mainStates.START) {
       return null;
     }
 
     const ch = input[index];
-    if (ch === "$") {
+    if (ch === '$') {
       const nextCh = input[index + 1];
-      if (nextCh === "{") {
-        mainState = mainStates.SCRIPTING;
+      if (nextCh === '{') {
+        pushState(mainStates.SCRIPTING);
         const value = input.substring(index, index + 2);
         return {
           type: TokenName[TokenEnum.OpenScript],
           value,
           start: position(),
-          end: position(value),
+          end: position(value)
         };
       }
     }
     return null;
   }
 
-  function closeScript() {
-    if (mainState !== mainStates.SCRIPTING) {
-      return null;
-    }
-
-    const ch = input[index];
-    if (!blockCount && ch === "}") {
-      mainState = templateCount ? mainStates.TemplateRaw : mainStates.START;
-      return {
-        type: TokenName[
-          templateCount ? TokenEnum.TemplateRightBrace : TokenEnum.CloseScript
-        ],
-        value: ch,
-        start: position(),
-        end: position(ch),
-      };
-    }
-
-    return null;
-  }
-
   function expression() {
-    if (mainState !== mainStates.SCRIPTING) {
+    if (
+      mainState !== mainStates.SCRIPTING &&
+      mainState !== mainStates.BLOCK &&
+      mainState !== mainStates.Filter
+    ) {
       return null;
     }
 
@@ -367,41 +353,116 @@ export function lexer(input: string, options?: LexerOptions) {
       identifier() ||
       numberLiteral() ||
       stringLiteral() ||
-      punctuator();
+      punctuator() ||
+      char();
 
-    if (token?.value === "{") {
-      blockCount++;
-    } else if (token?.value === "}") {
-      blockCount--;
+    if (token?.value === '{') {
+      pushState(mainStates.BLOCK);
+    } else if (token?.value === '}') {
+      if (mainState === mainStates.Filter) {
+        popState();
+      }
+
+      popState();
+
+      if (mainState === mainStates.Template || mainState === mainStates.START) {
+        return {
+          type: TokenName[
+            mainState === mainStates.Template
+              ? TokenEnum.TemplateRightBrace
+              : TokenEnum.CloseScript
+          ],
+          value: token!.value,
+          start: position(),
+          end: position(token!.value)
+        };
+      }
     }
 
     // filter 过滤器部分需要特殊处理
-    if (token?.value === "|" && !templateCount && allowFilter) {
-      mainState = mainStates.FilterContent;
+    if (
+      mainState !== mainStates.Filter &&
+      token?.value === '|' &&
+      states.length === 2 &&
+      allowFilter
+    ) {
+      pushState(mainStates.Filter);
       return {
         type: TokenName[TokenEnum.OpenFilter],
-        value: token.value,
+        value: '|',
         start: position(),
-        end: position(token.value),
+        end: position('|')
+      };
+    } else if (mainState === mainStates.Filter && token?.value === '|') {
+      return {
+        type: TokenName[TokenEnum.OpenFilter],
+        value: '|',
+        start: position(),
+        end: position('|')
       };
     }
 
-    if (!token && input[index] === "`") {
-      templateCount++;
-      mainState = mainStates.TemplateRaw;
+    if (!token && input[index] === '`') {
+      pushState(mainStates.Template);
       return {
         type: TokenName[TokenEnum.Punctuator],
-        value: "`",
+        value: '`',
         start: position(),
-        end: position("`"),
+        end: position('`')
       };
     }
 
     return token;
   }
 
+  function char() {
+    if (mainState !== mainStates.Filter) {
+      return null;
+    }
+
+    let i = index;
+    let ch = input[i];
+    if (ch === '\\') {
+      const nextCh = input[i + 1];
+
+      if (
+        nextCh === '$' ||
+        ~punctuatorList.indexOf(nextCh) ||
+        escapes.hasOwnProperty(nextCh)
+      ) {
+        i++;
+        ch =
+          nextCh === 'b'
+            ? '\b'
+            : nextCh === 'f'
+            ? '\f'
+            : nextCh === 'n'
+            ? '\n'
+            : nextCh === 'r'
+            ? '\r'
+            : nextCh === 't'
+            ? '\t'
+            : nextCh === 'v'
+            ? '\v'
+            : nextCh;
+      } else {
+        const pos = position(input.substring(index, index + 1));
+        throw new SyntaxError(
+          `Unexpected token ${ch} in ${pos.line}:${pos.column}`
+        );
+      }
+    }
+    const token = {
+      type: TokenName[TokenEnum.Char],
+      value: ch,
+      start: position(),
+      end: position(input.substring(index, i + 1))
+    };
+    return token;
+  }
+
   function template(): Token | void | null {
-    if (mainState !== mainStates.TemplateRaw) {
+    if (mainState !== mainStates.Template) {
       return null;
     }
     let state = stringStates.START;
@@ -410,7 +471,7 @@ export function lexer(input: string, options?: LexerOptions) {
       const ch = input[i];
 
       if (state === stringStates.ESCAPE) {
-        if (escapes.hasOwnProperty(ch) || ch === "`" || ch === "$") {
+        if (escapes.hasOwnProperty(ch) || ch === '`' || ch === '$') {
           i++;
           state = stringStates.START_QUOTE_OR_CHAR;
         } else {
@@ -419,28 +480,27 @@ export function lexer(input: string, options?: LexerOptions) {
             `Unexpected token ${ch} in ${pos.line}:${pos.column}`
           );
         }
-      } else if (ch === "\\") {
+      } else if (ch === '\\') {
         i++;
         state = stringStates.ESCAPE;
-      } else if (ch === "`") {
-        mainState = mainStates.SCRIPTING;
-        --templateCount;
+      } else if (ch === '`') {
+        popState();
         tokenCache.push({
           type: TokenName[TokenEnum.Punctuator],
-          value: "`",
+          value: '`',
           start: position(input.substring(index, i)),
-          end: position(input.substring(index, i + 1)),
+          end: position(input.substring(index, i + 1))
         });
         break;
-      } else if (ch === "$") {
+      } else if (ch === '$') {
         const nextCh = input[i + 1];
-        if (nextCh === "{") {
-          mainState = mainStates.SCRIPTING;
+        if (nextCh === '{') {
+          pushState(mainStates.SCRIPTING);
           tokenCache.push({
             type: TokenName[TokenEnum.TemplateLeftBrace],
-            value: "${",
+            value: '${',
             start: position(input.substring(index, i)),
-            end: position(input.substring(index, i + 2)),
+            end: position(input.substring(index, i + 2))
           });
           break;
         }
@@ -453,95 +513,11 @@ export function lexer(input: string, options?: LexerOptions) {
       const value = input.substring(index, i);
       return {
         type: TokenName[TokenEnum.TemplateRaw],
-        value: escapeString(value, ["`", "$"]),
+        value: escapeString(value, ['`', '$']),
         raw: value,
         start: position(),
-        end: position(value),
+        end: position(value)
       };
-    }
-    return tokenCache.length ? tokenCache.shift() : null;
-  }
-
-  function filter(): Token | void | null {
-    if (mainState !== mainStates.FilterContent) {
-      return null;
-    }
-    let state = filterStates.START;
-    let i = index;
-    let fnStart = i;
-    let argStart = i;
-
-    while (i < input.length) {
-      const ch = input[i];
-
-      if (state === filterStates.ESCAPE) {
-        if (escapes.hasOwnProperty(ch) || ch === ":") {
-          i++;
-          state = filterStates.SEP;
-          continue;
-        } else {
-          const pos = position(input.substring(index, i + 1));
-          throw new SyntaxError(
-            `Unexpected token ${ch} in ${pos.line}:${pos.column}`
-          );
-        }
-      } else if (state === filterStates.SEP) {
-        if (ch === "\\") {
-          state = filterStates.ESCAPE;
-          i++;
-          continue;
-        } else if (ch === "}" || ch === ":" || ch === "|") {
-          const arg = input.substring(argStart, i).trim();
-          tokenCache.push({
-            type: TokenName[TokenEnum.FilterArg],
-            value: escapeString(arg, [":"]),
-            raw: arg,
-            start: position(input.substring(index, argStart)),
-            end: position(input.substring(argStart, i)),
-          });
-        }
-      } else if (state === filterStates.START) {
-        if (ch === "}" || ch === ":" || ch === "|") {
-          const fn = input.substring(fnStart, i).trim();
-          tokenCache.push({
-            type: TokenName[TokenEnum.FilterFn],
-            value: fn,
-            start: position(input.substring(index, fnStart)),
-            end: position(input.substring(fnStart, i)),
-          });
-        }
-      }
-
-      if (ch === "}") {
-        tokenCache.push({
-          type: TokenName[TokenEnum.CloseScript],
-          value: ch,
-          start: position(input.substring(index, i)),
-          end: position(input.substring(index, i + 1)),
-        });
-        mainState = mainStates.START;
-        break;
-      } else if (ch === ":") {
-        tokenCache.push({
-          type: TokenName[TokenEnum.FilterSep],
-          value: ch,
-          start: position(input.substring(index, i - 1)),
-          end: position(input.substring(index, i)),
-        });
-        state = filterStates.SEP;
-        argStart = i + 1;
-      } else if (ch === "|") {
-        tokenCache.push({
-          type: TokenName[TokenEnum.OpenFilter],
-          value: ch,
-          start: position(input.substring(index, i - 1)),
-          end: position(input.substring(index, i)),
-        });
-        state = filterStates.START;
-        fnStart = i + 1;
-      }
-
-      i++;
     }
     return tokenCache.length ? tokenCache.shift() : null;
   }
@@ -549,21 +525,21 @@ export function lexer(input: string, options?: LexerOptions) {
   function skipWhiteSpace() {
     while (index < input.length) {
       const ch = input[index];
-      if (ch === "\r") {
+      if (ch === '\r') {
         // CR (Unix)
         index++;
         line++;
         column = 1;
-        if (input.charAt(index) === "\n") {
+        if (input.charAt(index) === '\n') {
           // CRLF (Windows)
           index++;
         }
-      } else if (ch === "\n") {
+      } else if (ch === '\n') {
         // LF (MacOS)
         index++;
         line++;
         column = 1;
-      } else if (ch === "\t" || ch === " ") {
+      } else if (ch === '\t' || ch === ' ') {
         index++;
         column++;
       } else {
@@ -574,7 +550,7 @@ export function lexer(input: string, options?: LexerOptions) {
 
   function punctuator() {
     const find = punctuatorList.find(
-      (punctuator) =>
+      punctuator =>
         input.substring(index, index + punctuator.length) === punctuator
     );
     if (find) {
@@ -582,7 +558,7 @@ export function lexer(input: string, options?: LexerOptions) {
         type: TokenName[TokenEnum.Punctuator],
         value: find,
         start: position(),
-        end: position(find),
+        end: position(find)
       };
     }
     return null;
@@ -592,17 +568,17 @@ export function lexer(input: string, options?: LexerOptions) {
     let keyword = input.substring(index, index + 4).toLowerCase();
     let value: any = keyword;
     let isLiteral = false;
-    if (keyword === "true" || keyword === "null") {
+    if (keyword === 'true' || keyword === 'null') {
       isLiteral = true;
-      value = keyword === "true" ? true : null;
+      value = keyword === 'true' ? true : null;
     } else if (
-      (keyword = input.substring(index, index + 5).toLowerCase()) === "false"
+      (keyword = input.substring(index, index + 5).toLowerCase()) === 'false'
     ) {
       isLiteral = true;
       value = false;
     } else if (
       (keyword = input.substring(index, index + 9).toLowerCase()) ===
-      "undefined"
+      'undefined'
     ) {
       isLiteral = true;
       value = undefined;
@@ -614,7 +590,7 @@ export function lexer(input: string, options?: LexerOptions) {
         value,
         raw: keyword,
         start: position(),
-        end: position(keyword),
+        end: position(keyword)
       };
     }
     return null;
@@ -631,9 +607,9 @@ export function lexer(input: string, options?: LexerOptions) {
 
       switch (state) {
         case numberStates.START: {
-          if (char === "-") {
+          if (char === '-') {
             state = numberStates.MINUS;
-          } else if (char === "0") {
+          } else if (char === '0') {
             passedValueIndex = i + 1;
             state = numberStates.ZERO;
           } else if (isDigit1to9(char)) {
@@ -646,7 +622,7 @@ export function lexer(input: string, options?: LexerOptions) {
         }
 
         case numberStates.MINUS: {
-          if (char === "0") {
+          if (char === '0') {
             passedValueIndex = i + 1;
             state = numberStates.ZERO;
           } else if (isDigit1to9(char)) {
@@ -659,7 +635,7 @@ export function lexer(input: string, options?: LexerOptions) {
         }
 
         case numberStates.ZERO: {
-          if (char === ".") {
+          if (char === '.') {
             state = numberStates.POINT;
           } else if (isExp(char)) {
             state = numberStates.EXP;
@@ -672,7 +648,7 @@ export function lexer(input: string, options?: LexerOptions) {
         case numberStates.DIGIT: {
           if (isDigit(char)) {
             passedValueIndex = i + 1;
-          } else if (char === ".") {
+          } else if (char === '.') {
             state = numberStates.POINT;
           } else if (isExp(char)) {
             state = numberStates.EXP;
@@ -704,7 +680,7 @@ export function lexer(input: string, options?: LexerOptions) {
         }
 
         case numberStates.EXP: {
-          if (char === "+" || char === "-") {
+          if (char === '+' || char === '-') {
             state = numberStates.EXP_DIGIT_OR_SIGN;
           } else if (isDigit(char)) {
             passedValueIndex = i + 1;
@@ -735,7 +711,7 @@ export function lexer(input: string, options?: LexerOptions) {
         value: formatNumber(value),
         raw: value,
         start: position(),
-        end: position(value),
+        end: position(value)
       };
     }
 
@@ -767,7 +743,7 @@ export function lexer(input: string, options?: LexerOptions) {
             `Unexpected token ${ch} in ${pos.line}:${pos.column}`
           );
         }
-      } else if (ch === "\\") {
+      } else if (ch === '\\') {
         i++;
         state = stringStates.ESCAPE;
       } else if (ch === startQuote) {
@@ -784,7 +760,7 @@ export function lexer(input: string, options?: LexerOptions) {
         value: escapeString(value.substring(1, value.length - 1), [startQuote]),
         raw: value,
         start: position(),
-        end: position(value),
+        end: position(value)
       };
     }
     return null;
@@ -792,7 +768,7 @@ export function lexer(input: string, options?: LexerOptions) {
 
   function identifier() {
     let i = index;
-    let chunk = "";
+    let chunk = '';
     while (i < input.length) {
       const ch = input[i];
       if (
@@ -810,7 +786,7 @@ export function lexer(input: string, options?: LexerOptions) {
         type: TokenName[TokenEnum.Identifier],
         value: value,
         start: position(),
-        end: position(value),
+        end: position(value)
       };
     }
     return null;
@@ -821,19 +797,11 @@ export function lexer(input: string, options?: LexerOptions) {
       return tokenCache.shift()!;
     }
 
-    if (mainState === mainStates.SCRIPTING) {
+    if (mainState === mainStates.SCRIPTING || mainState === mainStates.BLOCK) {
       skipWhiteSpace();
     }
 
-    return (
-      eof() ||
-      raw() ||
-      openScript() ||
-      closeScript() ||
-      expression() ||
-      template() ||
-      filter()
-    );
+    return eof() || raw() || openScript() || expression() || template();
   }
 
   return {
@@ -851,6 +819,6 @@ export function lexer(input: string, options?: LexerOptions) {
       throw new SyntaxError(
         `unexpected character "${input[index]}" at ${pos.line}:${pos.column}`
       );
-    },
+    }
   };
 }

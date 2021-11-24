@@ -1,4 +1,10 @@
-import {lexer as createLexer, Token, TokenEnum, TokenName} from './lexer';
+import {
+  lexer as createLexer,
+  Token,
+  TokenEnum,
+  TokenName,
+  TokenTypeName
+} from './lexer';
 
 export type NodeType = 'content' | 'raw' | 'conditional';
 
@@ -65,14 +71,67 @@ export function parse(input: string, options?: ParserOptions) {
 
   function fatal() {
     throw TypeError(
-      `Unexpected token ${token!.value} in ${token!.start.line}:${
-        token!.start.column
-      }`
+      `Unexpected token <${token.type}>${token!.value} in ${
+        token!.start.line
+      }:${token!.start.column}`
     );
+  }
+
+  function assert(result: any) {
+    if (!result) {
+      fatal();
+    }
+    return result;
   }
 
   function expression() {
     return assignmentExpression();
+  }
+
+  function skipWhiteSpaceChar() {
+    while (
+      token.type === TokenName[TokenEnum.Char] &&
+      /^\s+$/m.test(token.value)
+    ) {
+      next();
+    }
+  }
+
+  function collectFilterArg() {
+    const arg: Array<any> = [];
+    while (
+      !matchPunctuator(':') &&
+      token.type !== TokenName[TokenEnum.OpenFilter] &&
+      token.type !== TokenName[TokenEnum.CloseScript]
+    ) {
+      const item =
+        literal() ||
+        template() ||
+        arrayLiteral() ||
+        objectLiteral() ||
+        variable();
+
+      if (item) {
+        arg.push(item);
+      } else {
+        assert(
+          ~[
+            TokenName[TokenEnum.Identifier],
+            TokenName[TokenEnum.Punctuator],
+            TokenName[TokenEnum.Char]
+          ].indexOf(token.type)
+        );
+
+        // 其他的都当字符处理
+        if (arg.length && typeof arg[arg.length - 1] === 'string') {
+          arg[arg.length - 1] += token.raw || token.value;
+        } else {
+          arg.push(token.raw || token.value);
+        }
+        next();
+      }
+    }
+    return arg;
   }
 
   function complexExpression() {
@@ -81,21 +140,31 @@ export function parse(input: string, options?: ParserOptions) {
     while (token.type === TokenName[TokenEnum.OpenFilter]) {
       next();
 
-      if (token.type !== TokenName[TokenEnum.FilterFn]) {
-        fatal();
-      }
-      const fnName = token.value;
+      skipWhiteSpaceChar();
+      const name = assert(identifier());
+      const fnName = name.name;
       const args = [];
-      next();
 
-      while (token.type === TokenName[TokenEnum.FilterSep]) {
+      skipWhiteSpaceChar();
+      while (matchPunctuator(':')) {
         next();
+        skipWhiteSpaceChar();
 
-        if (token.type !== TokenName[TokenEnum.FilterArg]) {
-          fatal();
+        let argContents: any = collectFilterArg();
+        if (argContents.length === 1) {
+          argContents = argContents[0];
+        } else if (!argContents.length) {
+          argContents = '';
         }
-        args.push(token.value);
-        next();
+
+        args.push(
+          Array.isArray(argContents)
+            ? {
+                type: 'mixed',
+                body: argContents
+              }
+            : argContents
+        );
       }
       ast = {
         type: 'filter',
@@ -118,26 +187,19 @@ export function parse(input: string, options?: ParserOptions) {
     if (matchPunctuator('?')) {
       next();
       let consequent = assignmentExpression();
-      if (!consequent) {
-        fatal();
-      }
+      assert(consequent);
+      assert(matchPunctuator(':'));
 
-      if (matchPunctuator(':')) {
-        next();
-        let alternate = assignmentExpression();
-        if (!alternate) {
-          fatal();
-        }
+      next();
+      let alternate = assignmentExpression();
+      assert(alternate);
 
-        return {
-          type: 'conditional',
-          test: ast,
-          consequent: consequent,
-          alternate: alternate
-        };
-      } else {
-        fatal();
-      }
+      return {
+        type: 'conditional',
+        test: ast,
+        consequent: consequent,
+        alternate: alternate
+      };
     }
 
     return ast;
@@ -159,11 +221,7 @@ export function parse(input: string, options?: ParserOptions) {
     if (matchPunctuator(operator)) {
       while (matchPunctuator(operator)) {
         next();
-        const right = rightParseFunction();
-
-        if (!right) {
-          fatal();
-        }
+        const right = assert(rightParseFunction());
 
         ast = {
           type: type,
@@ -251,9 +309,7 @@ export function parse(input: string, options?: ParserOptions) {
       next();
     }
     let ast: any = postfixExpression();
-    if (stack.length && !ast) {
-      fatal();
-    }
+    assert(!stack.length || ast);
     while (stack.length) {
       const op = stack.pop();
 
@@ -275,10 +331,7 @@ export function parse(input: string, options?: ParserOptions) {
     while (matchPunctuator('[') || matchPunctuator('.')) {
       const isDot = matchPunctuator('.');
       next();
-      const right = isDot ? identifier() : varibleKey();
-      if (!right) {
-        fatal();
-      }
+      const right = assert(isDot ? identifier() : varibleKey());
 
       if (!isDot) {
         if (matchPunctuator(']')) {
@@ -333,15 +386,10 @@ export function parse(input: string, options?: ParserOptions) {
       };
       while (true) {
         if (state === tempalteStates.SCRIPTING) {
-          const exp = expression();
-          if (!exp) {
-            fatal();
-          }
+          const exp = assert(expression());
           ast.body.push(exp);
+          assert(token.type === TokenName[TokenEnum.TemplateRightBrace]);
 
-          if (token.type !== TokenName[TokenEnum.TemplateRightBrace]) {
-            fatal();
-          }
           state = tempalteStates.START;
           next();
         } else {
@@ -378,6 +426,21 @@ export function parse(input: string, options?: ParserOptions) {
     return null;
   }
 
+  function variable() {
+    if (matchPunctuator('$')) {
+      next();
+      if (matchPunctuator('{')) {
+        const ast = assert(identifier());
+        assert(matchPunctuator('}'));
+        next();
+        return ast;
+      } else {
+        back();
+      }
+    }
+    return null;
+  }
+
   function primaryExpression() {
     return (
       identifier() ||
@@ -393,7 +456,8 @@ export function parse(input: string, options?: ParserOptions) {
         }
 
         return ast;
-      })()
+      })() ||
+      variable()
     );
   }
 
@@ -451,10 +515,7 @@ export function parse(input: string, options?: ParserOptions) {
 
       while (true) {
         if (state === argListStates.COMMA || !matchPunctuator(endOp)) {
-          const arg = expression();
-          if (!arg) {
-            fatal();
-          }
+          const arg = assert(expression());
           args.push(arg);
           state = argListStates.START;
 
@@ -486,16 +547,11 @@ export function parse(input: string, options?: ParserOptions) {
       let key: any, value: any;
       while (true) {
         if (state === objectStates.KEY) {
-          if (!matchPunctuator(':')) {
-            fatal();
-          }
+          assert(matchPunctuator(':'));
           next();
           state = objectStates.COLON;
         } else if (state === objectStates.COLON) {
-          value = expression();
-          if (!key) {
-            fatal();
-          }
+          value = assert(expression());
           ast.members.push({
             key,
             value
@@ -515,10 +571,7 @@ export function parse(input: string, options?: ParserOptions) {
             break;
           }
 
-          key = varibleKey();
-          if (!key) {
-            fatal();
-          }
+          key = assert(varibleKey());
           state = objectStates.KEY;
         }
       }
@@ -588,9 +641,7 @@ export function parse(input: string, options?: ParserOptions) {
 
   next();
   const ast = options?.evalMode ? expression() : contents();
-  if (token!?.type !== TokenName[TokenEnum.EOF]) {
-    fatal();
-  }
+  assert(token!?.type === TokenName[TokenEnum.EOF]);
 
   return ast;
 }
