@@ -15,6 +15,7 @@ export interface LexerOptions {
 export const enum TokenEnum {
   BooleanLiteral = 1,
   RAW,
+  Variable,
   OpenScript,
   CloseScript,
   EOF,
@@ -34,6 +35,7 @@ export const enum TokenEnum {
 export type TokenTypeName =
   | 'Boolean'
   | 'Raw'
+  | 'Variable'
   | 'OpenScript'
   | 'CloseScript'
   | 'EOF'
@@ -54,6 +56,7 @@ export const TokenName: {
 } = {};
 TokenName[TokenEnum.BooleanLiteral] = 'Boolean';
 TokenName[TokenEnum.RAW] = 'Raw';
+TokenName[TokenEnum.Variable] = 'Variable';
 TokenName[TokenEnum.OpenScript] = 'OpenScript';
 TokenName[TokenEnum.CloseScript] = 'CloseScript';
 TokenName[TokenEnum.EOF] = 'EOF';
@@ -85,10 +88,11 @@ export interface Token {
 
 const mainStates = {
   START: 0,
-  SCRIPTING: 1,
-  BLOCK: 2,
-  Template: 3,
-  Filter: 4
+  SCRIPT: 1,
+  EXPRESSION: 2,
+  BLOCK: 3,
+  Template: 4,
+  Filter: 5
 };
 
 const rawStates = {
@@ -231,7 +235,7 @@ export function lexer(input: string, options?: LexerOptions) {
   const allowFilter = options?.allowFilter !== false;
 
   if (options?.evalMode) {
-    pushState(mainStates.SCRIPTING);
+    pushState(mainStates.EXPRESSION);
   }
 
   function pushState(state: any) {
@@ -299,6 +303,38 @@ export function lexer(input: string, options?: LexerOptions) {
           const nextCh = input[i + 1];
           if (nextCh === '{') {
             break;
+          } else if (nextCh === '$') {
+            // $$ 用法兼容
+            tokenCache.push({
+              type: TokenName[TokenEnum.Variable],
+              value: '&',
+              raw: '$$',
+              start: position(input.substring(index, i)),
+              end: position(input.substring(index, i + 2))
+            });
+            break;
+          } else {
+            // 支持旧的 $varName 的取值方法
+            let j = i + 2;
+            while (
+              /^[a-zA-Z0-9_.][a-zA-Z0-9_.\[\]]*$/.test(
+                input.substring(i + 1, j)
+              ) &&
+              j <= input.length
+            ) {
+              j++;
+            }
+
+            if (j - i > 2) {
+              tokenCache.push({
+                type: TokenName[TokenEnum.Variable],
+                value: input.substring(i + 1, j),
+                raw: input.substring(i, j),
+                start: position(input.substring(index, i)),
+                end: position(input.substring(index, j))
+              });
+              break;
+            }
           }
         }
         i++;
@@ -315,18 +351,15 @@ export function lexer(input: string, options?: LexerOptions) {
         end: position(buffer)
       };
     }
+    return tokenCache.length ? tokenCache.shift() : null;
   }
 
   function openScript() {
-    if (mainState !== mainStates.START) {
-      return null;
-    }
-
     const ch = input[index];
     if (ch === '$') {
       const nextCh = input[index + 1];
       if (nextCh === '{') {
-        pushState(mainStates.SCRIPTING);
+        pushState(mainStates.SCRIPT);
         const value = input.substring(index, index + 2);
         return {
           type: TokenName[TokenEnum.OpenScript],
@@ -341,7 +374,8 @@ export function lexer(input: string, options?: LexerOptions) {
 
   function expression() {
     if (
-      mainState !== mainStates.SCRIPTING &&
+      mainState !== mainStates.SCRIPT &&
+      mainState !== mainStates.EXPRESSION &&
       mainState !== mainStates.BLOCK &&
       mainState !== mainStates.Filter
     ) {
@@ -363,12 +397,16 @@ export function lexer(input: string, options?: LexerOptions) {
         popState();
       }
 
+      const prevState = mainState;
       popState();
 
-      if (mainState === mainStates.Template || mainState === mainStates.START) {
+      if (
+        prevState === mainStates.SCRIPT ||
+        prevState === mainStates.EXPRESSION
+      ) {
         return {
           type: TokenName[
-            mainState === mainStates.Template
+            prevState === mainStates.EXPRESSION
               ? TokenEnum.TemplateRightBrace
               : TokenEnum.CloseScript
           ],
@@ -381,9 +419,8 @@ export function lexer(input: string, options?: LexerOptions) {
 
     // filter 过滤器部分需要特殊处理
     if (
-      mainState !== mainStates.Filter &&
+      mainState === mainStates.SCRIPT &&
       token?.value === '|' &&
-      states.length === 2 &&
       allowFilter
     ) {
       pushState(mainStates.Filter);
@@ -495,7 +532,7 @@ export function lexer(input: string, options?: LexerOptions) {
       } else if (ch === '$') {
         const nextCh = input[i + 1];
         if (nextCh === '{') {
-          pushState(mainStates.SCRIPTING);
+          pushState(mainStates.EXPRESSION);
           tokenCache.push({
             type: TokenName[TokenEnum.TemplateLeftBrace],
             value: '${',
@@ -797,7 +834,11 @@ export function lexer(input: string, options?: LexerOptions) {
       return tokenCache.shift()!;
     }
 
-    if (mainState === mainStates.SCRIPTING || mainState === mainStates.BLOCK) {
+    if (
+      mainState === mainStates.SCRIPT ||
+      mainState === mainStates.EXPRESSION ||
+      mainState === mainStates.BLOCK
+    ) {
       skipWhiteSpace();
     }
 

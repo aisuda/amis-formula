@@ -108,8 +108,8 @@ export function parse(input: string, options?: ParserOptions) {
         literal() ||
         template() ||
         arrayLiteral() ||
-        objectLiteral() ||
-        variable();
+        rawScript() ||
+        objectLiteral();
 
       if (item) {
         arg.push(item);
@@ -130,6 +130,9 @@ export function parse(input: string, options?: ParserOptions) {
         }
         next();
       }
+    }
+    if (arg.length && typeof arg[arg.length - 1] === 'string') {
+      arg[arg.length - 1] = arg[arg.length - 1].replace(/\s+$/, '');
     }
     return arg;
   }
@@ -331,7 +334,12 @@ export function parse(input: string, options?: ParserOptions) {
     while (matchPunctuator('[') || matchPunctuator('.')) {
       const isDot = matchPunctuator('.');
       next();
-      const right = assert(isDot ? identifier() : varibleKey());
+      const right = assert(
+        isDot
+          ? identifier() /* 为了兼容久的语法，理论上来说只需要 identifier, 下面的 rawScript 是不应该有的 */ ||
+              rawScript()
+          : varibleKey()
+      );
 
       if (!isDot) {
         if (matchPunctuator(']')) {
@@ -426,21 +434,6 @@ export function parse(input: string, options?: ParserOptions) {
     return null;
   }
 
-  function variable() {
-    if (matchPunctuator('$')) {
-      next();
-      if (matchPunctuator('{')) {
-        const ast = assert(identifier());
-        assert(matchPunctuator('}'));
-        next();
-        return ast;
-      } else {
-        back();
-      }
-    }
-    return null;
-  }
-
   function primaryExpression() {
     return (
       identifier() ||
@@ -457,7 +450,7 @@ export function parse(input: string, options?: ParserOptions) {
 
         return ast;
       })() ||
-      variable()
+      rawScript()
     );
   }
 
@@ -591,7 +584,7 @@ export function parse(input: string, options?: ParserOptions) {
       body: []
     };
     while (token.type !== TokenName[TokenEnum.EOF]) {
-      const ast = raw() || rawScript();
+      const ast = raw() || rawScript() || oldVariable();
 
       if (!ast) {
         break;
@@ -634,8 +627,23 @@ export function parse(input: string, options?: ParserOptions) {
     next();
 
     return {
-      type: 'expression',
+      type: 'script',
       body: exp
+    };
+  }
+
+  function oldVariable() {
+    if (token.type !== TokenName[TokenEnum.Variable]) {
+      return null;
+    }
+    const prevToken = token;
+    next();
+    return {
+      type: 'script',
+      body: {
+        type: 'variable',
+        name: prevToken.value
+      }
     };
   }
 

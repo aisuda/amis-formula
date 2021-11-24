@@ -3,6 +3,7 @@
  */
 
 import moment from 'moment';
+import {getFilters} from './filter';
 
 export interface FilterMap {
   [propName: string]: (this: any, input: any, ...args: any[]) => any;
@@ -22,12 +23,23 @@ export interface EvaluatorOptions {
    * 可以外部扩充 filter
    */
   filters?: FilterMap;
+
+  defaultFilter?: string;
 }
 
 export class Evaluator {
-  constructor(readonly options?: EvaluatorOptions) {
+  readonly filters: FilterMap;
+  readonly functions: FunctionMap = {};
+  data: any;
+
+  constructor(
+    readonly options: EvaluatorOptions = {
+      defaultFilter: 'html'
+    }
+  ) {
     this.filters = {
       ...this.filters,
+      ...getFilters(),
       ...options?.filters
     };
     this.functions = {
@@ -35,9 +47,6 @@ export class Evaluator {
       ...options?.functions
     };
   }
-  data: any;
-  filters: FilterMap = {};
-  functions: FunctionMap = {};
 
   // 主入口
   evalute(ast: any, data: any = {}) {
@@ -59,7 +68,12 @@ export class Evaluator {
   }
 
   document(ast: {type: 'document'; body: Array<any>}, data: any) {
-    return ast.body.map(item => `${this.evalute(item, data)}`).join('');
+    if (!ast.body.length) {
+      return undefined;
+    }
+
+    const content = ast.body.map(item => this.evalute(item, data));
+    return content.length === 1 ? content[0] : content.join('');
   }
 
   filter(
@@ -99,7 +113,18 @@ export class Evaluator {
     return ast.value;
   }
 
-  expression(ast: {type: 'expression'; body: any}, data: any) {
+  script(ast: {type: 'script'; body: any}, data: any) {
+    const defaultFilter = this.options.defaultFilter;
+
+    if (defaultFilter && ast.body?.type !== 'filter') {
+      ast.body = {
+        type: 'filter',
+        input: ast.body,
+        fnName: defaultFilter.replace(/^\|\s/, ''),
+        args: []
+      };
+    }
+
     return this.evalute(ast.body, data);
   }
 
@@ -298,7 +323,7 @@ export class Evaluator {
   }
 
   variable(ast: {name: string}, data: any) {
-    return data[ast.name];
+    return ast.name === '&' ? data : data[ast.name];
   }
 
   array(ast: {type: 'array'; members: Array<any>}, data: any) {
