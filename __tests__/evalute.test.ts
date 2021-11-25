@@ -246,3 +246,17 @@ test('evalute:object-variable', () => {
   expect(evaluate('a is ${obj[key]}', data)).toBe('a is 1');
   expect(evaluate('a is ${obj[${key}]}', data)).toBe('a is 1');
 });
+
+test('evalute:literal-variable', () => {
+  const data = {
+    key: 'x',
+    index: 0,
+    obj: {
+      x: 1,
+      y: 2
+    }
+  };
+
+  // expect(evaluate('a is ${({x: 1})["x"]}', data)).toBe('a is 1');
+  expect(evaluate('a is ${(["a", "b"])[index]}', data)).toBe('a is a');
+});

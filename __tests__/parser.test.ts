@@ -177,7 +177,7 @@ test('parser:unary-expression', () => {
 test('parser:test', () => {
   console.log(
     JSON.stringify(
-      parse('a is ${obj[key]}', {
+      parse('a is ${({x: 1}).x}', {
         evalMode: false
       }),
       null,

@@ -71,9 +71,9 @@ export function parse(input: string, options?: ParserOptions) {
 
   function fatal() {
     throw TypeError(
-      `Unexpected token <${token.type}>${token!.value} in ${
-        token!.start.line
-      }:${token!.start.column}`
+      `Unexpected token ${token!.value} in ${token!.start.line}:${
+        token!.start.column
+      }`
     );
   }
 
@@ -624,12 +624,7 @@ export function parse(input: string, options?: ParserOptions) {
     }
 
     next();
-    const exp = complexExpression();
-    if (!exp) {
-      throw TypeError(
-        `Unexpected token ${token.value} in ${token.start.line}:${token.start.column}`
-      );
-    }
+    const exp = assert(complexExpression());
     if (token.type !== TokenName[TokenEnum.CloseScript]) {
       throw TypeError(
         `expect ${TokenName[TokenEnum.CloseScript]} got ${token.type}`

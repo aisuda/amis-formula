@@ -355,7 +355,7 @@ export class Evaluator {
   variable(ast: {name: string}, data: any) {
     return ast.name === '&' ? data : data[ast.name];
   }
-  
+
   identifier(ast: {name: string}, data: any) {
     return ast.name;
   }
@@ -372,9 +372,9 @@ export class Evaluator {
     return ast.value;
   }
 
-  object(ast: {memebers: Array<{key: string; value: any}>}, data: any) {
+  object(ast: {members: Array<{key: string; value: any}>}, data: any) {
     let object: any = {};
-    ast.memebers.forEach(({key, value}) => {
+    ast.members.forEach(({key, value}) => {
       object[key] = this.evalute(value, data);
     });
     return object;
