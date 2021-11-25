@@ -79,8 +79,17 @@ export class Evaluator {
     if (!ast.body.length) {
       return undefined;
     }
+    const isString = ast.body.length > 1;
+    const content = ast.body.map(item => {
+      let result = this.evalute(item, data);
 
-    const content = ast.body.map(item => this.evalute(item, data));
+      if (isString && result == null) {
+        // 不要出现 undefined, null 之类的文案
+        return '';
+      }
+
+      return result;
+    });
     return content.length === 1 ? content[0] : content.join('');
   }
 
