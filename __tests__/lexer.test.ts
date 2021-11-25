@@ -36,6 +36,6 @@ test('lexer:filter', () => {
   ).toMatchSnapshot();
 });
 
-test('lexer:test', () => {
-  // console.log(getTokens('${a | isTrue: true : false}'));
-});
+// test('lexer:test', () => {
+//   console.log(getTokens("{a: 1, 'b': 2, `c`: 3, d: {}}", {evalMode: true}));
+// });

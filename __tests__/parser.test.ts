@@ -174,14 +174,14 @@ test('parser:unary-expression', () => {
   ).toMatchSnapshot();
 });
 
-test('parser:test', () => {
-  console.log(
-    JSON.stringify(
-      parse('a is ${({x: 1}).x}', {
-        evalMode: false
-      }),
-      null,
-      2
-    )
-  );
-});
+// test('parser:test', () => {
+//   console.log(
+//     JSON.stringify(
+//       parse("{a: 1, 'b': 2, `c`: 3, d: {}}", {
+//         evalMode: true
+//       }),
+//       null,
+//       2
+//     )
+//   );
+// });

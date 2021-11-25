@@ -407,9 +407,8 @@ export function parse(input: string, options?: ParserOptions) {
           const exp = assert(expression());
           ast.body.push(exp);
           assert(token.type === TokenName[TokenEnum.TemplateRightBrace]);
-
-          state = tempalteStates.START;
           next();
+          state = tempalteStates.START;
         } else {
           if (matchPunctuator('`')) {
             next();
@@ -423,6 +422,8 @@ export function parse(input: string, options?: ParserOptions) {
               value: token.value
             });
             next();
+          } else {
+            fatal();
           }
         }
       }
@@ -568,6 +569,8 @@ export function parse(input: string, options?: ParserOptions) {
           } else if (matchPunctuator('}')) {
             next();
             break;
+          } else {
+            fatal();
           }
         } else {
           if (state != objectStates.COMMA && matchPunctuator('}')) {

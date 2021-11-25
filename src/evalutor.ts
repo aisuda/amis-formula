@@ -162,8 +162,8 @@ export class Evaluator {
     return ast.body.reduce((prev, current) => this.evalute(current, data));
   }
 
-  template(ast: {type: 'template'; args: Array<any>}, data: any) {
-    return ast.args.map(arg => this.evalute(arg, data)).join('');
+  template(ast: {type: 'template'; body: Array<any>}, data: any) {
+    return ast.body.map(arg => this.evalute(arg, data)).join('');
   }
 
   templateRaw(ast: {type: 'template_raw'; value: any}) {
@@ -375,7 +375,7 @@ export class Evaluator {
   object(ast: {members: Array<{key: string; value: any}>}, data: any) {
     let object: any = {};
     ast.members.forEach(({key, value}) => {
-      object[key] = this.evalute(value, data);
+      object[this.evalute(key)] = this.evalute(value, data);
     });
     return object;
   }

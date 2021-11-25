@@ -355,6 +355,10 @@ export function lexer(input: string, options?: LexerOptions) {
   }
 
   function openScript() {
+    if (mainState === mainStates.Template) {
+      return null;
+    }
+    
     const ch = input[index];
     if (ch === '$') {
       const nextCh = input[index + 1];
