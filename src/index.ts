@@ -1,7 +1,8 @@
 import {Evaluator, EvaluatorOptions} from './evalutor';
 import {parse, ParserOptions} from './parser';
 import {lexer} from './lexer';
-export {parse, lexer, Evaluator};
+import {registerFilter, filters, getFilters} from './filter';
+export {parse, lexer, Evaluator, filters, getFilters, registerFilter};
 export * from './util';
 
 export function evaluate(
