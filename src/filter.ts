@@ -45,7 +45,12 @@ export const filters: FilterMap = {
     Array.isArray(input) && filters[fn]
       ? input.map(item => filters[fn].call(this, item, ...arg))
       : input,
-  html: (input: string) => escapeHtml(input),
+  html: (input: string) => {
+    if (input == null) {
+      return input;
+    }
+    return escapeHtml(input);
+  },
   json: (input, tabSize: number | string = 2) =>
     tabSize
       ? JSON.stringify(input, null, parseInt(tabSize as string, 10))

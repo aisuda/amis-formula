@@ -123,6 +123,12 @@ test('evalute:oldVariable', () => {
       a: 4
     })
   ).toBe('a is 4');
+
+  expect(
+    evaluate('b is $b', {
+      a: 4
+    })
+  ).toBe('b is ');
 });
 
 test('evalute:oldVariable2', () => {
