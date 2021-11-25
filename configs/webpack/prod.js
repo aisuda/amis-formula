@@ -8,6 +8,9 @@ const commonConfig = require("./common");
 
 module.exports = merge(commonConfig, {
   mode: "production",
+  optimization:{
+    minimize: false
+  },
   entry: {
     index: ["./index.ts"],
     // editor: ['./editor.tsx'],
