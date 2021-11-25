@@ -265,3 +265,59 @@ test('evalute:literal-variable', () => {
   expect(evaluate('a is ${(["a", "b"])[1]}', data)).toBe('a is b');
   expect(evaluate('a is ${(["a", "b"]).0}', data)).toBe('a is a');
 });
+
+test('evalute:tempalte', () => {
+  const data = {
+    key: 'x'
+  };
+
+  expect(evaluate('abc${`11${3}22`}xyz', data)).toBe('abc11322xyz');
+  expect(evaluate('abc${`${3}22`}xyz', data)).toBe('abc322xyz');
+  expect(evaluate('abc${`11${3}`}xyz', data)).toBe('abc113xyz');
+  expect(evaluate('abc${`${3}`}xyz', data)).toBe('abc3xyz');
+  expect(evaluate('abc${`${key}`}xyz', data)).toBe('abcxxyz');
+});
+
+test('evalute:literal', () => {
+  const data = {
+    dynamicKey: 'alpha'
+  };
+
+  expect(
+    evaluate('${{a: 1, 0: 2, "3": 3}}', data, {
+      defaultFilter: 'raw'
+    })
+  ).toMatchObject({
+    a: 1,
+    0: 2,
+    3: 3
+  });
+
+  expect(
+    evaluate('${{a: 1, 0: 2, "3": 3, [`4`]: 4}}', data, {
+      defaultFilter: 'raw'
+    })
+  ).toMatchObject({
+    a: 1,
+    0: 2,
+    3: 3,
+    4: 4
+  });
+
+  expect(
+    evaluate('${{a: 1, 0: 2, "3": 3, [`${dynamicKey}233`]: 4}}', data, {
+      defaultFilter: 'raw'
+    })
+  ).toMatchObject({
+    a: 1,
+    0: 2,
+    3: 3,
+    alpha233: 4
+  });
+
+  expect(
+    evaluate('${[1, 2, `2${dynamicKey}2`, {a: 1, 0: 2, [`2`]: "3"}]}', data, {
+      defaultFilter: 'raw'
+    })
+  ).toMatchObject([1, 2, `2alpha2`, {a: 1, 0: 2, [`2`]: '3'}]);
+});

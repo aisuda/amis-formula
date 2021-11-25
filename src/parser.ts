@@ -376,13 +376,24 @@ export function parse(input: string, options?: ParserOptions) {
     return functionCall() || primaryExpression();
   }
 
-  function varibleKey(allowVariable = false) {
+  function varibleKey(allowVariable = false, inObject = false) {
     return (
       (allowVariable ? variable() : identifier()) ||
       stringLiteral() ||
       numberLiteral() ||
-      template()
+      (inObject ? objectTemplateKey() : template())
     );
+  }
+
+  function objectTemplateKey() {
+    if (matchPunctuator('[')) {
+      next();
+      const key = assert(template());
+      assert(matchPunctuator(']'));
+      next();
+      return key;
+    }
+    return null;
   }
 
   function stringLiteral() {
@@ -594,7 +605,7 @@ export function parse(input: string, options?: ParserOptions) {
             break;
           }
 
-          key = assert(varibleKey());
+          key = assert(varibleKey(false, true));
           state = objectStates.KEY;
         }
       }

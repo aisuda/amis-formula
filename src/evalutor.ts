@@ -375,7 +375,7 @@ export class Evaluator {
   object(ast: {members: Array<{key: string; value: any}>}, data: any) {
     let object: any = {};
     ast.members.forEach(({key, value}) => {
-      object[this.evalute(key)] = this.evalute(value, data);
+      object[this.evalute(key, data)] = this.evalute(value, data);
     });
     return object;
   }
