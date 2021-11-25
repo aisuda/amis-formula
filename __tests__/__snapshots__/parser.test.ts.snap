@@ -215,8 +215,12 @@ Object {
     },
     Object {
       "body": Object {
-        "args": Array [],
-        "fnName": "html",
+        "filters": Array [
+          Object {
+            "args": Array [],
+            "name": "html",
+          },
+        ],
         "input": Object {
           "name": "abc",
           "type": "variable",
@@ -239,10 +243,14 @@ Object {
     },
     Object {
       "body": Object {
-        "args": Array [
-          "YYYY-MM-DD HH:mm:ss",
+        "filters": Array [
+          Object {
+            "args": Array [
+              "YYYY-MM-DD HH:mm:ss",
+            ],
+            "name": "date",
+          },
         ],
-        "fnName": "date",
         "input": Object {
           "name": "abc",
           "type": "variable",

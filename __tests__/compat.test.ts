@@ -1,5 +1,5 @@
 import moment from 'moment';
-import {evaluate} from '../src';
+import {resolveVariableAndFilter} from '../src';
 
 const filters = [
   {
@@ -459,9 +459,12 @@ const filters = [
 
 filters.forEach(f => {
   test(`compat:${f.type}`, () => {
-    const result = evaluate(f.path, f.data, {
-      defaultFilter: f.filter
-    });
+    const result = resolveVariableAndFilter(f.path, f.data, f.filter);
     expect(result).toEqual(f.expectValue);
   });
+});
+
+test(`compat:test`, () => {
+  const result = resolveVariableAndFilter('', {}, '| raw');
+  expect(result).toEqual(undefined);
 });

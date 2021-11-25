@@ -6,11 +6,19 @@ import moment from 'moment';
 import {getFilters} from './filter';
 
 export interface FilterMap {
-  [propName: string]: (this: any, input: any, ...args: any[]) => any;
+  [propName: string]: (this: FilterContext, input: any, ...args: any[]) => any;
 }
 
 export interface FunctionMap {
   [propName: string]: (this: Evaluator, ast: Object, data: any) => any;
+}
+
+export interface FilterContext {
+  data: Object;
+  restFilters: Array<{
+    name: string;
+    args: Array<any>;
+  }>;
 }
 
 export interface EvaluatorOptions {
@@ -77,30 +85,45 @@ export class Evaluator {
   }
 
   filter(
-    ast: {type: 'filter'; input: any; fnName: string; args: Array<any>},
+    ast: {
+      type: 'filter';
+      input: any;
+      filters: Array<{name: string; args: Array<any>}>;
+    },
     data: any
   ) {
-    const fn = this.filters[ast.fnName];
-    if (!fn) {
-      throw new Error(`filter \`${ast.fnName}\` not exits`);
-    }
-    return fn.apply(
+    let input = this.evalute(ast.input, data);
+    const filters = ast.filters.concat();
+    const context = {
       data,
-      [this.evalute(ast.input, data)].concat(
-        ast.args.map((item: any) => {
-          if (item?.type === 'mixed') {
-            return item.body
-              .map((item: any) =>
-                typeof item === 'string' ? item : this.evalute(item, data)
-              )
-              .join('');
-          } else if (item.type) {
-            return this.evalute(item, data);
-          }
-          return item;
-        })
-      )
-    );
+      restFilters: filters
+    };
+
+    while (filters.length) {
+      const filter = filters.shift()!;
+      const fn = this.filters[filter.name];
+      if (!fn) {
+        throw new Error(`filter \`${filter.name}\` not exits`);
+      }
+      input = fn.apply(
+        context,
+        [input].concat(
+          filter.args.map((item: any) => {
+            if (item?.type === 'mixed') {
+              return item.body
+                .map((item: any) =>
+                  typeof item === 'string' ? item : this.evalute(item, data)
+                )
+                .join('');
+            } else if (item.type) {
+              return this.evalute(item, data);
+            }
+            return item;
+          })
+        )
+      );
+    }
+    return input;
   }
 
   raw(ast: {type: 'raw'; value: string}) {
@@ -114,8 +137,12 @@ export class Evaluator {
       ast.body = {
         type: 'filter',
         input: ast.body,
-        fnName: defaultFilter.replace(/^\|\s/, ''),
-        args: []
+        filters: [
+          {
+            name: defaultFilter.replace(/^\|\s/, ''),
+            args: []
+          }
+        ]
       };
     }
 

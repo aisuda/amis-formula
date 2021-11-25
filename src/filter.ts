@@ -8,16 +8,13 @@ import {
   escapeHtml,
   filterDate,
   formatDuration,
-  isObject,
-  keyToPath,
   pickValues,
   prettyBytes,
   resolveVariable,
-  setVariable,
   string2regExp,
-  stripNumber,
-  tokenize
+  stripNumber
 } from './util';
+import type {FilterContext, FilterMap} from './evalutor';
 
 function makeSorter(
   key: string,
@@ -43,9 +40,7 @@ function makeSorter(
   };
 }
 
-export const filters: {
-  [propName: string]: (input: any, ...args: any[]) => any;
-} = {
+export const filters: FilterMap = {
   map: (input: Array<unknown>, fn: string, ...arg: any) =>
     Array.isArray(input) && filters[fn]
       ? input.map(item => filters[fn].call(this, item, ...arg))
@@ -243,17 +238,17 @@ export const filters: {
   },
   plus(input, step = 1) {
     return stripNumber(
-      (Number(input) || 0) + Number(getStrOrVariable(step, this))
+      (Number(input) || 0) + Number(getStrOrVariable(step, this.data))
     );
   },
   times(input, step = 1) {
     return stripNumber(
-      (Number(input) || 0) * Number(getStrOrVariable(step, this))
+      (Number(input) || 0) * Number(getStrOrVariable(step, this.data))
     );
   },
   division(input, step = 1) {
     return stripNumber(
-      (Number(input) || 0) / Number(getStrOrVariable(step, this))
+      (Number(input) || 0) / Number(getStrOrVariable(step, this.data))
     );
   },
   count: (input: any) =>
@@ -282,13 +277,13 @@ export const filters: {
       : resolveVariable(path, input) || input,
   str2date: function (input, inputFormat = 'X', outputFormat = 'X') {
     return input
-      ? filterDate(input, this, inputFormat).format(outputFormat)
+      ? filterDate(input, this.data, inputFormat).format(outputFormat)
       : '';
   },
   asArray: input => (Array.isArray(input) ? input : input ? [input] : input),
   concat(input, ...args: any[]) {
     return Array.isArray(input)
-      ? input.concat(...args.map(arg => getStrOrVariable(arg, this)))
+      ? input.concat(...args.map(arg => getStrOrVariable(arg, this.data)))
       : input;
   },
   filter: function (input, keys, expOrDirective, arg1) {
@@ -306,16 +301,16 @@ export const filters: {
     } else if (directive === 'isExists') {
       fn = value => typeof value !== 'undefined';
     } else if (directive === 'equals' || directive === 'equal') {
-      arg1 = arg1 ? getStrOrVariable(arg1, this) : '';
+      arg1 = arg1 ? getStrOrVariable(arg1, this.data) : '';
       fn = value => arg1 == value;
     } else if (directive === 'isIn') {
-      let list: any = arg1 ? getStrOrVariable(arg1, this) : [];
+      let list: any = arg1 ? getStrOrVariable(arg1, this.data) : [];
 
       list = str2array(list);
       list = Array.isArray(list) ? list : list ? [list] : [];
       fn = value => (list.length ? !!~list.indexOf(value) : true);
     } else if (directive === 'notIn') {
-      let list: Array<any> = arg1 ? getStrOrVariable(arg1, this) : [];
+      let list: Array<any> = arg1 ? getStrOrVariable(arg1, this.data) : [];
       list = str2array(list);
       list = Array.isArray(list) ? list : list ? [list] : [];
       fn = value => !~list.indexOf(value);
@@ -324,7 +319,7 @@ export const filters: {
         directive = 'match';
         arg1 = expOrDirective;
       }
-      arg1 = arg1 ? getStrOrVariable(arg1, this) : '';
+      arg1 = arg1 ? getStrOrVariable(arg1, this.data) : '';
 
       // 比对的值是空时直接返回。
       if (!arg1) {
@@ -373,56 +368,97 @@ export const filters: {
     input && typeof input === 'string' ? input.toUpperCase() : input,
 
   isTrue(input, trueValue, falseValue) {
-    return getConditionValue(input, !!input, trueValue, falseValue, this);
+    const hasAlternate = arguments.length > 2;
+    return conditionalFilter(
+      input,
+      hasAlternate,
+      this,
+      !!input,
+      trueValue,
+      falseValue
+    );
   },
   isFalse(input, trueValue, falseValue) {
-    return getConditionValue(input, !input, trueValue, falseValue, this);
+    const hasAlternate = arguments.length > 2;
+    return conditionalFilter(
+      input,
+      hasAlternate,
+      this,
+      !input,
+      trueValue,
+      falseValue
+    );
   },
   isMatch(input, matchArg, trueValue, falseValue) {
-    matchArg = getStrOrVariable(matchArg, this as any);
-    return getConditionValue(
+    const hasAlternate = arguments.length > 3;
+    matchArg = getStrOrVariable(matchArg, this.data as any);
+    return conditionalFilter(
       input,
+      hasAlternate,
+      this,
       matchArg && string2regExp(`${matchArg}`, false).test(String(input)),
       trueValue,
-      falseValue,
-      this
+      falseValue
     );
   },
   notMatch(input, matchArg, trueValue, falseValue) {
-    matchArg = getStrOrVariable(matchArg, this as any);
-    return getConditionValue(
+    const hasAlternate = arguments.length > 3;
+    matchArg = getStrOrVariable(matchArg, this.data as any);
+    return conditionalFilter(
       input,
+      hasAlternate,
+      this,
       matchArg && !string2regExp(`${matchArg}`, false).test(String(input)),
       trueValue,
-      falseValue,
-      this
+      falseValue
     );
   },
   isEquals(input, equalsValue, trueValue, falseValue) {
     equalsValue = /^\d+$/.test(equalsValue)
       ? parseInt(equalsValue, 10)
-      : getStrOrVariable(equalsValue, this as any);
-    return getConditionValue(
+      : getStrOrVariable(equalsValue, this.data as any);
+
+    const hasAlternate = arguments.length > 3;
+    return conditionalFilter(
       input,
+      hasAlternate,
+      this,
       input === equalsValue,
       trueValue,
-      falseValue,
-      this
+      falseValue
     );
   },
   notEquals(input, equalsValue, trueValue, falseValue) {
     equalsValue = /^\d+$/.test(equalsValue)
       ? parseInt(equalsValue, 10)
-      : getStrOrVariable(equalsValue, this as any);
-    return getConditionValue(
+      : getStrOrVariable(equalsValue, this.data as any);
+
+    const hasAlternate = arguments.length > 3;
+    return conditionalFilter(
       input,
+      hasAlternate,
+      this,
       input !== equalsValue,
       trueValue,
-      falseValue,
-      this
+      falseValue
     );
   }
 };
+
+function conditionalFilter(
+  input: any,
+  hasAlternate: boolean,
+  filterContext: FilterContext,
+  test: any,
+  trueValue: any,
+  falseValue: any
+) {
+  hasAlternate && skipRestTest(filterContext.restFilters);
+
+  return test || hasAlternate
+    ? getStrOrVariable(test ? trueValue : falseValue, filterContext.data)
+    : input;
+}
 
 /**
  * 如果当前传入字符为：'xxx'或者"xxx"，则返回字符xxx
@@ -435,7 +471,7 @@ function getStrOrVariable(value: any, data: any) {
   return typeof value === 'string' && /,/.test(value)
     ? value.split(/\s*,\s*/).filter(item => item)
     : typeof value === 'string'
-    ? resolveVariable(value, data)
+    ? resolveVariable(value, data) ?? value
     : value;
 }
 
@@ -453,16 +489,19 @@ function str2array(list: any) {
   return list;
 }
 
-function getConditionValue(
-  input: string,
-  isTrue: boolean,
-  trueValue: string,
-  falseValue: string,
-  data: any
-) {
-  return isTrue || (!isTrue && falseValue)
-    ? getStrOrVariable(isTrue ? trueValue : falseValue, data)
-    : input;
+function skipRestTest(restFilters: Array<{name: string}>) {
+  while (
+    ~[
+      'isTrue',
+      'isFalse',
+      'isMatch',
+      'isEquals',
+      'notMatch',
+      'notEquals'
+    ].indexOf(restFilters[0]?.name)
+  ) {
+    restFilters.shift();
+  }
 }
 
 export function registerFilter(

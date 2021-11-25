@@ -149,7 +149,7 @@ test('evalute:oldVariable3', () => {
   });
 });
 
-test('evalute:old:conditional', () => {
+test('evalute:conditional', () => {
   expect(
     evaluate(
       '${a | isTrue: true : false}',
@@ -187,4 +187,40 @@ test('evalute:old:conditional', () => {
       }
     )
   ).toBe(false);
+
+  expect(
+    evaluate(
+      '${a | isEquals: 1 : "1" |isEquals: 2 : "2" | isEquals: 3 : "3" }',
+      {
+        a: 3
+      },
+      {
+        defaultFilter: 'raw'
+      }
+    )
+  ).toBe('3');
+
+  expect(
+    evaluate(
+      '${a | isEquals: 1 : "1" |isEquals: 1 : "2" | isEquals: 1 : "3" }',
+      {
+        a: 1
+      },
+      {
+        defaultFilter: 'raw'
+      }
+    )
+  ).toBe('1');
+
+  expect(
+    evaluate(
+      '${a | isEquals: 1 : "1" : "12" |isEquals: 2 : "2" | isEquals: 3 : "3" }',
+      {
+        a: 2
+      },
+      {
+        defaultFilter: 'raw'
+      }
+    )
+  ).toBe('12');
 });

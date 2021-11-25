@@ -206,10 +206,11 @@ export const tokenize = (
     evalMode: false,
     allowFilter: true
   });
-
-  return `${new Evaluator({
+  const result = new Evaluator({
     defaultFilter
-  }).evalute(ast, data)}`;
+  }).evalute(ast, data);
+
+  return `${result == null ? '' : result}`;
 };
 
 const UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
@@ -484,7 +485,7 @@ export const resolveVariableAndFilter = (
   fallbackValue = (value: any) => value
 ) => {
   if (!str || typeof str !== 'string') {
-    return str;
+    return undefined;
   }
 
   const ast = parse(str, {

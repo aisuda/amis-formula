@@ -143,6 +143,7 @@ export function parse(input: string, options?: ParserOptions) {
   function complexExpression() {
     let ast = expression();
 
+    const filters: Array<any> = [];
     while (token.type === TokenName[TokenEnum.OpenFilter]) {
       next();
 
@@ -172,11 +173,17 @@ export function parse(input: string, options?: ParserOptions) {
             : argContents
         );
       }
+      filters.push({
+        name: fnName,
+        args
+      });
+    }
+
+    if (filters.length) {
       ast = {
         type: 'filter',
         input: ast,
-        fnName,
-        args
+        filters
       };
     }
 
