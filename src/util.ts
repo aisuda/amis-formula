@@ -479,16 +479,16 @@ export function isPureVariable(path?: any): path is string {
 }
 
 export const resolveVariableAndFilter = (
-  str: string,
-  data: object,
+  path?: string,
+  data: object = {},
   defaultFilter: string = '| html',
   fallbackValue = (value: any) => value
 ) => {
-  if (!str || typeof str !== 'string') {
+  if (!path || typeof path !== 'string') {
     return undefined;
   }
 
-  const ast = parse(str, {
+  const ast = parse(path, {
     evalMode: false,
     allowFilter: true
   });
