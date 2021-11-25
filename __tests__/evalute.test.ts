@@ -262,4 +262,6 @@ test('evalute:literal-variable', () => {
   expect(evaluate('a is ${({x: 1})["x"]}', data)).toBe('a is 1');
   expect(evaluate('a is ${({x: 1}).x}', data)).toBe('a is 1');
   expect(evaluate('a is ${(["a", "b"])[index]}', data)).toBe('a is a');
+  expect(evaluate('a is ${(["a", "b"])[1]}', data)).toBe('a is b');
+  expect(evaluate('a is ${(["a", "b"]).0}', data)).toBe('a is a');
 });

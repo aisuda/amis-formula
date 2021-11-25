@@ -475,14 +475,14 @@ Object {
 
 exports[`parser:single-string 1`] = `
 Object {
-  "type": "literal",
+  "type": "string",
   "value": "string",
 }
 `;
 
 exports[`parser:string 1`] = `
 Object {
-  "type": "literal",
+  "type": "string",
   "value": "string literall, escape \\"",
 }
 `;

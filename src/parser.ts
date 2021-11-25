@@ -106,6 +106,8 @@ export function parse(input: string, options?: ParserOptions) {
     ) {
       const item =
         literal() ||
+        numberLiteral() ||
+        stringLiteral() ||
         template() ||
         arrayLiteral() ||
         rawScript() ||
@@ -346,7 +348,7 @@ export function parse(input: string, options?: ParserOptions) {
       next();
       const right = assert(
         (isDot
-          ? identifier()
+          ? identifier() || numberLiteral()
           : varibleKey(
               true
             )) /* 为了兼容久的语法，理论上来说只需要 identifier, 下面的 rawScript 是不应该有的 */ ||
@@ -378,6 +380,7 @@ export function parse(input: string, options?: ParserOptions) {
     return (
       (allowVariable ? variable() : identifier()) ||
       stringLiteral() ||
+      numberLiteral() ||
       template()
     );
   }
@@ -391,6 +394,19 @@ export function parse(input: string, options?: ParserOptions) {
         value: cToken.value
       };
     }
+    return null;
+  }
+
+  function numberLiteral() {
+    if (token.type === TokenName[TokenEnum.NumericLiteral]) {
+      const value = token.value;
+      next();
+      return {
+        type: 'literal',
+        value: value
+      };
+    }
+
     return null;
   }
 
@@ -449,6 +465,8 @@ export function parse(input: string, options?: ParserOptions) {
     return (
       variable() ||
       literal() ||
+      numberLiteral() ||
+      stringLiteral() ||
       template() ||
       arrayLiteral() ||
       objectLiteral() ||
@@ -468,9 +486,7 @@ export function parse(input: string, options?: ParserOptions) {
   function literal() {
     if (
       token.type === TokenName[TokenEnum.Literal] ||
-      token.type === TokenName[TokenEnum.BooleanLiteral] ||
-      token.type === TokenName[TokenEnum.NumericLiteral] ||
-      token.type === TokenName[TokenEnum.StringLiteral]
+      token.type === TokenName[TokenEnum.BooleanLiteral]
     ) {
       const value = token.value;
       next();
