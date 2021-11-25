@@ -22,7 +22,10 @@ Object {
     Object {
       "members": Array [
         Object {
-          "key": "a",
+          "key": Object {
+            "name": "a",
+            "type": "identifier",
+          },
           "value": Object {
             "type": "literal",
             "value": 1,
@@ -320,7 +323,7 @@ Object {
       },
       "key": Object {
         "name": "b",
-        "type": "variable",
+        "type": "identifier",
       },
       "type": "get",
     },
@@ -329,7 +332,10 @@ Object {
         "name": "a",
         "type": "variable",
       },
-      "key": "b",
+      "key": Object {
+        "name": "b",
+        "type": "variable",
+      },
       "type": "get",
     },
     Object {
@@ -391,7 +397,10 @@ exports[`parser:object-literall 1`] = `
 Object {
   "members": Array [
     Object {
-      "key": "a",
+      "key": Object {
+        "name": "a",
+        "type": "identifier",
+      },
       "value": Object {
         "type": "literal",
         "value": 1,
@@ -423,7 +432,10 @@ Object {
       },
     },
     Object {
-      "key": "d",
+      "key": Object {
+        "name": "d",
+        "type": "identifier",
+      },
       "value": Object {
         "members": Array [],
         "type": "object",
@@ -524,7 +536,7 @@ Object {
       },
       "key": Object {
         "name": "b",
-        "type": "variable",
+        "type": "identifier",
       },
       "type": "get",
     },
@@ -533,7 +545,10 @@ Object {
         "name": "a",
         "type": "variable",
       },
-      "key": "b",
+      "key": Object {
+        "name": "b",
+        "type": "variable",
+      },
       "type": "get",
     },
     Object {
@@ -578,7 +593,10 @@ Object {
           "name": "a",
           "type": "variable",
         },
-        "key": "b",
+        "key": Object {
+          "name": "b",
+          "type": "variable",
+        },
         "type": "get",
       },
       "key": Object {
@@ -587,7 +605,10 @@ Object {
       },
       "type": "get",
     },
-    "key": "d",
+    "key": Object {
+      "name": "d",
+      "type": "variable",
+    },
     "type": "get",
   },
   "key": Object {
@@ -612,7 +633,10 @@ Object {
           "name": "a",
           "type": "variable",
         },
-        "key": "b",
+        "key": Object {
+          "name": "b",
+          "type": "variable",
+        },
         "type": "get",
       },
       "key": Object {
@@ -623,7 +647,7 @@ Object {
     },
     "key": Object {
       "name": "d",
-      "type": "variable",
+      "type": "identifier",
     },
     "type": "get",
   },

@@ -355,6 +355,10 @@ export class Evaluator {
   variable(ast: {name: string}, data: any) {
     return ast.name === '&' ? data : data[ast.name];
   }
+  
+  identifier(ast: {name: string}, data: any) {
+    return ast.name;
+  }
 
   array(ast: {type: 'array'; members: Array<any>}, data: any) {
     return ast.members.map(member => this.evalute(member, data));

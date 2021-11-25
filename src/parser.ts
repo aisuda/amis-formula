@@ -345,10 +345,12 @@ export function parse(input: string, options?: ParserOptions) {
       const isDot = matchPunctuator('.');
       next();
       const right = assert(
-        isDot
-          ? identifier() /* 为了兼容久的语法，理论上来说只需要 identifier, 下面的 rawScript 是不应该有的 */ ||
-              rawScript()
-          : varibleKey()
+        (isDot
+          ? identifier()
+          : varibleKey(
+              true
+            )) /* 为了兼容久的语法，理论上来说只需要 identifier, 下面的 rawScript 是不应该有的 */ ||
+          rawScript()
       );
 
       if (!isDot) {
@@ -372,14 +374,12 @@ export function parse(input: string, options?: ParserOptions) {
     return functionCall() || primaryExpression();
   }
 
-  function varibleKey() {
-    if (token.type === TokenName[TokenEnum.Identifier]) {
-      const cToken = token;
-      next();
-      return cToken.value;
-    }
-
-    return stringLiteral() || template();
+  function varibleKey(allowVariable = false) {
+    return (
+      (allowVariable ? variable() : identifier()) ||
+      stringLiteral() ||
+      template()
+    );
   }
 
   function stringLiteral() {
@@ -437,7 +437,7 @@ export function parse(input: string, options?: ParserOptions) {
       const cToken = token;
       next();
       return {
-        type: 'variable',
+        type: 'identifier',
         name: cToken.value
       };
     }
@@ -446,7 +446,7 @@ export function parse(input: string, options?: ParserOptions) {
 
   function primaryExpression() {
     return (
-      identifier() ||
+      variable() ||
       literal() ||
       template() ||
       arrayLiteral() ||
@@ -641,6 +641,18 @@ export function parse(input: string, options?: ParserOptions) {
       type: 'script',
       body: exp
     };
+  }
+
+  function variable() {
+    if (token.type === TokenName[TokenEnum.Identifier]) {
+      const cToken = token;
+      next();
+      return {
+        type: 'variable',
+        name: cToken.value
+      };
+    }
+    return null;
   }
 
   function oldVariable() {

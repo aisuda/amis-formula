@@ -230,3 +230,19 @@ test('evalute:conditional', () => {
     )
   ).toBe('12');
 });
+
+test('evalute:object-variable', () => {
+  const data = {
+    key: 'x',
+    obj: {
+      x: 1,
+      y: 2
+    }
+  };
+
+  expect(evaluate('a is ${obj.x}', data)).toBe('a is 1');
+  expect(evaluate('a is ${obj[x]}', data)).toBe('a is ');
+  expect(evaluate('a is ${obj["x"]}', data)).toBe('a is 1');
+  expect(evaluate('a is ${obj[key]}', data)).toBe('a is 1');
+  expect(evaluate('a is ${obj[${key}]}', data)).toBe('a is 1');
+});
