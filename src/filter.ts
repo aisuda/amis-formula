@@ -69,9 +69,8 @@ export const filters: FilterMap = {
   raw: input => input,
   now: () => new Date(),
   toDate: (input: any, inputFormat = '') => {
-    const data = moment(input, inputFormat);
-    data.add();
-    return data.isValid() ? data.toDate() : undefined;
+    const date = moment(input, inputFormat);
+    return date.isValid() ? date.toDate() : undefined;
   },
   fromNow: (input: any, inputFormat = '') =>
     moment(input, inputFormat).fromNow(),
@@ -161,7 +160,7 @@ export const filters: FilterMap = {
     typeof input === 'string' ? input.split(delimiter) : input,
   sortBy: (
     input: any,
-    key: string,
+    key: string = '&',
     method: 'alpha' | 'numerical' = 'alpha',
     order?: 'asc' | 'desc'
   ) =>

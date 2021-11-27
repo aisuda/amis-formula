@@ -39,3 +39,17 @@ test('lexer:filter', () => {
 // test('lexer:test', () => {
 //   console.log(getTokens("{a: 1, 'b': 2, `c`: 3, d: {}}", {evalMode: true}));
 // });
+
+test('lexer:exception', () => {
+  expect(() =>
+    getTokens('\\aabc is ', {
+      evalMode: false
+    })
+  ).toThrow('Unexpected token a in 1:3');
+
+  expect(() =>
+    getTokens('${a | filter: \\x2}', {
+      evalMode: false
+    })
+  ).toThrow('Unexpected token x in 1:17');
+});

@@ -190,14 +190,6 @@ function isDigit(char: string) {
   return char >= '0' && char <= '9';
 }
 
-function isHex(char: string) {
-  return (
-    isDigit(char) ||
-    (char >= 'a' && char <= 'f') ||
-    (char >= 'A' && char <= 'F')
-  );
-}
-
 function isExp(char: string) {
   return char === 'e' || char === 'E';
 }
@@ -488,9 +480,9 @@ export function lexer(input: string, options?: LexerOptions) {
             ? '\v'
             : nextCh;
       } else {
-        const pos = position(input.substring(index, index + 1));
+        const pos = position(input.substring(index, index + 2));
         throw new SyntaxError(
-          `Unexpected token ${ch} in ${pos.line}:${pos.column}`
+          `Unexpected token ${nextCh} in ${pos.line}:${pos.column}`
         );
       }
     }
