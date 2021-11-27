@@ -127,11 +127,10 @@ const filterStates = {
 const punctuatorList = [
   '===',
   '!==',
+  '>>>',
   '==',
   '!=',
   '<>',
-  '<',
-  '>',
   '<=',
   '>=',
   '||',
@@ -140,11 +139,12 @@ const punctuatorList = [
   '--',
   '<<',
   '>>',
-  '>>>',
+  '**',
   '+=',
   '*=',
   '/=',
-
+  '<',
+  '>',
   '=',
   '*',
   '/',
@@ -152,6 +152,7 @@ const punctuatorList = [
   '+',
   '^',
   '!',
+  '~',
   '%',
   '&',
   '|',
@@ -358,7 +359,7 @@ export function lexer(input: string, options?: LexerOptions) {
     if (mainState === mainStates.Template) {
       return null;
     }
-    
+
     const ch = input[index];
     if (ch === '$') {
       const nextCh = input[index + 1];
