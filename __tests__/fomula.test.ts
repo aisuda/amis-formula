@@ -1,3 +1,4 @@
+import moment from 'moment';
 import {evaluate, parse} from '../src';
 
 const defaultContext = {
@@ -111,6 +112,39 @@ test('formula:math', () => {
   expect(evalFormual('AVG(4, "6", "10", 10, 10)')).toBe(8);
 });
 
+test('formula:text', () => {
+  expect(evalFormual('LEFT("abcdefg", 2)')).toBe('ab');
+  expect(evalFormual('RIGHT("abcdefg", 2)')).toBe('fg');
+  expect(evalFormual('LENGTH("abcdefg")')).toBe(7);
+  expect(evalFormual('LEN("abcdefg")')).toBe(7);
+  expect(evalFormual('ISEMPTY("abcdefg")')).toBe(false);
+  expect(evalFormual('ISEMPTY("")')).toBe(true);
+  expect(evalFormual('CONCATENATE("a", "b", "c", "d")')).toBe('abcd');
+  expect(evalFormual('CHAR(97)')).toBe('a');
+  expect(evalFormual('LOWER("AB")')).toBe('ab');
+  expect(evalFormual('UPPER("ab")')).toBe('AB');
+  expect(evalFormual('SPLIT("a,b,c")')).toMatchObject(['a', 'b', 'c']);
+  expect(evalFormual('TRIM("  ab ")')).toBe('ab');
+  expect(evalFormual('STARTSWITH("xab", "ab")')).toBe(false);
+  expect(evalFormual('STARTSWITH("xab", "x")')).toBe(true);
+  expect(evalFormual('CONTAINS("xab", "x")')).toBe(true);
+  expect(evalFormual('CONTAINS("xab", "b")')).toBe(true);
+  expect(evalFormual('REPLACE("xabab", "ab", "cd")')).toBe('xcdcd');
+  expect(evalFormual('SEARCH("xabab", "ab")')).toBe(1);
+  expect(evalFormual('SEARCH("xabab", "cd")')).toBe(-1);
+  expect(evalFormual('SEARCH("xabab", "ab", 2)')).toBe(3);
+  expect(evalFormual('MID("xabab", 2, 2)')).toBe('ba');
+});
+
 test('formula:date', () => {
-  expect(evalFormual('YEAR(STRTODATE("2021-10-24 10:10:10"))', {})).toBe(2021);
+  expect(evalFormual('TIMESTAMP(DATE(2021, 11, 21, 0, 0, 0), "x")')).toBe(
+    new Date(2021, 11, 21, 0, 0, 0).getTime()
+  );
+  expect(evalFormual('DATETOSTR(TODAY(), "YYYY-MM-DD")')).toBe(
+    moment().format('YYYY-MM-DD')
+  );
+  expect(evalFormual('DATETOSTR(NOW(), "YYYY-MM-DD")')).toBe(
+    moment().format('YYYY-MM-DD')
+  );
+  expect(evalFormual('YEAR(STRTODATE("2021-10-24 10:10:10"))')).toBe(2021);
 });

@@ -597,6 +597,10 @@ export class Evaluator {
     return text?.length;
   }
 
+  fnLENGTH(...args: any[]) {
+    return this.fnLEN.call(this, args);
+  }
+
   fnISEMPTY(text: string) {
     return !text || !String(text).trim();
   }
@@ -619,7 +623,7 @@ export class Evaluator {
     return text.toUpperCase();
   }
 
-  fnSPLIT(text: string, sep: string) {
+  fnSPLIT(text: string, sep: string = ',') {
     text = this.normalizeText(text);
     return text.split(sep);
   }
@@ -667,18 +671,13 @@ export class Evaluator {
     return result;
   }
 
-  fnSEARCH(text: string, search: string, start?: number) {
+  fnSEARCH(text: string, search: string, start: number = 0) {
     text = this.normalizeText(text);
-    start = start || 0;
-    let str = text;
+    start = this.formatNumber(start);
 
-    if (start) {
-      str = str.substring(start);
-    }
-
-    const idx = str.indexOf(search);
+    const idx = text.indexOf(search, start);
     if (~idx) {
-      return idx + search;
+      return idx;
     }
 
     return -1;
@@ -715,6 +714,10 @@ export class Evaluator {
 
   fnNOW() {
     return new Date();
+  }
+
+  fnDATETOSTR(date: Date, format = 'YYYY-MM-DD HH:mm:ss') {
+    return moment(date).format(format);
   }
 
   fnSTARTOF(date: Date, unit?: any) {

@@ -57,7 +57,7 @@ test('parser:single-string', () => {
 
 test('parser:object-literall', () => {
   expect(
-    parse("{a: 1, 'b': 2, `c`: 3, d: {}}", {
+    parse("{a: 1, 'b': 2, [`c`]: 3, d: {}}", {
       evalMode: true
     })
   ).toMatchSnapshot();
