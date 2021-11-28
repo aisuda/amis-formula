@@ -418,9 +418,7 @@ export const filters: FilterMap = {
     );
   },
   isEquals(input, equalsValue, trueValue, falseValue) {
-    equalsValue = /^\d+$/.test(equalsValue)
-      ? parseInt(equalsValue, 10)
-      : getStrOrVariable(equalsValue, this.data as any);
+    equalsValue = getStrOrVariable(equalsValue, this.data as any);
 
     const hasAlternate = arguments.length > 3;
     return conditionalFilter(
@@ -433,9 +431,7 @@ export const filters: FilterMap = {
     );
   },
   notEquals(input, equalsValue, trueValue, falseValue) {
-    equalsValue = /^\d+$/.test(equalsValue)
-      ? parseInt(equalsValue, 10)
-      : getStrOrVariable(equalsValue, this.data as any);
+    equalsValue = getStrOrVariable(equalsValue, this.data as any);
 
     const hasAlternate = arguments.length > 3;
     return conditionalFilter(

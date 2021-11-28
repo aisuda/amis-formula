@@ -206,9 +206,9 @@ export const tokenize = (
     evalMode: false,
     allowFilter: true
   });
-  const result = new Evaluator({
+  const result = new Evaluator(data, {
     defaultFilter
-  }).evalute(ast, data);
+  }).evalute(ast);
 
   return `${result == null ? '' : result}`;
 };
@@ -393,83 +393,23 @@ export function pickValues(names: string, data: object) {
   return ret;
 }
 
-function objectGet(data: any, path: string) {
-  if (typeof data[path] !== 'undefined') {
-    return data[path];
-  }
-
-  let parts = keyToPath(path.replace(/^{|}$/g, ''));
-  return parts.reduce((data, path) => {
-    if ((isObject(data) || Array.isArray(data)) && path in data) {
-      return (data as {[propName: string]: any})[path];
-    }
-
-    return undefined;
-  }, data);
-}
-
-function parseJson(str: string, defaultValue?: any) {
-  try {
-    return JSON.parse(str);
-  } catch (e) {
-    return defaultValue;
-  }
-}
-
-function getCookie(name: string) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    return parts.pop()!.split(';').shift();
-  }
-  return undefined;
-}
-
 export function resolveVariable(path?: string, data: any = {}): any {
-  if (!path || !data || typeof path !== 'string') {
+  if (path === '&') {
+    return data;
+  } else if (!path || typeof path !== 'string') {
     return undefined;
   }
 
-  let [ns, varname] = path.split(':');
-
-  if (!varname && ns) {
-    varname = ns;
-    ns = '';
-  }
-
-  if (ns === 'window') {
-    data = window;
-  } else if (ns === 'ls' || ns === 'ss') {
-    let parts = keyToPath(varname.replace(/^{|}$/g, ''));
-    const key = parts.shift()!;
-    const raw =
-      ns === 'ss' ? sessionStorage.getItem(key) : localStorage.getItem(key);
-
-    if (typeof raw === 'string') {
-      const data = parseJson(raw, raw);
-
-      if (isObject(data) && parts.length) {
-        return objectGet(data, parts.join('.'));
-      }
-
-      return data;
-    }
-
+  try {
+    return new Evaluator(data).evalute(
+      parse(path, {
+        variableMode: true,
+        allowFilter: false
+      })
+    );
+  } catch (e) {
     return undefined;
-  } else if (ns === 'cookie') {
-    const key = varname.replace(/^{|}$/g, '').trim();
-    return getCookie(key);
   }
-
-  if (varname === '$$') {
-    return data;
-  } else if (varname[0] === '$') {
-    varname = path.substring(1);
-  } else if (varname === '&') {
-    return data;
-  }
-
-  return objectGet(data, varname);
 }
 
 export function isPureVariable(path?: any): path is string {
@@ -493,9 +433,9 @@ export const resolveVariableAndFilter = (
     allowFilter: true
   });
 
-  const ret = new Evaluator({
+  const ret = new Evaluator(data, {
     defaultFilter
-  }).evalute(ast, data);
+  }).evalute(ast);
 
   return ret == null ? fallbackValue(ret) : ret;
 };

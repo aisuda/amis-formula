@@ -5,6 +5,11 @@ export interface LexerOptions {
   evalMode?: boolean;
 
   /**
+   * 只支持取变量。
+   */
+  variableMode?: boolean;
+
+  /**
    * 是否允许 filter 语法，比如：
    *
    * ${abc | html}
@@ -227,7 +232,7 @@ export function lexer(input: string, options?: LexerOptions) {
   let tokenCache: Array<Token> = [];
   const allowFilter = options?.allowFilter !== false;
 
-  if (options?.evalMode) {
+  if (options?.evalMode || options?.variableMode) {
     pushState(mainStates.EXPRESSION);
   }
 

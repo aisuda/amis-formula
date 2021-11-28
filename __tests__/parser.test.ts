@@ -177,8 +177,8 @@ test('parser:unary-expression', () => {
 // test('parser:test', () => {
 //   console.log(
 //     JSON.stringify(
-//       parse("{a: 1, 'b': 2, `c`: 3, d: {}}", {
-//         evalMode: true
+//       parse('ab', {
+//         variableMode: true
 //       }),
 //       null,
 //       2

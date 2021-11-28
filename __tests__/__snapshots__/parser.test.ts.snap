@@ -325,7 +325,7 @@ Object {
         "name": "b",
         "type": "identifier",
       },
-      "type": "get",
+      "type": "getter",
     },
     Object {
       "host": Object {
@@ -336,7 +336,7 @@ Object {
         "name": "b",
         "type": "variable",
       },
-      "type": "get",
+      "type": "getter",
     },
     Object {
       "host": Object {
@@ -347,7 +347,7 @@ Object {
         "type": "string",
         "value": "c",
       },
-      "type": "get",
+      "type": "getter",
     },
     Object {
       "host": Object {
@@ -363,7 +363,7 @@ Object {
         ],
         "type": "template",
       },
-      "type": "get",
+      "type": "getter",
     },
   ],
   "type": "expression-list",
@@ -538,7 +538,7 @@ Object {
         "name": "b",
         "type": "identifier",
       },
-      "type": "get",
+      "type": "getter",
     },
     Object {
       "host": Object {
@@ -549,7 +549,7 @@ Object {
         "name": "b",
         "type": "variable",
       },
-      "type": "get",
+      "type": "getter",
     },
     Object {
       "host": Object {
@@ -560,7 +560,7 @@ Object {
         "type": "string",
         "value": "c",
       },
-      "type": "get",
+      "type": "getter",
     },
     Object {
       "host": Object {
@@ -576,7 +576,7 @@ Object {
         ],
         "type": "template",
       },
-      "type": "get",
+      "type": "getter",
     },
   ],
   "identifier": "doAction",
@@ -597,19 +597,19 @@ Object {
           "name": "b",
           "type": "variable",
         },
-        "type": "get",
+        "type": "getter",
       },
       "key": Object {
         "type": "string",
         "value": "c",
       },
-      "type": "get",
+      "type": "getter",
     },
     "key": Object {
       "name": "d",
       "type": "variable",
     },
-    "type": "get",
+    "type": "getter",
   },
   "key": Object {
     "body": Array [
@@ -620,7 +620,7 @@ Object {
     ],
     "type": "template",
   },
-  "type": "get",
+  "type": "getter",
 }
 `;
 
@@ -637,19 +637,19 @@ Object {
           "name": "b",
           "type": "variable",
         },
-        "type": "get",
+        "type": "getter",
       },
       "key": Object {
         "type": "string",
         "value": "c",
       },
-      "type": "get",
+      "type": "getter",
     },
     "key": Object {
       "name": "d",
       "type": "identifier",
     },
-    "type": "get",
+    "type": "getter",
   },
   "key": Object {
     "body": Array [
@@ -660,6 +660,6 @@ Object {
     ],
     "type": "template",
   },
-  "type": "get",
+  "type": "getter",
 }
 `;

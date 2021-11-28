@@ -14,5 +14,5 @@ export function evaluate(
     astOrString = parse(astOrString, options);
   }
 
-  return new Evaluator(options).evalute(astOrString, data);
+  return new Evaluator(data, options).evalute(astOrString);
 }

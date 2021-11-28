@@ -15,11 +15,18 @@ export interface ParserOptions {
   evalMode?: boolean;
 
   /**
+   * 只支持取变量。
+   */
+  variableMode?: boolean;
+
+  /**
    * 是否允许 filter 语法，比如：
    *
    * ${abc | html}
    */
   allowFilter?: boolean;
+
+  variableNamespaces?: Array<string>;
 }
 
 const argListStates = {
@@ -45,6 +52,17 @@ export function parse(input: string, options?: ParserOptions) {
   const lexer = createLexer(input, options);
   const tokens: Array<Token> = [];
   const tokenChunk: Array<Token> = [];
+
+  // 允许的变量名字空间
+  let variableNamespaces: Array<string> = options?.variableNamespaces ?? [
+    'window',
+    'cookie',
+    'ls',
+    'ss'
+  ];
+  if (!Array.isArray(variableNamespaces)) {
+    variableNamespaces = [];
+  }
 
   function next() {
     token = tokenChunk.length ? tokenChunk.shift()! : lexer.next();
@@ -337,8 +355,10 @@ export function parse(input: string, options?: ParserOptions) {
     return ast;
   }
 
-  function postfixExpression() {
-    let ast = leftHandSideExpression();
+  function postfixExpression(
+    parseFunction: () => any = leftHandSideExpression
+  ) {
+    let ast = parseFunction();
     if (!ast) {
       return null;
     }
@@ -356,14 +376,12 @@ export function parse(input: string, options?: ParserOptions) {
       );
 
       if (!isDot) {
-        if (matchPunctuator(']')) {
-          next();
-        } else {
-          fatal();
-        }
+        assert(matchPunctuator(']'));
+        next();
       }
+
       ast = {
-        type: 'get',
+        type: 'getter',
         host: ast,
         key: right
       };
@@ -655,11 +673,7 @@ export function parse(input: string, options?: ParserOptions) {
 
     next();
     const exp = assert(complexExpression());
-    if (token.type !== TokenName[TokenEnum.CloseScript]) {
-      throw TypeError(
-        `expect ${TokenName[TokenEnum.CloseScript]} got ${token.type}`
-      );
-    }
+    assert(token.type === TokenName[TokenEnum.CloseScript]);
     next();
 
     return {
@@ -672,6 +686,17 @@ export function parse(input: string, options?: ParserOptions) {
     if (token.type === TokenName[TokenEnum.Identifier]) {
       const cToken = token;
       next();
+
+      if (matchPunctuator(':') && ~variableNamespaces.indexOf(cToken.value)) {
+        next();
+        const body = assert(postfixExpression());
+        return {
+          type: 'ns-variable',
+          namespace: cToken.value,
+          body
+        };
+      }
+
       return {
         type: 'variable',
         name: cToken.value
@@ -696,7 +721,12 @@ export function parse(input: string, options?: ParserOptions) {
   }
 
   next();
-  const ast = options?.evalMode ? expression() : contents();
+  const ast = options?.variableMode
+    ? postfixExpression(variable)
+    : options?.evalMode
+    ? expression()
+    : contents();
+
   assert(token!?.type === TokenName[TokenEnum.EOF]);
 
   return ast;

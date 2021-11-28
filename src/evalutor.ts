@@ -38,13 +38,24 @@ export interface EvaluatorOptions {
 export class Evaluator {
   readonly filters: FilterMap;
   readonly functions: FunctionMap = {};
-  data: any;
+  readonly context: {
+    [propName: string]: any;
+  };
+  contextStack: Array<(varname: string) => any> = [];
 
   constructor(
+    context: {
+      [propName: string]: any;
+    },
     readonly options: EvaluatorOptions = {
       defaultFilter: 'html'
     }
   ) {
+    this.context = context;
+    this.contextStack.push((varname: string) =>
+      varname === '&' ? context : context?.[varname]
+    );
+
     this.filters = {
       ...this.filters,
       ...getFilters(),
@@ -57,8 +68,7 @@ export class Evaluator {
   }
 
   // 主入口
-  evalute(ast: any, data: any = {}) {
-    this.data = data;
+  evalute(ast: any) {
     if (ast && ast.type) {
       const name = (ast.type as string).replace(/(?:_|\-)(\w)/g, (_, l) =>
         l.toUpperCase()
@@ -69,19 +79,19 @@ export class Evaluator {
         throw new Error(`${ast.type} unkown.`);
       }
 
-      return fn.call(this, ast, data);
+      return fn.call(this, ast);
     } else {
       return ast;
     }
   }
 
-  document(ast: {type: 'document'; body: Array<any>}, data: any) {
+  document(ast: {type: 'document'; body: Array<any>}) {
     if (!ast.body.length) {
       return undefined;
     }
     const isString = ast.body.length > 1;
     const content = ast.body.map(item => {
-      let result = this.evalute(item, data);
+      let result = this.evalute(item);
 
       if (isString && result == null) {
         // 不要出现 undefined, null 之类的文案
@@ -93,18 +103,15 @@ export class Evaluator {
     return content.length === 1 ? content[0] : content.join('');
   }
 
-  filter(
-    ast: {
-      type: 'filter';
-      input: any;
-      filters: Array<{name: string; args: Array<any>}>;
-    },
-    data: any
-  ) {
-    let input = this.evalute(ast.input, data);
+  filter(ast: {
+    type: 'filter';
+    input: any;
+    filters: Array<{name: string; args: Array<any>}>;
+  }) {
+    let input = this.evalute(ast.input);
     const filters = ast.filters.concat();
     const context = {
-      data,
+      data: this.context,
       restFilters: filters
     };
 
@@ -121,11 +128,11 @@ export class Evaluator {
             if (item?.type === 'mixed') {
               return item.body
                 .map((item: any) =>
-                  typeof item === 'string' ? item : this.evalute(item, data)
+                  typeof item === 'string' ? item : this.evalute(item)
                 )
                 .join('');
             } else if (item.type) {
-              return this.evalute(item, data);
+              return this.evalute(item);
             }
             return item;
           })
@@ -139,7 +146,7 @@ export class Evaluator {
     return ast.value;
   }
 
-  script(ast: {type: 'script'; body: any}, data: any) {
+  script(ast: {type: 'script'; body: any}) {
     const defaultFilter = this.options.defaultFilter;
 
     if (defaultFilter && ast.body?.type !== 'filter') {
@@ -155,15 +162,15 @@ export class Evaluator {
       };
     }
 
-    return this.evalute(ast.body, data);
+    return this.evalute(ast.body);
   }
 
-  expressionList(ast: {type: 'expression-list'; body: Array<any>}, data: any) {
-    return ast.body.reduce((prev, current) => this.evalute(current, data));
+  expressionList(ast: {type: 'expression-list'; body: Array<any>}) {
+    return ast.body.reduce((prev, current) => this.evalute(current));
   }
 
-  template(ast: {type: 'template'; body: Array<any>}, data: any) {
-    return ast.body.map(arg => this.evalute(arg, data)).join('');
+  template(ast: {type: 'template'; body: Array<any>}) {
+    return ast.body.map(arg => this.evalute(arg)).join('');
   }
 
   templateRaw(ast: {type: 'template_raw'; value: any}) {
@@ -171,15 +178,15 @@ export class Evaluator {
   }
 
   // 下标获取
-  get(ast: {host: any; key: any}, data: any) {
-    const host = this.evalute(ast.host, data);
-    const key = this.evalute(ast.key, data);
+  getter(ast: {host: any; key: any}) {
+    const host = this.evalute(ast.host);
+    const key = this.evalute(ast.key);
     return host?.[key];
   }
 
   // 位操作如 +2 ~3 !
-  unary(ast: {op: '+' | '-' | '~' | '!'; value: any}, data: any) {
-    let value = this.evalute(ast.value, data);
+  unary(ast: {op: '+' | '-' | '~' | '!'; value: any}) {
+    let value = this.evalute(ast.value);
 
     switch (ast.op) {
       case '+':
@@ -204,45 +211,45 @@ export class Evaluator {
     return value ?? 0;
   }
 
-  power(ast: {left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    const right = this.evalute(ast.right, data);
+  power(ast: {left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    const right = this.evalute(ast.right);
     return Math.pow(this.formatNumber(left), this.formatNumber(right));
   }
 
-  multiply(ast: {left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    const right = this.evalute(ast.right, data);
+  multiply(ast: {left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    const right = this.evalute(ast.right);
     return this.formatNumber(left) * this.formatNumber(right);
   }
 
-  divide(ast: {left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    const right = this.evalute(ast.right, data);
+  divide(ast: {left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    const right = this.evalute(ast.right);
     return this.formatNumber(left) / this.formatNumber(right);
   }
 
-  remainder(ast: {left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    const right = this.evalute(ast.right, data);
+  remainder(ast: {left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    const right = this.evalute(ast.right);
     return this.formatNumber(left) % this.formatNumber(right);
   }
 
-  add(ast: {left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    const right = this.evalute(ast.right, data);
+  add(ast: {left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    const right = this.evalute(ast.right);
     return this.formatNumber(left) + this.formatNumber(right);
   }
 
-  minus(ast: {left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    const right = this.evalute(ast.right, data);
+  minus(ast: {left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    const right = this.evalute(ast.right);
     return this.formatNumber(left) - this.formatNumber(right);
   }
 
-  shift(ast: {op: '<<' | '>>' | '>>>'; left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    const right = this.formatNumber(this.evalute(ast.right, data), true);
+  shift(ast: {op: '<<' | '>>' | '>>>'; left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    const right = this.formatNumber(this.evalute(ast.right), true);
 
     if (ast.op === '<<') {
       return left << right;
@@ -253,80 +260,80 @@ export class Evaluator {
     }
   }
 
-  lt(ast: {left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    const right = this.evalute(ast.right, data);
+  lt(ast: {left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    const right = this.evalute(ast.right);
 
     // todo 如果是日期的对比，这个地方可以优化一下。
 
     return left < right;
   }
 
-  gt(ast: {left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    const right = this.evalute(ast.right, data);
+  gt(ast: {left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    const right = this.evalute(ast.right);
 
     // todo 如果是日期的对比，这个地方可以优化一下。
     return left > right;
   }
 
-  le(ast: {left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    const right = this.evalute(ast.right, data);
+  le(ast: {left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    const right = this.evalute(ast.right);
 
     // todo 如果是日期的对比，这个地方可以优化一下。
 
     return left <= right;
   }
 
-  ge(ast: {left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    const right = this.evalute(ast.right, data);
+  ge(ast: {left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    const right = this.evalute(ast.right);
 
     // todo 如果是日期的对比，这个地方可以优化一下。
 
     return left >= right;
   }
 
-  eq(ast: {left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    const right = this.evalute(ast.right, data);
+  eq(ast: {left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    const right = this.evalute(ast.right);
 
     // todo 如果是日期的对比，这个地方可以优化一下。
 
     return left == right;
   }
 
-  ne(ast: {left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    const right = this.evalute(ast.right, data);
+  ne(ast: {left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    const right = this.evalute(ast.right);
 
     // todo 如果是日期的对比，这个地方可以优化一下。
 
     return left != right;
   }
 
-  streq(ast: {left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    const right = this.evalute(ast.right, data);
+  streq(ast: {left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    const right = this.evalute(ast.right);
 
     // todo 如果是日期的对比，这个地方可以优化一下。
 
     return left === right;
   }
 
-  strneq(ast: {left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    const right = this.evalute(ast.right, data);
+  strneq(ast: {left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    const right = this.evalute(ast.right);
 
     // todo 如果是日期的对比，这个地方可以优化一下。
 
     return left !== right;
   }
 
-  binary(ast: {op: '&' | '^' | '|'; left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    const right = this.evalute(ast.right, data);
+  binary(ast: {op: '&' | '^' | '|'; left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    const right = this.evalute(ast.right);
 
     if (ast.op === '&') {
       return left & right;
@@ -337,31 +344,64 @@ export class Evaluator {
     }
   }
 
-  and(ast: {left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    return left && this.evalute(ast.right, data);
+  and(ast: {left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    return left && this.evalute(ast.right);
   }
 
-  or(ast: {left: any; right: any}, data: any) {
-    const left = this.evalute(ast.left, data);
-    return left || this.evalute(ast.right, data);
+  or(ast: {left: any; right: any}) {
+    const left = this.evalute(ast.left);
+    return left || this.evalute(ast.right);
   }
 
-  number(ast: {value: any; raw: string}, data: any) {
+  number(ast: {value: any; raw: string}) {
     // todo 以后可以在这支持大数字。
     return ast.value;
   }
 
-  variable(ast: {name: string}, data: any) {
-    return ast.name === '&' ? data : data[ast.name];
+  nsVariable(ast: {namespace: string; body: any}) {
+    if (ast.namespace === 'window') {
+      this.contextStack.push((name: string) =>
+        name === '&' ? window : (window as any)[name]
+      );
+    } else if (ast.namespace === 'cookie') {
+      this.contextStack.push((name: string) => {
+        return getCookie(name);
+      });
+    } else if (ast.namespace === 'ls' || ast.namespace === 'ss') {
+      const ns = ast.namespace;
+      this.contextStack.push((name: string) => {
+        const raw =
+          ns === 'ss'
+            ? sessionStorage.getItem(name)
+            : localStorage.getItem(name);
+
+        if (typeof raw === 'string') {
+          return parseJson(raw, raw);
+        }
+
+        return undefined;
+      });
+    } else {
+      throw new Error('Unsupported namespace: ' + ast.namespace);
+    }
+
+    const result = this.evalute(ast.body);
+    this.contextStack.pop();
+    return result;
   }
 
-  identifier(ast: {name: string}, data: any) {
+  variable(ast: {name: string}) {
+    const contextGetter = this.contextStack[this.contextStack.length - 1];
+    return contextGetter(ast.name);
+  }
+
+  identifier(ast: {name: string}) {
     return ast.name;
   }
 
-  array(ast: {type: 'array'; members: Array<any>}, data: any) {
-    return ast.members.map(member => this.evalute(member, data));
+  array(ast: {type: 'array'; members: Array<any>}) {
+    return ast.members.map(member => this.evalute(member));
   }
 
   literal(ast: {type: 'literal'; value: any}) {
@@ -372,24 +412,26 @@ export class Evaluator {
     return ast.value;
   }
 
-  object(ast: {members: Array<{key: string; value: any}>}, data: any) {
+  object(ast: {members: Array<{key: string; value: any}>}) {
     let object: any = {};
     ast.members.forEach(({key, value}) => {
-      object[this.evalute(key, data)] = this.evalute(value, data);
+      object[this.evalute(key)] = this.evalute(value);
     });
     return object;
   }
 
-  conditional(
-    ast: {type: 'conditional'; test: any; consequent: any; alternate: any},
-    data: any
-  ) {
-    return this.evalute(ast.test, data)
-      ? this.evalute(ast.consequent, data)
-      : this.evalute(ast.alternate, data);
+  conditional(ast: {
+    type: 'conditional';
+    test: any;
+    consequent: any;
+    alternate: any;
+  }) {
+    return this.evalute(ast.test)
+      ? this.evalute(ast.consequent)
+      : this.evalute(ast.alternate);
   }
 
-  funcCall(this: any, ast: {identifier: string; args: Array<any>}, data: any) {
+  funcCall(this: any, ast: {identifier: string; args: Array<any>}) {
     const fnName = `fn${ast.identifier}`;
     const fn =
       this.functions[fnName] || this[fnName] || this.filters[ast.identifier];
@@ -402,9 +444,9 @@ export class Evaluator {
 
     // 逻辑函数特殊处理，因为有时候有些运算是可以跳过的。
     if (~['IF', 'AND', 'OR', 'XOR', 'IFS'].indexOf(ast.identifier)) {
-      args = args.map(a => () => this.evalute(a, data));
+      args = args.map(a => () => this.evalute(a));
     } else {
-      args = args.map(a => this.evalute(a, data));
+      args = args.map(a => this.evalute(a));
     }
 
     return fn.apply(this, args);
@@ -840,5 +882,22 @@ export class Evaluator {
 
   fnCOUNT(value: any) {
     return Array.isArray(value) ? value.length : value ? 1 : 0;
+  }
+}
+
+function getCookie(name: string) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    return parts.pop()!.split(';').shift();
+  }
+  return undefined;
+}
+
+function parseJson(str: string, defaultValue?: any) {
+  try {
+    return JSON.parse(str);
+  } catch (e) {
+    return defaultValue;
   }
 }
