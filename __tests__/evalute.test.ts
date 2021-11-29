@@ -241,7 +241,7 @@ test('evalute:object-variable', () => {
   };
 
   expect(evaluate('a is ${obj.x}', data)).toBe('a is 1');
-  expect(evaluate('a is ${obj[x]}', data)).toBe('a is ');
+  expect(evaluate('a is ${obj[x]}', data)).toBe('a is 1');
   expect(evaluate('a is ${obj[`x`]}', data)).toBe('a is 1');
   expect(evaluate('a is ${obj["x"]}', data)).toBe('a is 1');
   expect(evaluate('a is ${obj[key]}', data)).toBe('a is 1');
