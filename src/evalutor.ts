@@ -180,7 +180,10 @@ export class Evaluator {
   // 下标获取
   getter(ast: {host: any; key: any}) {
     const host = this.evalute(ast.host);
-    const key = this.evalute(ast.key);
+    let key = this.evalute(ast.key);
+    if (!key && ast.key?.type === 'variable') {
+      key = ast.key.name;
+    }
     return host?.[key];
   }
 
