@@ -181,7 +181,7 @@ export class Evaluator {
   getter(ast: {host: any; key: any}) {
     const host = this.evalute(ast.host);
     let key = this.evalute(ast.key);
-    if (!key && ast.key?.type === 'variable') {
+    if (typeof key === 'undefined' && ast.key?.type === 'variable') {
       key = ast.key.name;
     }
     return host?.[key];
