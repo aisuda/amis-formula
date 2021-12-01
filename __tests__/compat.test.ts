@@ -464,6 +464,37 @@ filters.forEach(f => {
   });
 });
 
+test(`compat:filter`, () => {
+  const result = resolveVariableAndFilter(
+    '${rows | filter:engine:match:keywords}',
+    {
+      rows: [
+        {
+          engine: 'a'
+        },
+        {
+          engine: 'b'
+        },
+        {
+          engine: 'c'
+        }
+      ]
+    },
+    '| raw'
+  );
+  expect(result).toMatchObject([
+    {
+      engine: 'a'
+    },
+    {
+      engine: 'b'
+    },
+    {
+      engine: 'c'
+    }
+  ]);
+});
+
 test(`compat:test`, () => {
   const result = resolveVariableAndFilter('', {}, '| raw');
   expect(result).toEqual(undefined);

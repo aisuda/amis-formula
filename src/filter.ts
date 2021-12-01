@@ -395,7 +395,7 @@ export const filters: FilterMap = {
   },
   isMatch(input, matchArg, trueValue, falseValue) {
     const hasAlternate = arguments.length > 3;
-    matchArg = getStrOrVariable(matchArg, this.data as any);
+    matchArg = getStrOrVariable(matchArg, this.data as any) ?? matchArg;
     return conditionalFilter(
       input,
       hasAlternate,
@@ -407,7 +407,7 @@ export const filters: FilterMap = {
   },
   notMatch(input, matchArg, trueValue, falseValue) {
     const hasAlternate = arguments.length > 3;
-    matchArg = getStrOrVariable(matchArg, this.data as any);
+    matchArg = getStrOrVariable(matchArg, this.data as any) ?? matchArg;
     return conditionalFilter(
       input,
       hasAlternate,
@@ -418,7 +418,8 @@ export const filters: FilterMap = {
     );
   },
   isEquals(input, equalsValue, trueValue, falseValue) {
-    equalsValue = getStrOrVariable(equalsValue, this.data as any);
+    equalsValue =
+      getStrOrVariable(equalsValue, this.data as any) ?? equalsValue;
 
     const hasAlternate = arguments.length > 3;
     return conditionalFilter(
@@ -431,7 +432,8 @@ export const filters: FilterMap = {
     );
   },
   notEquals(input, equalsValue, trueValue, falseValue) {
-    equalsValue = getStrOrVariable(equalsValue, this.data as any);
+    equalsValue =
+      getStrOrVariable(equalsValue, this.data as any) ?? equalsValue;
 
     const hasAlternate = arguments.length > 3;
     return conditionalFilter(
@@ -454,9 +456,10 @@ function conditionalFilter(
   falseValue: any
 ) {
   hasAlternate && skipRestTest(filterContext.restFilters);
+  const result = test ? trueValue : falseValue;
 
   return test || hasAlternate
-    ? getStrOrVariable(test ? trueValue : falseValue, filterContext.data)
+    ? getStrOrVariable(result, filterContext.data) ?? result
     : input;
 }
 
@@ -471,7 +474,7 @@ function getStrOrVariable(value: any, data: any) {
   return typeof value === 'string' && /,/.test(value)
     ? value.split(/\s*,\s*/).filter(item => item)
     : typeof value === 'string'
-    ? resolveVariable(value, data) ?? value
+    ? resolveVariable(value, data)
     : value;
 }
 

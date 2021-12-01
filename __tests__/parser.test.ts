@@ -174,6 +174,6 @@ test('parser:unary-expression', () => {
   ).toMatchSnapshot();
 });
 
-test('parser:test', () => {
-  console.log(JSON.stringify(parse('${window:document.title}', {}), null, 2));
-});
+// test('parser:test', () => {
+//   console.log(JSON.stringify(parse('${window:document.title}', {}), null, 2));
+// });
