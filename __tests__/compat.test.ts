@@ -521,6 +521,19 @@ test(`compat:filter`, () => {
   ]);
 });
 
+test(`compat:&`, () => {
+  expect(
+    resolveVariableAndFilter(
+      '${& | json:0}',
+      {
+        a: 1,
+        b: 2
+      },
+      '| raw'
+    )
+  ).toBe('{"a":1,"b":2}');
+});
+
 test(`compat:test`, () => {
   const result = resolveVariableAndFilter('', {}, '| raw');
   expect(result).toEqual(undefined);

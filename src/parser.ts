@@ -701,6 +701,12 @@ export function parse(input: string, options?: ParserOptions) {
         type: 'variable',
         name: cToken.value
       };
+    } else if (matchPunctuator('&')) {
+      next();
+      return {
+        type: 'variable',
+        name: '&'
+      };
     }
     return null;
   }
