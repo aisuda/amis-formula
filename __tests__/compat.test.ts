@@ -465,24 +465,25 @@ filters.forEach(f => {
 });
 
 test(`compat:filter`, () => {
-  const result = resolveVariableAndFilter(
-    '${rows | filter:engine:match:keywords}',
-    {
-      rows: [
-        {
-          engine: 'a'
-        },
-        {
-          engine: 'b'
-        },
-        {
-          engine: 'c'
-        }
-      ]
-    },
-    '| raw'
-  );
-  expect(result).toMatchObject([
+  expect(
+    resolveVariableAndFilter(
+      '${rows | filter:engine:match:keywords}',
+      {
+        rows: [
+          {
+            engine: 'a'
+          },
+          {
+            engine: 'b'
+          },
+          {
+            engine: 'c'
+          }
+        ]
+      },
+      '| raw'
+    )
+  ).toMatchObject([
     {
       engine: 'a'
     },
@@ -491,6 +492,31 @@ test(`compat:filter`, () => {
     },
     {
       engine: 'c'
+    }
+  ]);
+
+  expect(
+    resolveVariableAndFilter(
+      '${rows | filter:engine:match:keywords}',
+      {
+        keywords: 'a',
+        rows: [
+          {
+            engine: 'a'
+          },
+          {
+            engine: 'b'
+          },
+          {
+            engine: 'c'
+          }
+        ]
+      },
+      '| raw'
+    )
+  ).toMatchObject([
+    {
+      engine: 'a'
     }
   ]);
 });
