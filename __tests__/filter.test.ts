@@ -202,3 +202,16 @@ test(`filter:objectToArray`, () => {
     }
   ]);
 });
+
+test(`filter:substring`, () => {
+  expect(
+    resolveVariableAndFilter('${a|substring:0:2}', {
+      a: 'abcdefg'
+    })
+  ).toBe('ab');
+  expect(
+    resolveVariableAndFilter('${a|substring:1:3}', {
+      a: 'abcdefg'
+    })
+  ).toBe('bc');
+});
