@@ -1,10 +1,8 @@
 {
   "name": "amis-formula",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "负责 amis 里面的表达式实现，内置公式，编辑器等",
   "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "browser": "dist/index.umd.js",
   "scripts": {
     "build": "npm run clean-dist && NODE_ENV=production rollup -c && npm run declaration",
     "clean-dist": "rimraf dist/*",
