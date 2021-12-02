@@ -573,6 +573,27 @@ test(`compat:filter-default`, () => {
       '| raw'
     )
   ).toBe('-');
+
+  expect(
+    resolveVariableAndFilter(
+      '${b | default:undefined}',
+      {
+        a: 1
+      },
+      '| raw',
+      () => ''
+    )
+  ).toBe(undefined);
+  expect(
+    resolveVariableAndFilter(
+      '${b}',
+      {
+        a: 1
+      },
+      '| raw',
+      () => ''
+    )
+  ).toBe('');
 });
 
 test(`compat:test`, () => {

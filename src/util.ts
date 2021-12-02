@@ -437,5 +437,7 @@ export const resolveVariableAndFilter = (
     defaultFilter
   }).evalute(ast);
 
-  return ret == null ? fallbackValue(ret) : ret;
+  return ret == null && !~path.indexOf('default') && !~path.indexOf('now')
+    ? fallbackValue(ret)
+    : ret;
 };

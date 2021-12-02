@@ -215,3 +215,11 @@ test(`filter:substring`, () => {
     })
   ).toBe('bc');
 });
+
+test(`filter:substring`, () => {
+  expect(
+    resolveVariableAndFilter('${a}', {
+      a: 'abc$0defg'
+    })
+  ).toBe('abc$0defg');
+});
