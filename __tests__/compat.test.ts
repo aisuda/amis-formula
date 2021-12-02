@@ -554,6 +554,15 @@ test(`compat:filter-default`, () => {
       '| raw'
     )
   ).toBe(undefined);
+  expect(
+    resolveVariableAndFilter(
+      '${b | default:-}',
+      {
+        a: 1
+      },
+      '| raw'
+    )
+  ).toBe('-');
 });
 
 test(`compat:test`, () => {
