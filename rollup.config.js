@@ -25,8 +25,10 @@ export default {
       name: main,
       ...settings,
       format: 'cjs',
-      plugins: [isProduction && terser()]
-    },
+      plugins: [
+        /*isProduction && terser()*/
+      ]
+    }
     // {
     //   file: module,
     //   ...settings,
@@ -40,7 +42,16 @@ export default {
     //   format: 'umd'
     // }
   ],
-  external: ['lodash', 'lodash/transform', 'lodash/groupBy', 'lodash/uniqBy', 'lodash/uniq', 'lodash/isPlainObject', 'moment', 'tslib'],
+  external: [
+    'lodash',
+    'lodash/transform',
+    'lodash/groupBy',
+    'lodash/uniqBy',
+    'lodash/uniq',
+    'lodash/isPlainObject',
+    'moment',
+    'tslib'
+  ],
 
   plugins: [
     json(),
