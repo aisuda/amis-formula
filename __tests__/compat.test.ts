@@ -547,6 +547,16 @@ test(`compat:filter-default`, () => {
 
   expect(
     resolveVariableAndFilter(
+      '${a | default:undefined}',
+      {
+        a: [1, 2, 3]
+      },
+      '| raw'
+    )
+  ).toMatchObject([1, 2, 3]);
+
+  expect(
+    resolveVariableAndFilter(
       '${b | default:undefined}',
       {
         a: 1
