@@ -534,6 +534,28 @@ test(`compat:&`, () => {
   ).toBe('{"a":1,"b":2}');
 });
 
+test(`compat:filter-default`, () => {
+  expect(
+    resolveVariableAndFilter(
+      '${a | default:undefined}',
+      {
+        a: 1
+      },
+      '| raw'
+    )
+  ).toBe(1);
+
+  expect(
+    resolveVariableAndFilter(
+      '${b | default:undefined}',
+      {
+        a: 1
+      },
+      '| raw'
+    )
+  ).toBe(undefined);
+});
+
 test(`compat:test`, () => {
   const result = resolveVariableAndFilter('', {}, '| raw');
   expect(result).toEqual(undefined);
