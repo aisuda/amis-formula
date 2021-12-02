@@ -47,7 +47,7 @@ export class Evaluator {
     Evaluator.defaultFilters = {
       ...Evaluator.defaultFilters,
       ...filters
-    }
+    };
   }
 
   constructor(
@@ -162,7 +162,7 @@ export class Evaluator {
         input: ast.body,
         filters: [
           {
-            name: defaultFilter.replace(/^\|\s/, ''),
+            name: defaultFilter.replace(/^\s*\|\s*/, ''),
             args: []
           }
         ]
