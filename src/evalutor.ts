@@ -3,7 +3,6 @@
  */
 
 import moment from 'moment';
-import {getFilters} from './filter';
 
 export interface FilterMap {
   [propName: string]: (this: FilterContext, input: any, ...args: any[]) => any;
@@ -43,6 +42,14 @@ export class Evaluator {
   };
   contextStack: Array<(varname: string) => any> = [];
 
+  static defaultFilters: FilterMap = {};
+  static setDefaultFilters(filters: FilterMap) {
+    Evaluator.defaultFilters = {
+      ...Evaluator.defaultFilters,
+      ...filters
+    }
+  }
+
   constructor(
     context: {
       [propName: string]: any;
@@ -57,8 +64,8 @@ export class Evaluator {
     );
 
     this.filters = {
+      ...Evaluator.defaultFilters,
       ...this.filters,
-      ...getFilters(),
       ...options?.filters
     };
     this.functions = {

@@ -27,20 +27,20 @@ export default {
       format: 'cjs',
       plugins: [isProduction && terser()]
     },
-    {
-      file: module,
-      ...settings,
-      name: name,
-      format: 'es'
-    },
-    {
-      file: browser,
-      ...settings,
-      name: name,
-      format: 'umd'
-    }
+    // {
+    //   file: module,
+    //   ...settings,
+    //   name: name,
+    //   format: 'es'
+    // },
+    // {
+    //   file: browser,
+    //   ...settings,
+    //   name: name,
+    //   format: 'umd'
+    // }
   ],
-  external: ['lodash', 'moment', 'tslib'],
+  external: ['lodash', 'lodash/transform', 'lodash/groupBy', 'lodash/uniqBy', 'lodash/uniq', 'lodash/isPlainObject', 'moment', 'tslib'],
 
   plugins: [
     json(),

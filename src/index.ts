@@ -16,3 +16,5 @@ export function evaluate(
 
   return new Evaluator(data, options).evalute(astOrString);
 }
+
+Evaluator.setDefaultFilters(getFilters());
