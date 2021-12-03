@@ -315,9 +315,7 @@ export function lexer(input: string, options?: LexerOptions) {
             // 支持旧的 $varName 的取值方法
             let j = i + 2;
             while (
-              /^[a-zA-Z0-9_.][a-zA-Z0-9_.\[\]]*$/.test(
-                input.substring(i + 1, j)
-              ) &&
+              /^[a-zA-Z0-9_][a-zA-Z0-9_]*$/.test(input.substring(i + 1, j)) &&
               j <= input.length
             ) {
               j++;
@@ -326,10 +324,10 @@ export function lexer(input: string, options?: LexerOptions) {
             if (j - i > 2) {
               tokenCache.push({
                 type: TokenName[TokenEnum.Variable],
-                value: input.substring(i + 1, j),
-                raw: input.substring(i, j),
+                value: input.substring(i + 1, j - 1),
+                raw: input.substring(i, j - 1),
                 start: position(input.substring(index, i)),
-                end: position(input.substring(index, j))
+                end: position(input.substring(index, j - 1))
               });
               break;
             }

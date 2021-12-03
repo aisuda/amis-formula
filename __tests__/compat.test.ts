@@ -596,6 +596,28 @@ test(`compat:filter-default`, () => {
   ).toBe('');
 });
 
+test(`compat:numberVariable`, () => {
+  expect(
+    resolveVariableAndFilter(
+      'a $1 ',
+      {
+        '1': 233
+      },
+      '| raw'
+    )
+  ).toEqual('a 233 ');
+
+  expect(
+    resolveVariableAndFilter(
+      'a $1',
+      {
+        '1': 233
+      },
+      '| raw'
+    )
+  ).toEqual('a 233');
+});
+
 test(`compat:test`, () => {
   const result = resolveVariableAndFilter('', {}, '| raw');
   expect(result).toEqual(undefined);
