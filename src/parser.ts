@@ -367,12 +367,7 @@ export function parse(input: string, options?: ParserOptions) {
       const isDot = matchPunctuator('.');
       next();
       const right = assert(
-        (isDot
-          ? identifier() || numberLiteral()
-          : varibleKey(
-              true
-            )) /* 为了兼容久的语法，理论上来说只需要 identifier, 下面的 rawScript 是不应该有的 */ ||
-          rawScript()
+        isDot ? identifier() || numberLiteral() || rawScript() : expression()
       );
 
       if (!isDot) {
