@@ -464,6 +464,19 @@ export class Evaluator {
 
   // 逻辑函数
 
+  /**
+   * 如果满足条件A，则返回B，否则返回C，支持多层嵌套IF函数
+   *
+   * @example IF(判断条件, 符合条件时返回值, 不符合条件时返回值)
+   * @name IF
+   *
+   * @param {expression} condition - 条件表达式.
+   * @param {any} consequent 条件判断通过的返回结果
+   * @param {any} alternate 条件判断不通过的返回结果
+   * @namespace 逻辑函数
+   *
+   * @returns {any} 根据条件返回不同的结果
+   */
   fnIF(condition: () => any, trueValue: () => any, falseValue: () => any) {
     return condition() ? trueValue() : falseValue();
   }
