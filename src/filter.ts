@@ -14,6 +14,7 @@ import {
   string2regExp,
   stripNumber
 } from './util';
+import {Evaluator} from './evalutor';
 import type {FilterContext, FilterMap} from './evalutor';
 
 function makeSorter(
@@ -518,6 +519,7 @@ export function registerFilter(
   fn: (input: any, ...args: any[]) => any
 ): void {
   filters[name] = fn;
+  Evaluator.setDefaultFilters(filters);
 }
 
 export function getFilters() {
