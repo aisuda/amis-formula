@@ -463,13 +463,13 @@ export class Evaluator {
   }
 
   /**
-   * IF(A, B, C)
+   * 示例：IF(A, B, C)
    *
    * 如果满足条件A，则返回B，否则返回C，支持多层嵌套IF函数。
    *
    * 也可以用表达式如：A ? B : C
    *
-   * @grammar IF(判断条件, 符合条件时返回值, 不符合条件时返回值)
+   * @example IF(condition, consequent, alternate)
    * @param {expression} condition - 条件表达式.
    * @param {any} consequent 条件判断通过的返回结果
    * @param {any} alternate 条件判断不通过的返回结果
@@ -490,7 +490,7 @@ export class Evaluator {
    *
    * 也可以直接用表达式如：语文成绩>80 && 数学成绩>80
    *
-   * @example AND(条件1, 条件2, ...条件n)
+   * @example AND(expression1, expression2, ...expressionN)
    * @param {...expression} conditions - 条件表达式.
    * @namespace 逻辑函数
    *
@@ -509,7 +509,7 @@ export class Evaluator {
    *
    * 也可以直接用表达式如：语文成绩>80 || 数学成绩>80
    *
-   * @example OR(条件1, 条件2, ...条件n)
+   * @example OR(expression1, expression2, ...expressionN)
    * @param {...expression} conditions - 条件表达式.
    * @namespace 逻辑函数
    *
@@ -522,9 +522,9 @@ export class Evaluator {
   /**
    * 异或处理，两个表达式同时为「真」，或者同时为「假」，则结果返回为「真」
    *
-   * @example XOR(条件1, 条件2)
-   * @param {expression} conditions - 条件表达式1
-   * @param {expression} conditions - 条件表达式2
+   * @example XOR(condition1, condition2)
+   * @param {expression} condition1 - 条件表达式1
+   * @param {expression} condition2 - 条件表达式2
    * @namespace 逻辑函数
    *
    * @returns {boolean}
@@ -540,7 +540,7 @@ export class Evaluator {
    *
    * 如果语文成绩大于 80，则返回优秀，否则判断大于 60 分，则返回良，否则返回继续努力。
    *
-   * @example IFS(条件1, 结果1, 条件2, 结果2,...条件n, 结果n)
+   * @example IFS(condition1, result1, condition2, result2,...conditionN, resultN)
    * @param {...any} args - 条件，返回值集合
    * @returns {any} 返回第一个满足条件的结果，没有命中的返回 false。
    */
@@ -563,8 +563,8 @@ export class Evaluator {
   /**
    * 返回传入数字的绝对值
    *
-   * @example ABS(数值)
-   * @param {number} number - 数值
+   * @example ABS(num)
+   * @param {number} num - 数值
    * @namespace 数学函数
    *
    * @returns {number} 返回传入数值的绝对值
@@ -577,8 +577,8 @@ export class Evaluator {
   /**
    * 获取最大值
    *
-   * @example MAX(数值1, 数值2, ...数值n)
-   * @param {...number} number - 数值
+   * @example MAX(num1, num2, ...numN)
+   * @param {...number} num - 数值
    * @namespace 数学函数
    *
    * @returns {number} 返回所有传入值中最大的那个
@@ -593,8 +593,8 @@ export class Evaluator {
   /**
    * 获取最小值
    *
-   * @example MIN(数值1, 数值2, ...数值n)
-   * @param {...number} number - 数值
+   * @example MIN(num1, num2, ...numN)
+   * @param {...number} num - 数值
    * @namespace 数学函数
    *
    * @returns {number} 返回所有传入值中最小的那个
@@ -609,8 +609,8 @@ export class Evaluator {
   /**
    * 求和
    *
-   * @example SUM(数值1, 数值2, ...数值n)
-   * @param {...number} number - 数值
+   * @example SUM(num1, num2, ...numN)
+   * @param {...number} num - 数值
    * @namespace 数学函数
    *
    * @returns {number} 返回所有传入数值的总和
@@ -620,10 +620,10 @@ export class Evaluator {
   }
 
   /**
-   * 将数字(number)向下取整为最接近的整数
+   * 将数值向下取整为最接近的整数
    *
-   * @example INT(数值1)
-   * @param {number} number - 数值
+   * @example INT(num)
+   * @param {number} num - 数值
    * @namespace 数学函数
    *
    * @returns {number} 返回数值对应的整形
@@ -635,8 +635,8 @@ export class Evaluator {
   /**
    * 返回两数相除的余数，参数 number 是被除数，divisor 是除数
    *
-   * @example MOD(A, B)
-   * @param {number} number - 被除数
+   * @example MOD(num, divisor)
+   * @param {number} num - 被除数
    * @param {number} divisor - 除数
    * @namespace 数学函数
    *
@@ -661,8 +661,8 @@ export class Evaluator {
   /**
    * 将数字四舍五入到指定的位数，可以设置小数位。
    *
-   * @example ROUND(A, 2)
-   * @param {number} number - 要处理的数字
+   * @example ROUND(num[, numDigits = 2])
+   * @param {number} num - 要处理的数字
    * @param {number} numDigits - 小数位数
    * @namespace 数学函数
    *
@@ -684,8 +684,8 @@ export class Evaluator {
   /**
    * 将数字向下取整到指定的位数，可以设置小数位。
    *
-   * @example FLOOR(A, 2)
-   * @param {number} number - 要处理的数字
+   * @example FLOOR(num[, numDigits=2])
+   * @param {number} num - 要处理的数字
    * @param {number} numDigits - 小数位数
    * @namespace 数学函数
    *
@@ -707,8 +707,8 @@ export class Evaluator {
   /**
    * 将数字向上取整到指定的位数，可以设置小数位。
    *
-   * @example CEIL(A, 2)
-   * @param {number} number - 要处理的数字
+   * @example CEIL(num[, numDigits=2])
+   * @param {number} num - 要处理的数字
    * @param {number} numDigits - 小数位数
    * @namespace 数学函数
    *
@@ -730,8 +730,8 @@ export class Evaluator {
   /**
    * 开平方，参数 number 为非负数
    *
-   * @example SQRT(A)
-   * @param {number} number - 要处理的数字
+   * @example SQRT(num)
+   * @param {number} num - 要处理的数字
    * @namespace 数学函数
    *
    * @returns {number} 返回开平方的结果
@@ -743,8 +743,8 @@ export class Evaluator {
   /**
    * 返回所有参数的平均值
    *
-   * @example AVG(数值1, 数值2, ...数值n)
-   * @param {...number} number - 要处理的数字
+   * @example AVG(num1, num2, ...numN)
+   * @param {...number} num - 要处理的数字
    * @namespace 数学函数
    *
    * @returns {number} 返回所有数值的平均值
@@ -761,8 +761,8 @@ export class Evaluator {
   /**
    * 将数值转为中文大写金额
    *
-   * @example UPPERMONEY(A)
-   * @param {number} number - 要处理的数字
+   * @example UPPERMONEY(num)
+   * @param {number} num - 要处理的数字
    * @namespace 数学函数
    *
    * @returns {string} 返回数值中文大写字符
@@ -831,9 +831,9 @@ export class Evaluator {
   /**
    * 返回传入文本左侧的指定长度字符串。
    *
-   * @example LEFT(A, 2)
+   * @example LEFT(text, len)
    * @param {string} text - 要处理的文本
-   * @param {number} length - 要处理的长度
+   * @param {number} len - 要处理的长度
    * @namespace 文本函数
    *
    * @returns {string} 对应字符串
@@ -846,9 +846,9 @@ export class Evaluator {
   /**
    * 返回传入文本右侧的指定长度字符串。
    *
-   * @example RIGHT(A, 2)
+   * @example RIGHT(text, len)
    * @param {string} text - 要处理的文本
-   * @param {number} length - 要处理的长度
+   * @param {number} len - 要处理的长度
    * @namespace 文本函数
    *
    * @returns {string} 对应字符串
@@ -861,7 +861,7 @@ export class Evaluator {
   /**
    * 计算文本的长度
    *
-   * @example LEN(A)
+   * @example LEN(text)
    * @param {string} text - 要处理的文本
    * @namespace 文本函数
    *
@@ -875,8 +875,8 @@ export class Evaluator {
   /**
    * 计算文本集合中所有文本的长度
    *
-   * @example LENGTH(A)
-   * @param {string[]} text - 要处理的文本集合
+   * @example LENGTH(textArr)
+   * @param {string[]} textArr - 要处理的文本集合
    * @namespace 文本函数
    *
    * @returns {number[]} 返回长度集合
@@ -888,7 +888,7 @@ export class Evaluator {
   /**
    * 判断文本是否为空
    *
-   * @example ISEMPTY(A)
+   * @example ISEMPTY(text)
    * @param {string} text - 要处理的文本
    * @namespace 文本函数
    *
@@ -901,7 +901,7 @@ export class Evaluator {
   /**
    * 将多个传入值连接成文本
    *
-   * @example CONCATENATE(A, B, ...N)
+   * @example CONCATENATE(text1, text2, ...textN)
    * @param {...string} text - 文本集合
    * @namespace 文本函数
    *
@@ -914,9 +914,10 @@ export class Evaluator {
   /**
    * 返回计算机字符集的数字代码所对应的字符。
    *
-   * @example CHAR(A, 1)
-   * @param {string} text - 文本
-   * @param {number} pos - 位置
+   * `CHAR(97)` 等价于 "a"
+   *
+   * @example CHAR(code)
+   * @param {number} code - 编码值
    * @namespace 文本函数
    *
    * @returns {string} 返回指定位置的字符
@@ -928,7 +929,7 @@ export class Evaluator {
   /**
    * 将传入文本转成小写
    *
-   * @example LOWER(A)
+   * @example LOWER(text)
    * @param {string} text - 文本
    * @namespace 文本函数
    *
@@ -942,7 +943,7 @@ export class Evaluator {
   /**
    * 将传入文本转成大写
    *
-   * @example UPPER(A)
+   * @example UPPER(text)
    * @param {string} text - 文本
    * @namespace 文本函数
    *
@@ -960,7 +961,7 @@ export class Evaluator {
    *
    * 返回 `["a", "b", "c"]`
    *
-   * @example SPLIT(A, ',')
+   * @example SPLIT(text, ',')
    * @param {string} text - 文本
    * @param {string} delimiter - 文本片段
    * @namespace 文本函数
@@ -975,7 +976,7 @@ export class Evaluator {
   /**
    * 将文本去除前后空格
    *
-   * @example TRIM(A)
+   * @example TRIM(text)
    * @param {string} text - 文本
    * @namespace 文本函数
    *
@@ -989,7 +990,7 @@ export class Evaluator {
   /**
    * 判断字符串(text)是否以特定字符串(startString)开始，是则返回 True，否则返回 False
    *
-   * @example STARTSWITH(A, '片段')
+   * @example STARTSWITH(text, '片段')
    * @param {string} text - 文本
    * @param {string} startString - 起始文本
    * @namespace 文本函数
@@ -1008,7 +1009,7 @@ export class Evaluator {
   /**
    * 判断参数 1 中的文本是否包含参数 2 中的文本。
    *
-   * @example CONTAINS(A, B)
+   * @example CONTAINS(text, searchText)
    * @param {string} text - 文本
    * @param {string} searchText - 搜索文本
    * @namespace 文本函数
@@ -1027,7 +1028,7 @@ export class Evaluator {
   /**
    * 对文本进行全量替换。
    *
-   * @example REPLACE(A, search, replace)
+   * @example REPLACE(text, search, replace)
    * @param {string} text - 要处理的文本
    * @param {string} search - 要被替换的文本
    * @param {string} replace - 要替换的文本
@@ -1058,7 +1059,7 @@ export class Evaluator {
   /**
    * 对文本进行搜索，返回命中的位置
    *
-   * @example SEARCH(A, search, 0)
+   * @example SEARCH(text, search, 0)
    * @param {string} text - 要处理的文本
    * @param {string} search - 用来搜索的文本
    * @param {number} start - 起始位置
@@ -1081,7 +1082,7 @@ export class Evaluator {
   /**
    * 返回文本字符串中从指定位置开始的特定数目的字符
    *
-   * @example MID(A, from, len)
+   * @example MID(text, from, len)
    * @param {string} text - 要处理的文本
    * @param {number} from - 起始位置
    * @param {number} len - 处理长度
@@ -1126,7 +1127,7 @@ export class Evaluator {
   /**
    * 返回时间的时间戳
    *
-   * @example TIMESTAMP(A)
+   * @example TIMESTAMP(date[, format = "X"])
    * @namespace 日期函数
    * @param {date} date 日期对象
    * @param {string} format 时间戳格式，带毫秒传入 'x'。默认为 'X' 不带毫秒的。
@@ -1164,7 +1165,7 @@ export class Evaluator {
   /**
    * 将日期转成日期字符串
    *
-   * @example DATETOSTR(A, "YYYY-MM-DD HH:mm:ss")
+   * @example DATETOSTR(date[, format="YYYY-MM-DD HH:mm:ss"])
    * @namespace 日期函数
    * @param {date} date 日期对象
    * @param {string} format 日期格式，默认为 "YYYY-MM-DD HH:mm:ss"
@@ -1179,7 +1180,7 @@ export class Evaluator {
    * 返回日期的指定范围的开端
    *
    * @namespace 日期函数
-   * @example STARTOF(A, 'month')
+   * @example STARTOF(date[unit = "day"])
    * @param {date} date 日期对象
    * @param {string} unit 比如可以传入 'day'、'month'、'year' 或者 `week` 等等
    * @returns {date} 新的日期对象
@@ -1193,7 +1194,7 @@ export class Evaluator {
   /**
    * 返回日期的指定范围的末尾
    * @namespace 日期函数
-   * @example ENDOF(A, 'month')
+   * @example ENDOF(date[unit = "day"])
    * @param {date} date 日期对象
    * @param {string} unit 比如可以传入 'day'、'month'、'year' 或者 `week` 等等
    * @returns {date} 新的日期对象
@@ -1226,7 +1227,7 @@ export class Evaluator {
   /**
    * 返回日期的年份
    * @namespace 日期函数
-   * @example YEAR(A)
+   * @example YEAR(date)
    * @param {date} date 日期对象
    * @returns {number} 返回数值
    */
@@ -1239,7 +1240,7 @@ export class Evaluator {
    * 返回日期的月份，这里就是自然月份。
    *
    * @namespace 日期函数
-   * @example MONTH(A)
+   * @example MONTH(date)
    * @param {date} date 日期对象
    * @returns {number} 返回数值
    */
@@ -1251,7 +1252,7 @@ export class Evaluator {
   /**
    * 返回日期的天
    * @namespace 日期函数
-   * @example DAY(A)
+   * @example DAY(date)
    * @param {date} date 日期对象
    * @returns {number} 返回数值
    */
@@ -1264,7 +1265,7 @@ export class Evaluator {
    * 返回日期的小时
    * @param {date} date 日期对象
    * @namespace 日期函数
-   * @example HOUR(A)
+   * @example HOUR(date)
    * @returns {number} 返回数值
    */
   fnHOUR(date: Date) {
@@ -1276,7 +1277,7 @@ export class Evaluator {
    * 返回日期的分
    * @param {date} date 日期对象
    * @namespace 日期函数
-   * @example MINUTE(A)
+   * @example MINUTE(date)
    * @returns {number} 返回数值
    */
   fnMINUTE(date: Date) {
@@ -1288,7 +1289,7 @@ export class Evaluator {
    * 返回日期的秒
    * @param {date} date 日期对象
    * @namespace 日期函数
-   * @example SECOND(A)
+   * @example SECOND(date)
    * @returns {number} 返回数值
    */
   fnSECOND(date: Date) {
@@ -1301,7 +1302,7 @@ export class Evaluator {
    * @param {date} endDate 日期对象
    * @param {date} startDate 日期对象
    * @namespace 日期函数
-   * @example YEARS(A, B)
+   * @example YEARS(endDate, startDate)
    * @returns {number} 返回数值
    */
   fnYEARS(endDate: Date, startDate: Date) {
@@ -1315,7 +1316,7 @@ export class Evaluator {
    * @param {date} endDate 日期对象
    * @param {date} startDate 日期对象
    * @namespace 日期函数
-   * @example MINUTES(A, B)
+   * @example MINUTES(endDate, startDate)
    * @returns {number} 返回数值
    */
   fnMINUTES(endDate: Date, startDate: Date) {
@@ -1329,7 +1330,7 @@ export class Evaluator {
    * @param {date} endDate 日期对象
    * @param {date} startDate 日期对象
    * @namespace 日期函数
-   * @example DAYS(A, B)
+   * @example DAYS(endDate, startDate)
    * @returns {number} 返回数值
    */
   fnDAYS(endDate: Date, startDate: Date) {
@@ -1343,7 +1344,7 @@ export class Evaluator {
    * @param {date} endDate 日期对象
    * @param {date} startDate 日期对象
    * @namespace 日期函数
-   * @example HOURS(A, B)
+   * @example HOURS(endDate, startDate)
    * @returns {number} 返回数值
    */
   fnHOURS(endDate: Date, startDate: Date) {
@@ -1365,7 +1366,7 @@ export class Evaluator {
    * @param {number} num 数值
    * @param {string} unit 单位：支持年、月、天等等
    * @namespace 日期函数
-   * @example DATEMODIFY(A, 2, 'days')
+   * @example DATEMODIFY(date, 2, 'days')
    * @returns {date} 返回日期对象
    */
   fnDATEMODIFY(date: Date, num: number, format: any) {
@@ -1381,7 +1382,7 @@ export class Evaluator {
    * @param {string} value 日期字符
    * @param {string} format 日期格式
    * @namespace 日期函数
-   * @example STRTODATE(A, 'YYYY-MM-DD HH:mm:ss')
+   * @example STRTODATE(value[, format=""])
    * @returns {date} 返回日期对象
    */
   fnSTRTODATE(value: any, format: string = '') {
@@ -1395,7 +1396,7 @@ export class Evaluator {
    * @param {date} b 第二个日期
    * @param {string} unit 单位，默认是 'day'， 即之比较到天
    * @namespace 日期函数
-   * @example ISBEFORE(A, B)
+   * @example ISBEFORE(a, b)
    * @returns {boolean}} 返回判断结果
    */
   fnISBEFORE(a: Date, b: Date, unit: any = 'day') {
@@ -1411,7 +1412,7 @@ export class Evaluator {
    * @param {date} b 第二个日期
    * @param {string} unit 单位，默认是 'day'， 即之比较到天
    * @namespace 日期函数
-   * @example ISAFTER(A, B)
+   * @example ISAFTER(a, b)
    * @returns {boolean}} 返回判断结果
    */
   fnISAFTER(a: Date, b: Date, unit: any = 'day') {
@@ -1427,7 +1428,7 @@ export class Evaluator {
    * @param {date} b 第二个日期
    * @param {string} unit 单位，默认是 'day'， 即之比较到天
    * @namespace 日期函数
-   * @example ISSAMEORBEFORE(A, B)
+   * @example ISSAMEORBEFORE(a, b)
    * @returns {boolean}} 返回判断结果
    */
   fnISSAMEORBEFORE(a: Date, b: Date, unit: any = 'day') {
@@ -1443,7 +1444,7 @@ export class Evaluator {
    * @param {date} b 第二个日期
    * @param {string} unit 单位，默认是 'day'， 即之比较到天
    * @namespace 日期函数
-   * @example ISSAMEORAFTER(A, B)
+   * @example ISSAMEORAFTER(a, b)
    * @returns {boolean}} 返回判断结果
    */
   fnISSAMEORAFTER(a: Date, b: Date, unit: any = 'day') {
@@ -1456,9 +1457,9 @@ export class Evaluator {
    * 返回数组的长度
    *
    * @param {Array<any>} arr 数组
-   * @namespace 其他函数
-   * @example COUNT(A)
-   * @returns {boolean}} 返回结果
+   * @namespace 其他
+   * @example COUNT(arr)
+   * @returns {boolean} 返回结果
    */
   fnCOUNT(value: any) {
     return Array.isArray(value) ? value.length : value ? 1 : 0;

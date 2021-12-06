@@ -1,10 +1,10 @@
 {
   "name": "amis-formula",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "负责 amis 里面的表达式实现，内置公式，编辑器等",
   "main": "dist/index.js",
   "scripts": {
-    "build": "npm run clean-dist && NODE_ENV=production rollup -c && npm run declaration",
+    "build": "npm run clean-dist && NODE_ENV=production rollup -c && npm run declaration && npm run genDoc",
     "clean-dist": "rimraf dist/*",
     "declaration": "tsc --allowJs --declaration --emitDeclarationOnly --declarationDir ./dist --rootDir ./src",
     "test": "jest",

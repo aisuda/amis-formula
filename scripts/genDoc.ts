@@ -5,6 +5,7 @@ import doctrine = require('doctrine');
 const workDir = path.resolve(path.dirname(__dirname));
 const jsFile = path.join(workDir, 'src/evalutor.ts');
 const outputFile = path.join(workDir, 'dist/doc.js');
+const outputMD = path.join(workDir, 'dist/doc.md');
 
 function getFormulaComments(contents: string) {
   const comments: Array<{
@@ -96,6 +97,43 @@ async function main(...params: Array<any>) {
     'utf8'
   );
   console.log(`公式文档生成 > ${outputFile}`);
+
+  const grouped: any = {};
+  result.forEach((item: any) => {
+    const scope = item.namespace || '其他';
+    const arr = grouped[scope] || (grouped[scope] = []);
+
+    arr.push(item);
+  });
+
+  let md = '';
+  Object.keys(grouped).forEach(key => {
+    md += `## ${key}\n\n`;
+
+    grouped[key].forEach((item: any) => {
+      md += `### ${item.name}\n\n`;
+
+      md += `用法：\`${item.example}\`\n\n`;
+
+      if (item.params.length) {
+        // md += `参数：\n`;
+
+        item.params.forEach((param: any) => {
+          md += ` * \`${param.name}:${param.type}\` ${param.description}\n`;
+        });
+
+        if (item.returns) {
+          md += `\n返回：\`${item.returns.type}\` ${
+            item.returns.description || ''
+          }\n\n`;
+        }
+      }
+
+      md += `${item.description}\n\n`;
+    });
+  });
+  fs.writeFileSync(outputMD, md, 'utf8');
+  console.log(`公式md生成 > ${outputMD}`);
 }
 
 main().catch(e => console.error(e));
