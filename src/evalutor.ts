@@ -543,7 +543,7 @@ export class Evaluator {
    * @example IFS(condition1, result1, condition2, result2,...conditionN, resultN)
    * @param {...any} args - 条件，返回值集合
    * @namespace 逻辑函数
-   * @returns {any} 返回第一个满足条件的结果，没有命中的返回 false。
+   * @returns {any} 第一个满足条件的结果，没有命中的返回 false。
    */
   fnIFS(...args: Array<() => any>) {
     if (args.length % 2) {
@@ -568,7 +568,7 @@ export class Evaluator {
    * @param {number} num - 数值
    * @namespace 数学函数
    *
-   * @returns {number} 返回传入数值的绝对值
+   * @returns {number} 传入数值的绝对值
    */
   fnABS(a: number) {
     a = this.formatNumber(a);
@@ -582,7 +582,7 @@ export class Evaluator {
    * @param {...number} num - 数值
    * @namespace 数学函数
    *
-   * @returns {number} 返回所有传入值中最大的那个
+   * @returns {number} 所有传入值中最大的那个
    */
   fnMAX(...args: Array<any>) {
     return Math.max.apply(
@@ -598,7 +598,7 @@ export class Evaluator {
    * @param {...number} num - 数值
    * @namespace 数学函数
    *
-   * @returns {number} 返回所有传入值中最小的那个
+   * @returns {number} 所有传入值中最小的那个
    */
   fnMIN(...args: Array<number>) {
     return Math.min.apply(
@@ -614,7 +614,7 @@ export class Evaluator {
    * @param {...number} num - 数值
    * @namespace 数学函数
    *
-   * @returns {number} 返回所有传入数值的总和
+   * @returns {number} 所有传入数值的总和
    */
   fnSUM(...args: Array<number>) {
     return args.reduce((sum, a) => sum + this.formatNumber(a) || 0, 0);
@@ -627,7 +627,7 @@ export class Evaluator {
    * @param {number} num - 数值
    * @namespace 数学函数
    *
-   * @returns {number} 返回数值对应的整形
+   * @returns {number} 数值对应的整形
    */
   fnINT(n: number) {
     return Math.floor(this.formatNumber(n));
@@ -641,7 +641,7 @@ export class Evaluator {
    * @param {number} divisor - 除数
    * @namespace 数学函数
    *
-   * @returns {number} 返回两数相除的余数
+   * @returns {number} 两数相除的余数
    */
   fnMOD(a: number, b: number) {
     return this.formatNumber(a) % this.formatNumber(b);
@@ -653,7 +653,7 @@ export class Evaluator {
    * @example PI()
    * @namespace 数学函数
    *
-   * @returns {number} 返回圆周率数值
+   * @returns {number} 圆周率数值
    */
   fnPI() {
     return Math.PI;
@@ -667,7 +667,7 @@ export class Evaluator {
    * @param {number} numDigits - 小数位数
    * @namespace 数学函数
    *
-   * @returns {number} 返回传入数值四舍五入后的结果
+   * @returns {number} 传入数值四舍五入后的结果
    */
   fnROUND(a: number, b: number) {
     a = this.formatNumber(a);
@@ -690,7 +690,7 @@ export class Evaluator {
    * @param {number} numDigits - 小数位数
    * @namespace 数学函数
    *
-   * @returns {number} 返回传入数值向下取整后的结果
+   * @returns {number} 传入数值向下取整后的结果
    */
   fnFLOOR(a: number, b: number) {
     a = this.formatNumber(a);
@@ -713,7 +713,7 @@ export class Evaluator {
    * @param {number} numDigits - 小数位数
    * @namespace 数学函数
    *
-   * @returns {number} 返回传入数值向上取整后的结果
+   * @returns {number} 传入数值向上取整后的结果
    */
   fnCEIL(a: number, b: number) {
     a = this.formatNumber(a);
@@ -735,7 +735,7 @@ export class Evaluator {
    * @param {number} num - 要处理的数字
    * @namespace 数学函数
    *
-   * @returns {number} 返回开平方的结果
+   * @returns {number} 开平方的结果
    */
   fnSQRT(n: number) {
     return Math.sqrt(this.formatNumber(n));
@@ -748,7 +748,7 @@ export class Evaluator {
    * @param {...number} num - 要处理的数字
    * @namespace 数学函数
    *
-   * @returns {number} 返回所有数值的平均值
+   * @returns {number} 所有数值的平均值
    */
   fnAVG(...args: Array<any>) {
     return (
@@ -766,7 +766,7 @@ export class Evaluator {
    * @param {number} num - 要处理的数字
    * @namespace 数学函数
    *
-   * @returns {string} 返回数值中文大写字符
+   * @returns {string} 数值中文大写字符
    */
   fnUPPERMONEY(n: number) {
     n = this.formatNumber(n);
@@ -813,7 +813,7 @@ export class Evaluator {
    * @example RAND()
    * @namespace 数学函数
    *
-   * @returns {number} 返回随机数
+   * @returns {number} 随机数
    */
   fnRAND() {
     return Math.random();
@@ -880,7 +880,7 @@ export class Evaluator {
    * @param {string[]} textArr - 要处理的文本集合
    * @namespace 文本函数
    *
-   * @returns {number[]} 返回长度集合
+   * @returns {number[]} 长度集合
    */
   fnLENGTH(...args: any[]) {
     return this.fnLEN.call(this, args);
@@ -893,7 +893,7 @@ export class Evaluator {
    * @param {string} text - 要处理的文本
    * @namespace 文本函数
    *
-   * @returns {boolean} 返回判断结果
+   * @returns {boolean} 判断结果
    */
   fnISEMPTY(text: string) {
     return !text || !String(text).trim();
@@ -906,7 +906,7 @@ export class Evaluator {
    * @param {...string} text - 文本集合
    * @namespace 文本函数
    *
-   * @returns {string} 返回连接后的文本
+   * @returns {string} 连接后的文本
    */
   fnCONCATENATE(...args: Array<any>) {
     return args.join('');
@@ -921,7 +921,7 @@ export class Evaluator {
    * @param {number} code - 编码值
    * @namespace 文本函数
    *
-   * @returns {string} 返回指定位置的字符
+   * @returns {string} 指定位置的字符
    */
   fnCHAR(code: number) {
     return String.fromCharCode(code);
@@ -934,7 +934,7 @@ export class Evaluator {
    * @param {string} text - 文本
    * @namespace 文本函数
    *
-   * @returns {string} 返回结果文本
+   * @returns {string} 结果文本
    */
   fnLOWER(text: string) {
     text = this.normalizeText(text);
@@ -948,7 +948,7 @@ export class Evaluator {
    * @param {string} text - 文本
    * @namespace 文本函数
    *
-   * @returns {string} 返回结果文本
+   * @returns {string} 结果文本
    */
   fnUPPER(text: string) {
     text = this.normalizeText(text);
@@ -967,7 +967,7 @@ export class Evaluator {
    * @param {string} delimiter - 文本片段
    * @namespace 文本函数
    *
-   * @returns {Array<string>} 返回文本集
+   * @returns {Array<string>} 文本集
    */
   fnSPLIT(text: string, sep: string = ',') {
     text = this.normalizeText(text);
@@ -981,7 +981,7 @@ export class Evaluator {
    * @param {string} text - 文本
    * @namespace 文本函数
    *
-   * @returns {string} 返回处理后的文本
+   * @returns {string} 处理后的文本
    */
   fnTRIM(text: string) {
     text = this.normalizeText(text);
@@ -996,7 +996,7 @@ export class Evaluator {
    * @param {string} startString - 起始文本
    * @namespace 文本函数
    *
-   * @returns {string} 返回判断结果
+   * @returns {string} 判断结果
    */
   fnSTARTSWITH(text: string, search: string) {
     if (!search) {
@@ -1015,7 +1015,7 @@ export class Evaluator {
    * @param {string} searchText - 搜索文本
    * @namespace 文本函数
    *
-   * @returns {string} 返回判断结果
+   * @returns {string} 判断结果
    */
   fnCONTAINS(text: string, search: string) {
     if (!search) {
@@ -1035,7 +1035,7 @@ export class Evaluator {
    * @param {string} replace - 要替换的文本
    * @namespace 文本函数
    *
-   * @returns {string} 返回处理结果
+   * @returns {string} 处理结果
    */
   fnREPLACE(text: string, search: string, replace: string) {
     text = this.normalizeText(text);
@@ -1066,7 +1066,7 @@ export class Evaluator {
    * @param {number} start - 起始位置
    * @namespace 文本函数
    *
-   * @returns {number} 返回命中的位置
+   * @returns {number} 命中的位置
    */
   fnSEARCH(text: string, search: string, start: number = 0) {
     text = this.normalizeText(text);
@@ -1089,7 +1089,7 @@ export class Evaluator {
    * @param {number} len - 处理长度
    * @namespace 文本函数
    *
-   * @returns {number} 返回命中的位置
+   * @returns {number} 命中的位置
    */
   fnMID(text: string, from: number, len: number) {
     text = this.normalizeText(text);
@@ -1108,7 +1108,7 @@ export class Evaluator {
    * @example DATE('2021-12-06 08:20:00')
    * @namespace 日期函数
    *
-   * @returns {Date} 返回日期对象
+   * @returns {Date} 日期对象
    */
   fnDATE(
     year: number,
@@ -1133,7 +1133,7 @@ export class Evaluator {
    * @param {date} date 日期对象
    * @param {string} format 时间戳格式，带毫秒传入 'x'。默认为 'X' 不带毫秒的。
    *
-   * @returns {number} 返回时间戳
+   * @returns {number} 时间戳
    */
   fnTIMESTAMP(date: Date, format?: 'x' | 'X') {
     return parseInt(moment(date).format(format === 'x' ? 'x' : 'X'), 10);
@@ -1145,7 +1145,7 @@ export class Evaluator {
    * @example TODAY()
    * @namespace 日期函数
    *
-   * @returns {number} 返回日期
+   * @returns {number} 日期
    */
   fnTODAY() {
     return new Date();
@@ -1157,7 +1157,7 @@ export class Evaluator {
    * @example NOW()
    * @namespace 日期函数
    *
-   * @returns {number} 返回日期
+   * @returns {number} 日期
    */
   fnNOW() {
     return new Date();
@@ -1171,7 +1171,7 @@ export class Evaluator {
    * @param {date} date 日期对象
    * @param {string} format 日期格式，默认为 "YYYY-MM-DD HH:mm:ss"
    *
-   * @returns {number} 返回日期字符串
+   * @returns {number} 日期字符串
    */
   fnDATETOSTR(date: Date, format = 'YYYY-MM-DD HH:mm:ss') {
     return moment(date).format(format);
@@ -1230,7 +1230,7 @@ export class Evaluator {
    * @namespace 日期函数
    * @example YEAR(date)
    * @param {date} date 日期对象
-   * @returns {number} 返回数值
+   * @returns {number} 数值
    */
   fnYEAR(date: Date) {
     date = this.normalizeDate(date);
@@ -1243,7 +1243,7 @@ export class Evaluator {
    * @namespace 日期函数
    * @example MONTH(date)
    * @param {date} date 日期对象
-   * @returns {number} 返回数值
+   * @returns {number} 数值
    */
   fnMONTH(date: Date) {
     date = this.normalizeDate(date);
@@ -1255,7 +1255,7 @@ export class Evaluator {
    * @namespace 日期函数
    * @example DAY(date)
    * @param {date} date 日期对象
-   * @returns {number} 返回数值
+   * @returns {number} 数值
    */
   fnDAY(date: Date) {
     date = this.normalizeDate(date);
@@ -1267,7 +1267,7 @@ export class Evaluator {
    * @param {date} date 日期对象
    * @namespace 日期函数
    * @example HOUR(date)
-   * @returns {number} 返回数值
+   * @returns {number} 数值
    */
   fnHOUR(date: Date) {
     date = this.normalizeDate(date);
@@ -1279,7 +1279,7 @@ export class Evaluator {
    * @param {date} date 日期对象
    * @namespace 日期函数
    * @example MINUTE(date)
-   * @returns {number} 返回数值
+   * @returns {number} 数值
    */
   fnMINUTE(date: Date) {
     date = this.normalizeDate(date);
@@ -1291,7 +1291,7 @@ export class Evaluator {
    * @param {date} date 日期对象
    * @namespace 日期函数
    * @example SECOND(date)
-   * @returns {number} 返回数值
+   * @returns {number} 数值
    */
   fnSECOND(date: Date) {
     date = this.normalizeDate(date);
@@ -1304,7 +1304,7 @@ export class Evaluator {
    * @param {date} startDate 日期对象
    * @namespace 日期函数
    * @example YEARS(endDate, startDate)
-   * @returns {number} 返回数值
+   * @returns {number} 数值
    */
   fnYEARS(endDate: Date, startDate: Date) {
     endDate = this.normalizeDate(endDate);
@@ -1318,7 +1318,7 @@ export class Evaluator {
    * @param {date} startDate 日期对象
    * @namespace 日期函数
    * @example MINUTES(endDate, startDate)
-   * @returns {number} 返回数值
+   * @returns {number} 数值
    */
   fnMINUTES(endDate: Date, startDate: Date) {
     endDate = this.normalizeDate(endDate);
@@ -1332,7 +1332,7 @@ export class Evaluator {
    * @param {date} startDate 日期对象
    * @namespace 日期函数
    * @example DAYS(endDate, startDate)
-   * @returns {number} 返回数值
+   * @returns {number} 数值
    */
   fnDAYS(endDate: Date, startDate: Date) {
     endDate = this.normalizeDate(endDate);
@@ -1346,7 +1346,7 @@ export class Evaluator {
    * @param {date} startDate 日期对象
    * @namespace 日期函数
    * @example HOURS(endDate, startDate)
-   * @returns {number} 返回数值
+   * @returns {number} 数值
    */
   fnHOURS(endDate: Date, startDate: Date) {
     endDate = this.normalizeDate(endDate);
@@ -1368,7 +1368,7 @@ export class Evaluator {
    * @param {string} unit 单位：支持年、月、天等等
    * @namespace 日期函数
    * @example DATEMODIFY(date, 2, 'days')
-   * @returns {date} 返回日期对象
+   * @returns {date} 日期对象
    */
   fnDATEMODIFY(date: Date, num: number, format: any) {
     date = this.normalizeDate(date);
@@ -1384,7 +1384,7 @@ export class Evaluator {
    * @param {string} format 日期格式
    * @namespace 日期函数
    * @example STRTODATE(value[, format=""])
-   * @returns {date} 返回日期对象
+   * @returns {date} 日期对象
    */
   fnSTRTODATE(value: any, format: string = '') {
     return moment(value, format).toDate();
@@ -1398,7 +1398,7 @@ export class Evaluator {
    * @param {string} unit 单位，默认是 'day'， 即之比较到天
    * @namespace 日期函数
    * @example ISBEFORE(a, b)
-   * @returns {boolean}} 返回判断结果
+   * @returns {boolean} 判断结果
    */
   fnISBEFORE(a: Date, b: Date, unit: any = 'day') {
     a = this.normalizeDate(a);
@@ -1414,7 +1414,7 @@ export class Evaluator {
    * @param {string} unit 单位，默认是 'day'， 即之比较到天
    * @namespace 日期函数
    * @example ISAFTER(a, b)
-   * @returns {boolean}} 返回判断结果
+   * @returns {boolean} 判断结果
    */
   fnISAFTER(a: Date, b: Date, unit: any = 'day') {
     a = this.normalizeDate(a);
@@ -1430,7 +1430,7 @@ export class Evaluator {
    * @param {string} unit 单位，默认是 'day'， 即之比较到天
    * @namespace 日期函数
    * @example ISSAMEORBEFORE(a, b)
-   * @returns {boolean}} 返回判断结果
+   * @returns {boolean} 判断结果
    */
   fnISSAMEORBEFORE(a: Date, b: Date, unit: any = 'day') {
     a = this.normalizeDate(a);
@@ -1446,7 +1446,7 @@ export class Evaluator {
    * @param {string} unit 单位，默认是 'day'， 即之比较到天
    * @namespace 日期函数
    * @example ISSAMEORAFTER(a, b)
-   * @returns {boolean}} 返回判断结果
+   * @returns {boolean} 判断结果
    */
   fnISSAMEORAFTER(a: Date, b: Date, unit: any = 'day') {
     a = this.normalizeDate(a);
@@ -1460,7 +1460,7 @@ export class Evaluator {
    * @param {Array<any>} arr 数组
    * @namespace 其他
    * @example COUNT(arr)
-   * @returns {boolean} 返回结果
+   * @returns {boolean} 结果
    */
   fnCOUNT(value: any) {
     return Array.isArray(value) ? value.length : value ? 1 : 0;
