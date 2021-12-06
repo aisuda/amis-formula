@@ -542,6 +542,7 @@ export class Evaluator {
    *
    * @example IFS(condition1, result1, condition2, result2,...conditionN, resultN)
    * @param {...any} args - 条件，返回值集合
+   * @namespace 逻辑函数
    * @returns {any} 返回第一个满足条件的结果，没有命中的返回 false。
    */
   fnIFS(...args: Array<() => any>) {
