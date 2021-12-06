@@ -29,6 +29,19 @@ function getFormulaComments(contents: string) {
   return comments;
 }
 
+function formatType(tag: any): string {
+  // console.log(tag);
+  if (tag.type === 'RestType') {
+    return `...${formatType(tag.expression)}`;
+  } else if (tag.type === 'TypeApplication') {
+    return `Array<${tag.applications
+      .map((item: any) => formatType(item))
+      .join(',')}>`;
+  }
+
+  return tag.name;
+}
+
 async function main(...params: Array<any>) {
   const contents = fs.readFileSync(jsFile, 'utf8');
 
@@ -53,13 +66,13 @@ async function main(...params: Array<any>) {
         namespace = tag.name!;
       } else if (tag.title === 'param') {
         params.push({
-          type: (tag.type as any)?.name,
+          type: formatType(tag.type),
           name: tag.name,
           description: tag.description
         });
       } else if (tag.title === 'returns') {
         returns = {
-          type: (tag.type as any)?.name,
+          type: formatType(tag.type),
           description: tag.description
         };
       }

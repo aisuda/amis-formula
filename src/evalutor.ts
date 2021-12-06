@@ -462,14 +462,14 @@ export class Evaluator {
     return fn.apply(this, args);
   }
 
-  // 逻辑函数
-
   /**
-   * 如果满足条件A，则返回B，否则返回C，支持多层嵌套IF函数
+   * IF(A, B, C)
    *
-   * @example IF(判断条件, 符合条件时返回值, 不符合条件时返回值)
-   * @name IF
+   * 如果满足条件A，则返回B，否则返回C，支持多层嵌套IF函数。
    *
+   * 也可以用表达式如：A ? B : C
+   *
+   * @grammar IF(判断条件, 符合条件时返回值, 不符合条件时返回值)
    * @param {expression} condition - 条件表达式.
    * @param {any} consequent 条件判断通过的返回结果
    * @param {any} alternate 条件判断不通过的返回结果
@@ -481,18 +481,69 @@ export class Evaluator {
     return condition() ? trueValue() : falseValue();
   }
 
+  /**
+   * 条件全部符合，返回 true，否则返回 false
+   *
+   * 示例：AND(语文成绩>80, 数学成绩>80)
+   *
+   * 语文成绩和数学成绩都大于 80，则返回 true，否则返回 false
+   *
+   * 也可以直接用表达式如：语文成绩>80 && 数学成绩>80
+   *
+   * @example AND(条件1, 条件2, ...条件n)
+   * @param {...expression} conditions - 条件表达式.
+   * @namespace 逻辑函数
+   *
+   * @returns {boolean}
+   */
   fnAND(...condtions: Array<() => any>) {
     return condtions.every(c => c());
   }
 
+  /**
+   * 条件任意一个满足条件，返回 true，否则返回 false
+   *
+   * 示例：OR(语文成绩>80, 数学成绩>80)
+   *
+   * 语文成绩和数学成绩任意一个大于 80，则返回 true，否则返回 false
+   *
+   * 也可以直接用表达式如：语文成绩>80 || 数学成绩>80
+   *
+   * @example OR(条件1, 条件2, ...条件n)
+   * @param {...expression} conditions - 条件表达式.
+   * @namespace 逻辑函数
+   *
+   * @returns {boolean}
+   */
   fnOR(...condtions: Array<() => any>) {
     return condtions.some(c => c());
   }
 
+  /**
+   * 异或处理，两个表达式同时为「真」，或者同时为「假」，则结果返回为「真」
+   *
+   * @example XOR(条件1, 条件2)
+   * @param {expression} conditions - 条件表达式1
+   * @param {expression} conditions - 条件表达式2
+   * @namespace 逻辑函数
+   *
+   * @returns {boolean}
+   */
   fnXOR(c1: () => any, c2: () => any) {
     return !!c1() === !!c2();
   }
 
+  /**
+   * 判断函数集合，相当于多个 else if 合并成一个。
+   *
+   * 示例：IFS(语文成绩 > 80, "优秀", 语文成绩 > 60, "良", "继续努力")
+   *
+   * 如果语文成绩大于 80，则返回优秀，否则判断大于 60 分，则返回良，否则返回继续努力。
+   *
+   * @example IFS(条件1, 结果1, 条件2, 结果2,...条件n, 结果n)
+   * @param {...any} args - 条件，返回值集合
+   * @returns {any} 返回第一个满足条件的结果，没有命中的返回 false。
+   */
   fnIFS(...args: Array<() => any>) {
     if (args.length % 2) {
       args.splice(args.length - 1, 0, () => true);
@@ -509,13 +560,29 @@ export class Evaluator {
     return;
   }
 
-  // 数学函数
-
+  /**
+   * 返回传入数字的绝对值
+   *
+   * @example ABS(数值)
+   * @param {number} number - 数值
+   * @namespace 数学函数
+   *
+   * @returns {number} 返回传入数值的绝对值
+   */
   fnABS(a: number) {
     a = this.formatNumber(a);
     return Math.abs(a);
   }
 
+  /**
+   * 获取最大值
+   *
+   * @example MAX(数值1, 数值2, ...数值n)
+   * @param {...number} number - 数值
+   * @namespace 数学函数
+   *
+   * @returns {number} 返回所有传入值中最大的那个
+   */
   fnMAX(...args: Array<any>) {
     return Math.max.apply(
       Math,
@@ -523,6 +590,15 @@ export class Evaluator {
     );
   }
 
+  /**
+   * 获取最小值
+   *
+   * @example MIN(数值1, 数值2, ...数值n)
+   * @param {...number} number - 数值
+   * @namespace 数学函数
+   *
+   * @returns {number} 返回所有传入值中最小的那个
+   */
   fnMIN(...args: Array<number>) {
     return Math.min.apply(
       Math,
@@ -530,22 +606,68 @@ export class Evaluator {
     );
   }
 
+  /**
+   * 求和
+   *
+   * @example SUM(数值1, 数值2, ...数值n)
+   * @param {...number} number - 数值
+   * @namespace 数学函数
+   *
+   * @returns {number} 返回所有传入数值的总和
+   */
   fnSUM(...args: Array<number>) {
     return args.reduce((sum, a) => sum + this.formatNumber(a) || 0, 0);
   }
 
+  /**
+   * 将数字(number)向下取整为最接近的整数
+   *
+   * @example INT(数值1)
+   * @param {number} number - 数值
+   * @namespace 数学函数
+   *
+   * @returns {number} 返回数值对应的整形
+   */
   fnINT(n: number) {
     return Math.floor(this.formatNumber(n));
   }
 
+  /**
+   * 返回两数相除的余数，参数 number 是被除数，divisor 是除数
+   *
+   * @example MOD(A, B)
+   * @param {number} number - 被除数
+   * @param {number} divisor - 除数
+   * @namespace 数学函数
+   *
+   * @returns {number} 返回两数相除的余数
+   */
   fnMOD(a: number, b: number) {
     return this.formatNumber(a) % this.formatNumber(b);
   }
 
+  /**
+   * 圆周率 3.1415...
+   *
+   * @example PI()
+   * @namespace 数学函数
+   *
+   * @returns {number} 返回圆周率数值
+   */
   fnPI() {
     return Math.PI;
   }
 
+  /**
+   * 将数字四舍五入到指定的位数，可以设置小数位。
+   *
+   * @example ROUND(A, 2)
+   * @param {number} number - 要处理的数字
+   * @param {number} numDigits - 小数位数
+   * @namespace 数学函数
+   *
+   * @returns {number} 返回传入数值四舍五入后的结果
+   */
   fnROUND(a: number, b: number) {
     a = this.formatNumber(a);
     b = this.formatNumber(b);
@@ -559,6 +681,16 @@ export class Evaluator {
     return Math.round(a);
   }
 
+  /**
+   * 将数字向下取整到指定的位数，可以设置小数位。
+   *
+   * @example FLOOR(A, 2)
+   * @param {number} number - 要处理的数字
+   * @param {number} numDigits - 小数位数
+   * @namespace 数学函数
+   *
+   * @returns {number} 返回传入数值向下取整后的结果
+   */
   fnFLOOR(a: number, b: number) {
     a = this.formatNumber(a);
     b = this.formatNumber(b);
@@ -572,6 +704,16 @@ export class Evaluator {
     return Math.floor(a);
   }
 
+  /**
+   * 将数字向上取整到指定的位数，可以设置小数位。
+   *
+   * @example CEIL(A, 2)
+   * @param {number} number - 要处理的数字
+   * @param {number} numDigits - 小数位数
+   * @namespace 数学函数
+   *
+   * @returns {number} 返回传入数值向上取整后的结果
+   */
   fnCEIL(a: number, b: number) {
     a = this.formatNumber(a);
     b = this.formatNumber(b);
@@ -585,10 +727,28 @@ export class Evaluator {
     return Math.ceil(a);
   }
 
+  /**
+   * 开平方，参数 number 为非负数
+   *
+   * @example SQRT(A)
+   * @param {number} number - 要处理的数字
+   * @namespace 数学函数
+   *
+   * @returns {number} 返回开平方的结果
+   */
   fnSQRT(n: number) {
     return Math.sqrt(this.formatNumber(n));
   }
 
+  /**
+   * 返回所有参数的平均值
+   *
+   * @example AVG(数值1, 数值2, ...数值n)
+   * @param {...number} number - 要处理的数字
+   * @namespace 数学函数
+   *
+   * @returns {number} 返回所有数值的平均值
+   */
   fnAVG(...args: Array<any>) {
     return (
       this.fnSUM.apply(
@@ -598,6 +758,15 @@ export class Evaluator {
     );
   }
 
+  /**
+   * 将数值转为中文大写金额
+   *
+   * @example UPPERMONEY(A)
+   * @param {number} number - 要处理的数字
+   * @namespace 数学函数
+   *
+   * @returns {string} 返回数值中文大写字符
+   */
   fnUPPERMONEY(n: number) {
     n = this.formatNumber(n);
     const fraction = ['角', '分'];
@@ -633,6 +802,18 @@ export class Evaluator {
     );
   }
 
+  /**
+   * 返回大于等于 0 且小于 1 的均匀分布随机实数。每一次触发计算都会变化。
+   *
+   * 示例：`RAND()*100`
+   *
+   * 返回 0-100 之间的随机数
+   *
+   * @example RAND()
+   * @namespace 数学函数
+   *
+   * @returns {number} 返回随机数
+   */
   fnRAND() {
     return Math.random();
   }
@@ -647,57 +828,174 @@ export class Evaluator {
     return `${raw}`;
   }
 
+  /**
+   * 返回传入文本左侧的指定长度字符串。
+   *
+   * @example LEFT(A, 2)
+   * @param {string} text - 要处理的文本
+   * @param {number} length - 要处理的长度
+   * @namespace 文本函数
+   *
+   * @returns {string} 对应字符串
+   */
   fnLEFT(text: string, len: number) {
     text = this.normalizeText(text);
     return text.substring(0, len);
   }
 
+  /**
+   * 返回传入文本右侧的指定长度字符串。
+   *
+   * @example RIGHT(A, 2)
+   * @param {string} text - 要处理的文本
+   * @param {number} length - 要处理的长度
+   * @namespace 文本函数
+   *
+   * @returns {string} 对应字符串
+   */
   fnRIGHT(text: string, len: number) {
     text = this.normalizeText(text);
     return text.substring(text.length - len, text.length);
   }
 
+  /**
+   * 计算文本的长度
+   *
+   * @example LEN(A)
+   * @param {string} text - 要处理的文本
+   * @namespace 文本函数
+   *
+   * @returns {number} 长度
+   */
   fnLEN(text: string) {
     text = this.normalizeText(text);
     return text?.length;
   }
 
+  /**
+   * 计算文本集合中所有文本的长度
+   *
+   * @example LENGTH(A)
+   * @param {string[]} text - 要处理的文本集合
+   * @namespace 文本函数
+   *
+   * @returns {number[]} 返回长度集合
+   */
   fnLENGTH(...args: any[]) {
     return this.fnLEN.call(this, args);
   }
 
+  /**
+   * 判断文本是否为空
+   *
+   * @example ISEMPTY(A)
+   * @param {string} text - 要处理的文本
+   * @namespace 文本函数
+   *
+   * @returns {boolean} 返回判断结果
+   */
   fnISEMPTY(text: string) {
     return !text || !String(text).trim();
   }
 
+  /**
+   * 将多个传入值连接成文本
+   *
+   * @example CONCATENATE(A, B, ...N)
+   * @param {...string} text - 文本集合
+   * @namespace 文本函数
+   *
+   * @returns {string} 返回连接后的文本
+   */
   fnCONCATENATE(...args: Array<any>) {
     return args.join('');
   }
 
+  /**
+   * 返回计算机字符集的数字代码所对应的字符。
+   *
+   * @example CHAR(A, 1)
+   * @param {string} text - 文本
+   * @param {number} pos - 位置
+   * @namespace 文本函数
+   *
+   * @returns {string} 返回指定位置的字符
+   */
   fnCHAR(code: number) {
     return String.fromCharCode(code);
   }
 
+  /**
+   * 将传入文本转成小写
+   *
+   * @example LOWER(A)
+   * @param {string} text - 文本
+   * @namespace 文本函数
+   *
+   * @returns {string} 返回结果文本
+   */
   fnLOWER(text: string) {
     text = this.normalizeText(text);
     return text.toLowerCase();
   }
 
+  /**
+   * 将传入文本转成大写
+   *
+   * @example UPPER(A)
+   * @param {string} text - 文本
+   * @namespace 文本函数
+   *
+   * @returns {string} 返回结果文本
+   */
   fnUPPER(text: string) {
     text = this.normalizeText(text);
     return text.toUpperCase();
   }
 
+  /**
+   * 将文本根据指定片段分割成数组
+   *
+   * 示例：`SPLIT("a,b,c", ",")`
+   *
+   * 返回 `["a", "b", "c"]`
+   *
+   * @example SPLIT(A, ',')
+   * @param {string} text - 文本
+   * @param {string} delimiter - 文本片段
+   * @namespace 文本函数
+   *
+   * @returns {Array<string>} 返回文本集
+   */
   fnSPLIT(text: string, sep: string = ',') {
     text = this.normalizeText(text);
     return text.split(sep);
   }
 
+  /**
+   * 将文本去除前后空格
+   *
+   * @example TRIM(A)
+   * @param {string} text - 文本
+   * @namespace 文本函数
+   *
+   * @returns {string} 返回处理后的文本
+   */
   fnTRIM(text: string) {
     text = this.normalizeText(text);
     return text.trim();
   }
 
+  /**
+   * 判断字符串(text)是否以特定字符串(startString)开始，是则返回 True，否则返回 False
+   *
+   * @example STARTSWITH(A, '片段')
+   * @param {string} text - 文本
+   * @param {string} startString - 起始文本
+   * @namespace 文本函数
+   *
+   * @returns {string} 返回判断结果
+   */
   fnSTARTSWITH(text: string, search: string) {
     if (!search) {
       return false;
@@ -707,6 +1005,16 @@ export class Evaluator {
     return text.indexOf(search) === 0;
   }
 
+  /**
+   * 判断参数 1 中的文本是否包含参数 2 中的文本。
+   *
+   * @example CONTAINS(A, B)
+   * @param {string} text - 文本
+   * @param {string} searchText - 搜索文本
+   * @namespace 文本函数
+   *
+   * @returns {string} 返回判断结果
+   */
   fnCONTAINS(text: string, search: string) {
     if (!search) {
       return false;
@@ -716,6 +1024,17 @@ export class Evaluator {
     return !!~text.indexOf(search);
   }
 
+  /**
+   * 对文本进行全量替换。
+   *
+   * @example REPLACE(A, search, replace)
+   * @param {string} text - 要处理的文本
+   * @param {string} search - 要被替换的文本
+   * @param {string} replace - 要替换的文本
+   * @namespace 文本函数
+   *
+   * @returns {string} 返回处理结果
+   */
   fnREPLACE(text: string, search: string, replace: string) {
     text = this.normalizeText(text);
     let result = text;
@@ -736,6 +1055,17 @@ export class Evaluator {
     return result;
   }
 
+  /**
+   * 对文本进行搜索，返回命中的位置
+   *
+   * @example SEARCH(A, search, 0)
+   * @param {string} text - 要处理的文本
+   * @param {string} search - 用来搜索的文本
+   * @param {number} start - 起始位置
+   * @namespace 文本函数
+   *
+   * @returns {number} 返回命中的位置
+   */
   fnSEARCH(text: string, search: string, start: number = 0) {
     text = this.normalizeText(text);
     start = this.formatNumber(start);
@@ -748,12 +1078,36 @@ export class Evaluator {
     return -1;
   }
 
+  /**
+   * 返回文本字符串中从指定位置开始的特定数目的字符
+   *
+   * @example MID(A, from, len)
+   * @param {string} text - 要处理的文本
+   * @param {number} from - 起始位置
+   * @param {number} len - 处理长度
+   * @namespace 文本函数
+   *
+   * @returns {number} 返回命中的位置
+   */
   fnMID(text: string, from: number, len: number) {
     text = this.normalizeText(text);
     return text.substring(from, from + len);
   }
 
   // 日期函数
+
+  /**
+   * 创建日期对象，可以通过特定格式的字符串，或者数值。
+   *
+   * 需要注意的是，其中月份的数值是从0开始的，也就是说，
+   * 如果是12月份，你应该传入数值11。
+   *
+   * @example DATE(2021, 11, 6, 8, 20, 0)
+   * @example DATE('2021-12-06 08:20:00')
+   * @namespace 日期函数
+   *
+   * @returns {Date} 返回日期对象
+   */
   fnDATE(
     year: number,
     month: number,
@@ -769,28 +1123,81 @@ export class Evaluator {
     return new Date(year, month, day, hour, minute, second);
   }
 
+  /**
+   * 返回时间的时间戳
+   *
+   * @example TIMESTAMP(A)
+   * @namespace 日期函数
+   * @param {date} date 日期对象
+   * @param {string} format 时间戳格式，带毫秒传入 'x'。默认为 'X' 不带毫秒的。
+   *
+   * @returns {number} 返回时间戳
+   */
   fnTIMESTAMP(date: Date, format?: 'x' | 'X') {
     return parseInt(moment(date).format(format === 'x' ? 'x' : 'X'), 10);
   }
 
+  /**
+   * 返回今天的日期
+   *
+   * @example TODAY()
+   * @namespace 日期函数
+   *
+   * @returns {number} 返回日期
+   */
   fnTODAY() {
     return new Date();
   }
 
+  /**
+   * 返回现在的日期
+   *
+   * @example NOW()
+   * @namespace 日期函数
+   *
+   * @returns {number} 返回日期
+   */
   fnNOW() {
     return new Date();
   }
 
+  /**
+   * 将日期转成日期字符串
+   *
+   * @example DATETOSTR(A, "YYYY-MM-DD HH:mm:ss")
+   * @namespace 日期函数
+   * @param {date} date 日期对象
+   * @param {string} format 日期格式，默认为 "YYYY-MM-DD HH:mm:ss"
+   *
+   * @returns {number} 返回日期字符串
+   */
   fnDATETOSTR(date: Date, format = 'YYYY-MM-DD HH:mm:ss') {
     return moment(date).format(format);
   }
 
+  /**
+   * 返回日期的指定范围的开端
+   *
+   * @namespace 日期函数
+   * @example STARTOF(A, 'month')
+   * @param {date} date 日期对象
+   * @param {string} unit 比如可以传入 'day'、'month'、'year' 或者 `week` 等等
+   * @returns {date} 新的日期对象
+   */
   fnSTARTOF(date: Date, unit?: any) {
     return moment(date)
       .startOf(unit || 'day')
       .toDate();
   }
 
+  /**
+   * 返回日期的指定范围的末尾
+   * @namespace 日期函数
+   * @example ENDOF(A, 'month')
+   * @param {date} date 日期对象
+   * @param {string} unit 比如可以传入 'day'、'month'、'year' 或者 `week` 等等
+   * @returns {date} 新的日期对象
+   */
   fnENDOF(date: Date, unit?: any) {
     return moment(date)
       .endOf(unit || 'day')
@@ -816,93 +1223,243 @@ export class Evaluator {
     return raw;
   }
 
+  /**
+   * 返回日期的年份
+   * @namespace 日期函数
+   * @example YEAR(A)
+   * @param {date} date 日期对象
+   * @returns {number} 返回数值
+   */
   fnYEAR(date: Date) {
     date = this.normalizeDate(date);
     return date.getFullYear();
   }
 
+  /**
+   * 返回日期的月份，这里就是自然月份。
+   *
+   * @namespace 日期函数
+   * @example MONTH(A)
+   * @param {date} date 日期对象
+   * @returns {number} 返回数值
+   */
   fnMONTH(date: Date) {
     date = this.normalizeDate(date);
     return date.getMonth() + 1;
   }
 
+  /**
+   * 返回日期的天
+   * @namespace 日期函数
+   * @example DAY(A)
+   * @param {date} date 日期对象
+   * @returns {number} 返回数值
+   */
   fnDAY(date: Date) {
     date = this.normalizeDate(date);
     return date.getDate();
   }
 
+  /**
+   * 返回日期的小时
+   * @param {date} date 日期对象
+   * @namespace 日期函数
+   * @example HOUR(A)
+   * @returns {number} 返回数值
+   */
   fnHOUR(date: Date) {
     date = this.normalizeDate(date);
     return date.getHours();
   }
 
-  fnHMINUTE(date: Date) {
+  /**
+   * 返回日期的分
+   * @param {date} date 日期对象
+   * @namespace 日期函数
+   * @example MINUTE(A)
+   * @returns {number} 返回数值
+   */
+  fnMINUTE(date: Date) {
     date = this.normalizeDate(date);
     return date.getMinutes();
   }
 
+  /**
+   * 返回日期的秒
+   * @param {date} date 日期对象
+   * @namespace 日期函数
+   * @example SECOND(A)
+   * @returns {number} 返回数值
+   */
   fnSECOND(date: Date) {
     date = this.normalizeDate(date);
     return date.getSeconds();
   }
 
+  /**
+   * 返回两个日期相差多少年
+   * @param {date} endDate 日期对象
+   * @param {date} startDate 日期对象
+   * @namespace 日期函数
+   * @example YEARS(A, B)
+   * @returns {number} 返回数值
+   */
   fnYEARS(endDate: Date, startDate: Date) {
     endDate = this.normalizeDate(endDate);
     startDate = this.normalizeDate(startDate);
     return moment(endDate).diff(moment(startDate), 'year');
   }
 
+  /**
+   * 返回两个日期相差多少分钟
+   * @param {date} endDate 日期对象
+   * @param {date} startDate 日期对象
+   * @namespace 日期函数
+   * @example MINUTES(A, B)
+   * @returns {number} 返回数值
+   */
   fnMINUTES(endDate: Date, startDate: Date) {
     endDate = this.normalizeDate(endDate);
     startDate = this.normalizeDate(startDate);
     return moment(endDate).diff(moment(startDate), 'minutes');
   }
 
+  /**
+   * 返回两个日期相差多少天
+   * @param {date} endDate 日期对象
+   * @param {date} startDate 日期对象
+   * @namespace 日期函数
+   * @example DAYS(A, B)
+   * @returns {number} 返回数值
+   */
   fnDAYS(endDate: Date, startDate: Date) {
     endDate = this.normalizeDate(endDate);
     startDate = this.normalizeDate(startDate);
     return moment(endDate).diff(moment(startDate), 'days');
   }
 
+  /**
+   * 返回两个日期相差多少小时
+   * @param {date} endDate 日期对象
+   * @param {date} startDate 日期对象
+   * @namespace 日期函数
+   * @example HOURS(A, B)
+   * @returns {number} 返回数值
+   */
   fnHOURS(endDate: Date, startDate: Date) {
     endDate = this.normalizeDate(endDate);
     startDate = this.normalizeDate(startDate);
     return moment(endDate).diff(moment(startDate), 'hour');
   }
 
+  /**
+   * 修改日期，对日期进行加减天、月份、年等操作
+   *
+   * 示例：
+   *
+   * DATEMODIFY(A, -2, 'month')
+   *
+   * 对日期 A 进行往前减2月的操作。
+   *
+   * @param {date} date 日期对象
+   * @param {number} num 数值
+   * @param {string} unit 单位：支持年、月、天等等
+   * @namespace 日期函数
+   * @example DATEMODIFY(A, 2, 'days')
+   * @returns {date} 返回日期对象
+   */
   fnDATEMODIFY(date: Date, num: number, format: any) {
     date = this.normalizeDate(date);
     return moment(date).add(num, format).toDate();
   }
 
+  /**
+   * 将字符日期转成日期对象，可以指定日期格式。
+   *
+   * 示例：STRTODATE('2021/12/6', 'YYYY/MM/DD')
+   *
+   * @param {string} value 日期字符
+   * @param {string} format 日期格式
+   * @namespace 日期函数
+   * @example STRTODATE(A, 'YYYY-MM-DD HH:mm:ss')
+   * @returns {date} 返回日期对象
+   */
   fnSTRTODATE(value: any, format: string = '') {
     return moment(value, format).toDate();
   }
 
+  /**
+   * 判断两个日期，是否第一个日期在第二个日期的前面
+   *
+   * @param {date} a 第一个日期
+   * @param {date} b 第二个日期
+   * @param {string} unit 单位，默认是 'day'， 即之比较到天
+   * @namespace 日期函数
+   * @example ISBEFORE(A, B)
+   * @returns {boolean}} 返回判断结果
+   */
   fnISBEFORE(a: Date, b: Date, unit: any = 'day') {
     a = this.normalizeDate(a);
     b = this.normalizeDate(b);
     return moment(a).isBefore(moment(b), unit);
   }
 
+  /**
+   * 判断两个日期，是否第一个日期在第二个日期的后面
+   *
+   * @param {date} a 第一个日期
+   * @param {date} b 第二个日期
+   * @param {string} unit 单位，默认是 'day'， 即之比较到天
+   * @namespace 日期函数
+   * @example ISAFTER(A, B)
+   * @returns {boolean}} 返回判断结果
+   */
   fnISAFTER(a: Date, b: Date, unit: any = 'day') {
     a = this.normalizeDate(a);
     b = this.normalizeDate(b);
     return moment(a).isAfter(moment(b), unit);
   }
 
+  /**
+   * 判断两个日期，是否第一个日期在第二个日期的前面或者相等
+   *
+   * @param {date} a 第一个日期
+   * @param {date} b 第二个日期
+   * @param {string} unit 单位，默认是 'day'， 即之比较到天
+   * @namespace 日期函数
+   * @example ISSAMEORBEFORE(A, B)
+   * @returns {boolean}} 返回判断结果
+   */
   fnISSAMEORBEFORE(a: Date, b: Date, unit: any = 'day') {
     a = this.normalizeDate(a);
     b = this.normalizeDate(b);
     return moment(a).isSameOrBefore(moment(b), unit);
   }
 
+  /**
+   * 判断两个日期，是否第一个日期在第二个日期的后面或者相等
+   *
+   * @param {date} a 第一个日期
+   * @param {date} b 第二个日期
+   * @param {string} unit 单位，默认是 'day'， 即之比较到天
+   * @namespace 日期函数
+   * @example ISSAMEORAFTER(A, B)
+   * @returns {boolean}} 返回判断结果
+   */
   fnISSAMEORAFTER(a: Date, b: Date, unit: any = 'day') {
     a = this.normalizeDate(a);
     b = this.normalizeDate(b);
     return moment(a).isSameOrAfter(moment(b), unit);
   }
 
+  /**
+   * 返回数组的长度
+   *
+   * @param {Array<any>} arr 数组
+   * @namespace 其他函数
+   * @example COUNT(A)
+   * @returns {boolean}} 返回结果
+   */
   fnCOUNT(value: any) {
     return Array.isArray(value) ? value.length : value ? 1 : 0;
   }

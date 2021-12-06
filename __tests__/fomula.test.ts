@@ -148,6 +148,12 @@ test('formula:date', () => {
   expect(evalFormual('TIMESTAMP(DATE(2021, 11, 21, 0, 0, 0), "x")')).toBe(
     new Date(2021, 11, 21, 0, 0, 0).getTime()
   );
+  expect(
+    evalFormual('DATETOSTR(DATE(2021, 11, 21, 0, 0, 0), "YYYY-MM-DD")')
+  ).toBe('2021-12-21');
+  expect(evalFormual('DATETOSTR(DATE("2021-12-21"), "YYYY-MM-DD")')).toBe(
+    '2021-12-21'
+  );
   expect(evalFormual('DATETOSTR(TODAY(), "YYYY-MM-DD")')).toBe(
     moment().format('YYYY-MM-DD')
   );
