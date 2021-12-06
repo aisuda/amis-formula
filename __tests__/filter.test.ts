@@ -216,7 +216,7 @@ test(`filter:substring`, () => {
   ).toBe('bc');
 });
 
-test(`filter:substring`, () => {
+test(`filter:variableInVariable`, () => {
   expect(
     resolveVariableAndFilter('${a}', {
       a: 'abc$0defg'
