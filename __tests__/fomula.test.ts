@@ -135,6 +135,18 @@ test('formula:text', () => {
   expect(evalFormual('TRIM("  ab ")')).toBe('ab');
   expect(evalFormual('STARTSWITH("xab", "ab")')).toBe(false);
   expect(evalFormual('STARTSWITH("xab", "x")')).toBe(true);
+  expect(evalFormual('ENDSWITH("xab", "x")')).toBe(false);
+  expect(evalFormual('ENDSWITH("xab", "b")')).toBe(true);
+  expect(evalFormual('UPPERFIRST("xab")')).toBe('Xab');
+  expect(evalFormual('PADSTART("5", 3, "0")')).toBe('005');
+  expect(evalFormual('PADSTART(5, 3, 0)')).toBe('005');
+  expect(evalFormual('CAPITALIZE("star")')).toBe('Star');
+  expect(evalFormual('ESCAPE("&")')).toBe('&amp;');
+  expect(evalFormual('TRUNCATE("amis.baidu.com", 7)')).toBe('amis...');
+  expect(evalFormual('BEFORELAST("amis.baidu.com", ".")')).toBe('amis.baidu');
+  expect(evalFormual('BEFORELAST("amis", ".")')).toBe('amis');
+  expect(evalFormual('STRIPTAG("<b>amis</b>")')).toBe('amis');
+  expect(evalFormual('LINEBREAK("am\nis")')).toBe('am<br/>is');
   expect(evalFormual('CONTAINS("xab", "x")')).toBe(true);
   expect(evalFormual('CONTAINS("xab", "b")')).toBe(true);
   expect(evalFormual('REPLACE("xabab", "ab", "cd")')).toBe('xcdcd');
