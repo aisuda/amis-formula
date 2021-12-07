@@ -141,7 +141,12 @@ export const filters: FilterMap = {
 
     return input.substring(0, length) + (input.length > length ? end : '');
   },
-  url_encode: input => encodeURIComponent(input),
+  url_encode: input => {
+    if (input == null) {
+      return '';
+    }
+    return encodeURIComponent(input);
+  },
   url_decode: input => decodeURIComponent(input),
   default: (input, defaultValue, strict = false) =>
     (strict ? input : input ? input : undefined) ??
