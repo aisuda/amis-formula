@@ -3,6 +3,11 @@
  */
 
 import moment from 'moment';
+import upperFirst from 'lodash/upperFirst';
+import padStart from 'lodash/padStart';
+import capitalize from 'lodash/capitalize';
+import escape from 'lodash/escape';
+import truncate from 'lodash/truncate';
 
 export interface FilterMap {
   [propName: string]: (this: FilterContext, input: any, ...args: any[]) => any;
@@ -956,6 +961,110 @@ export class Evaluator {
   }
 
   /**
+   * 将传入文本首字母转成大写
+   *
+   * @example UPPERFIRST(text)
+   * @param {string} text - 文本
+   * @namespace 文本函数
+   *
+   * @returns {string} 结果文本
+   */
+  fnUPPERFIRST(text: string) {
+    text = this.normalizeText(text);
+    return upperFirst(text);
+  }
+
+  /**
+   * 向前补齐文本长度
+   *
+   * 示例 `PADSTART("6", 2, "0")`
+   *
+   * 返回 `06`
+   *
+   * @example PADSTART(text)
+   * @param {string} text - 文本
+   * @param {number} num - 目标长度
+   * @param {string} pad - 用于补齐的文本
+   * @namespace 文本函数
+   *
+   * @returns {string} 结果文本
+   */
+  fnPADSTART(text: string, num: number, pad: string): string {
+    text = this.normalizeText(text);
+    return padStart(text, num, pad);
+  }
+
+  /**
+   * 将文本转成标题
+   *
+   * 示例 `CAPITALIZE("star")`
+   *
+   * 返回 `Star`
+   *
+   * @example CAPITALIZE(text)
+   * @param {string} text - 文本
+   * @namespace 文本函数
+   *
+   * @returns {string} 结果文本
+   */
+  fnCAPITALIZE(text: string): string {
+    text = this.normalizeText(text);
+    return capitalize(text);
+  }
+
+  /**
+   * 对文本进行 HTML 转义
+   *
+   * 示例 `ESCAPE("star")`
+   *
+   * 返回 `Star`
+   *
+   * @example ESCAPE(text)
+   * @param {string} text - 文本
+   * @namespace 文本函数
+   *
+   * @returns {string} 结果文本
+   */
+  fnESCAPE(text: string): string {
+    text = this.normalizeText(text);
+    return escape(text);
+  }
+
+  /**
+   * 对文本长度进行截断
+   *
+   * 示例 `TRUNCATE("amis.baidu.com", 6)`
+   *
+   * 返回 `amis...`
+   *
+   * @example TRUNCATE(text, 6)
+   * @param {string} text - 文本
+   * @param {number} text - 最长长度
+   * @namespace 文本函数
+   *
+   * @returns {string} 结果文本
+   */
+  fnTRUNCATE(text: string, length: number): string {
+    text = this.normalizeText(text);
+    return truncate(text, {length});
+  }
+
+  /**
+   *  取在某个分隔符之前的所有字符串
+   *
+   * @example  BEFORELAST(text, '.')
+   * @param {string} text - 文本
+   * @param {string} delimiter - 结束文本
+   * @namespace 文本函数
+   *
+   * @returns {string} 判断结果
+   */
+  fnBEFORELAST(text: string, delimiter: string = '.') {
+    text = this.normalizeText(text);
+    return text.split(delimiter).slice(0, -1).join(delimiter) || text + '';
+  }
+
+  /**
    * 将文本根据指定片段分割成数组
    *
    * 示例：`SPLIT("a,b,c", ",")`
@@ -989,6 +1098,42 @@ export class Evaluator {
   }
 
   /**
+   * 去除文本中的 HTML 标签
+   *
+   * 示例：`STRIPTAG("<b>amis</b>")`
+   *
+   * 返回：`amis`
+   *
+   * @example STRIPTAG(text)
+   * @param {string} text - 文本
+   * @namespace 文本函数
+   *
+   * @returns {string} 处理后的文本
+   */
+  fnSTRIPTAG(text: string) {
+    text = this.normalizeText(text);
+    return text.replace(/<\/?[^>]+(>|$)/g, '');
+  }
+
+  /**
+   * 将字符串中的换行转成 HTML `<br>`，用于简单换行的场景
+   *
+   * 示例：`LINEBREAK("\n")`
+   *
+   * 返回：`<br/>`
+   *
+   * @example LINEBREAK(text)
+   * @param {string} text - 文本
+   * @namespace 文本函数
+   *
+   * @returns {string} 处理后的文本
+   */
+  fnLINEBREAK(text: string) {
+    text = this.normalizeText(text);
+    return text.replace(/(?:\r\n|\r|\n)/g, '<br/>');
+  }
+
+  /**
    * 判断字符串(text)是否以特定字符串(startString)开始，是则返回 True，否则返回 False
    *
    * @example STARTSWITH(text, '片段')
@@ -1005,6 +1150,25 @@ export class Evaluator {
 
     text = this.normalizeText(text);
     return text.indexOf(search) === 0;
+  }
+
+  /**
+   * 判断字符串(text)是否以特定字符串(endString)结束，是则返回 True，否则返回 False
+   *
+   * @example ENDSWITH(text, '片段')
+   * @param {string} text - 文本
+   * @param {string} endString - 结束文本
+   * @namespace 文本函数
+   *
+   * @returns {string} 判断结果
+   */
+  fnENDSWITH(text: string, search: string) {
+    if (!search) {
+      return false;
+    }
+
+    text = this.normalizeText(text);
+    return text.indexOf(search, text.length - search.length) !== -1;
   }
 
   /**
