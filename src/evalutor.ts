@@ -765,6 +765,96 @@ export class Evaluator {
   }
 
   /**
+   * 返回数据点与数据均值点之差（数据偏差）的平方和
+   *
+   * @example DEVSQ(num1, num2, ...numN)
+   * @param {...number} num - 要处理的数字
+   * @namespace 数学函数
+   *
+   * @returns {number} 所有数值的平均值
+   */
+  fnDEVSQ(...args: Array<any>) {
+    if (args.length === 0) {
+      return null;
+    }
+    const nums = args.map(item => this.formatNumber(item));
+    const sum = nums.reduce((sum, a) => sum + a || 0, 0);
+    const mean = sum / nums.length;
+    let result = 0;
+    for (const num of nums) {
+      result += Math.pow(num - mean, 2);
+    }
+    return result;
+  }
+
+  /**
+   * 数据点到其算术平均值的绝对偏差的平均值
+   *
+   * @example AVEDEV(num1, num2, ...numN)
+   * @param {...number} num - 要处理的数字
+   * @namespace 数学函数
+   *
+   * @returns {number} 所有数值的平均值
+   */
+  fnAVEDEV(...args: Array<any>) {
+    if (args.length === 0) {
+      return null;
+    }
+    const nums = args.map(item => this.formatNumber(item));
+    const sum = nums.reduce((sum, a) => sum + a || 0, 0);
+    const mean = sum / nums.length;
+    let result = 0;
+    for (const num of nums) {
+      result += Math.abs(num - mean);
+    }
+    return result / nums.length;
+  }
+
+  /**
+   * 数据点的调和平均值
+   *
+   * @example HARMEAN(num1, num2, ...numN)
+   * @param {...number} num - 要处理的数字
+   * @namespace 数学函数
+   *
+   * @returns {number} 所有数值的平均值
+   */
+  fnHARMEAN(...args: Array<any>) {
+    if (args.length === 0) {
+      return null;
+    }
+    const nums = args.map(item => this.formatNumber(item));
+    let den = 0;
+    for (const num of nums) {
+      den += 1 / num;
+    }
+    return nums.length / den;
+  }
+
+  /**
+   * 数据集中第 k 个最大值
+   *
+   * @example LARGE(array, k)
+   * @param {array} nums - 要处理的数字
+   * @param {number}  k - 第几大
+   * @namespace 数学函数
+   *
+   * @returns {number} 所有数值的平均值
+   */
+  fnLARGE(nums: Array<any>, k: number) {
+    if (nums.length === 0) {
+      return null;
+    }
+    const numsFormat = nums.map(item => this.formatNumber(item));
+    if (k < 0 || numsFormat.length < k) {
+      return null;
+    }
+    return numsFormat.sort(function (a, b) {
+      return b - a;
+    })[k - 1];
+  }
+
+  /**
    * 将数值转为中文大写金额
    *
    * @example UPPERMONEY(num)
