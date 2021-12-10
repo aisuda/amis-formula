@@ -111,6 +111,16 @@ test('formula:math', () => {
   expect(evalFormual('SQRT(4)')).toBe(2);
   expect(evalFormual('AVG(4, 6, 10, 10, 10)')).toBe(8);
 
+  // 示例来自 https://support.microsoft.com/zh-cn/office/devsq-%E5%87%BD%E6%95%B0-8b739616-8376-4df5-8bd0-cfe0a6caf444
+  expect(evalFormual('DEVSQ(4,5,8,7,11,4,3)')).toBe(48);
+  // 示例来自 https://support.microsoft.com/zh-cn/office/avedev-%E5%87%BD%E6%95%B0-58fe8d65-2a84-4dc7-8052-f3f87b5c6639
+  expect(evalFormual('ROUND(AVEDEV(4,5,6,7,5,4,3), 2)')).toBe(1.02);
+  // 示例来自 https://support.microsoft.com/zh-cn/office/harmean-%E5%87%BD%E6%95%B0-5efd9184-fab5-42f9-b1d3-57883a1d3bc6
+  expect(evalFormual('ROUND(HARMEAN(4,5,8,7,11,4,3), 3)')).toBe(5.028);
+
+  expect(evalFormual('LARGE([1,3,5,4,7,6], 3)')).toBe(5);
+  expect(evalFormual('LARGE([1,3,5,4,7,6], 1)')).toBe(7);
+
   expect(evalFormual('UPPERMONEY(7682.01)')).toBe('柒仟陆佰捌拾贰元壹分');
   expect(evalFormual('UPPERMONEY(7682)')).toBe('柒仟陆佰捌拾贰元整');
 
