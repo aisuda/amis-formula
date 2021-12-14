@@ -15,6 +15,29 @@ test(`filter:html`, () => {
   ).toEqual('&lt;html&gt;');
 });
 
+test(`filter:complex`, () => {
+  expect(
+    resolveVariableAndFilter('${`${a}`}', {
+      a: '<html>'
+    })
+  ).toEqual('<html>');
+
+  expect(
+    resolveVariableAndFilter('${a ? a : a}', {
+      a: '<html>'
+    })
+  ).toEqual('<html>');
+
+  expect(
+    resolveVariableAndFilter('${b.a}', {
+      a: '<html>',
+      b: {
+        a: '<br />'
+      }
+    })
+  ).toEqual('&lt;br &#x2F;&gt;');
+});
+
 test(`filter:json`, () => {
   expect(
     resolveVariableAndFilter('${a | json : 0}', {
