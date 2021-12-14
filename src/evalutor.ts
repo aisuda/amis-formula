@@ -161,7 +161,8 @@ export class Evaluator {
   script(ast: {type: 'script'; body: any}) {
     const defaultFilter = this.options.defaultFilter;
 
-    if (defaultFilter && ast.body?.type !== 'filter') {
+    // 只给简单的变量取值用法自动补fitler
+    if (defaultFilter && ~['getter', 'variable'].indexOf(ast.body?.type)) {
       ast.body = {
         type: 'filter',
         input: ast.body,
