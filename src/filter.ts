@@ -467,7 +467,7 @@ function conditionalFilter(
   trueValue: any,
   falseValue: any
 ) {
-  hasAlternate && skipRestTest(filterContext.restFilters);
+  (hasAlternate || test) && skipRestTest(filterContext.restFilters);
   const result = test ? trueValue : falseValue;
 
   return test || hasAlternate
