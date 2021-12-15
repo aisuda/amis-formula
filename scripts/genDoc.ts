@@ -89,7 +89,7 @@ async function main(...params: Array<any>) {
 
   fs.writeFileSync(
     outputFile,
-    `/**\n * 公式文档\n */\nexport default ${JSON.stringify(
+    `/**\n * 公式文档\n */\nexports.doc = ${JSON.stringify(
       result,
       null,
       2
@@ -97,6 +97,29 @@ async function main(...params: Array<any>) {
     'utf8'
   );
   console.log(`公式文档生成 > ${outputFile}`);
+  fs.writeFileSync(
+    outputFile.replace(/\.js$/, '.d.ts'),
+    //  可以通过以下命令生成
+    // tsc --declaration --emitDeclarationOnly --allowJs doc.js
+    [
+      `export var doc: {`,
+      `  name: string;`,
+      `  description: string;`,
+      `  example: string;`,
+      `  params: {`,
+      `      type: string;`,
+      `      name: string;`,
+      `      description: string;`,
+      `  }[];`,
+      `  returns: {`,
+      `      type: string;`,
+      `      description: string;`,
+      `  };`,
+      `  namespace: string;`,
+      `}[];`
+    ].join('\n'),
+    'utf8'
+  );
 
   const grouped: any = {};
   result.forEach((item: any) => {
