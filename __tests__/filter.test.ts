@@ -248,7 +248,31 @@ test(`filter:variableInVariable`, () => {
 });
 
 test('filter:isMatch', () => {
-  expect(resolveVariableAndFilter('${status | isMatch:2:1|isMatch:5:1:4}', {
-    status: 2
-  })).toBe(1)
-})
+  expect(
+    resolveVariableAndFilter('${status | isMatch:2:1|isMatch:5:1:4}', {
+      status: 2
+    })
+  ).toBe(1);
+});
+
+test('filter:filter:isMatch', () => {
+  expect(
+    resolveVariableAndFilter('${items|filter:text:match:"ab"}', {
+      items: [
+        {
+          text: 'abc'
+        },
+        {
+          text: 'bcd'
+        },
+        {
+          text: 'cde'
+        }
+      ]
+    })
+  ).toMatchObject([
+    {
+      text: 'abc'
+    }
+  ]);
+});

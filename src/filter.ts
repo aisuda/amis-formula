@@ -243,22 +243,26 @@ export const filters: FilterMap = {
   last: input => input && (input.length ? input[input.length - 1] : null),
   minus(input, step = 1) {
     return stripNumber(
-      (Number(input) || 0) - Number(getStrOrVariable(step, this.data))
+      (Number(input) || 0) -
+        Number(getStrOrVariable(step, this.data, this.filter?.args[0]))
     );
   },
   plus(input, step = 1) {
     return stripNumber(
-      (Number(input) || 0) + Number(getStrOrVariable(step, this.data))
+      (Number(input) || 0) +
+        Number(getStrOrVariable(step, this.data, this.filter?.args[0]))
     );
   },
   times(input, step = 1) {
     return stripNumber(
-      (Number(input) || 0) * Number(getStrOrVariable(step, this.data))
+      (Number(input) || 0) *
+        Number(getStrOrVariable(step, this.data, this.filter?.args[0]))
     );
   },
   division(input, step = 1) {
     return stripNumber(
-      (Number(input) || 0) / Number(getStrOrVariable(step, this.data))
+      (Number(input) || 0) /
+        Number(getStrOrVariable(step, this.data, this.filter?.args[0]))
     );
   },
   count: (input: any) =>
@@ -293,7 +297,11 @@ export const filters: FilterMap = {
   asArray: input => (Array.isArray(input) ? input : input ? [input] : input),
   concat(input, ...args: any[]) {
     return Array.isArray(input)
-      ? input.concat(...args.map(arg => getStrOrVariable(arg, this.data)))
+      ? input.concat(
+          ...args.map((arg, index) =>
+            getStrOrVariable(arg, this.data, this.filter?.args[index])
+          )
+        )
       : input;
   },
   filter: function (input, keys, expOrDirective, arg1) {
@@ -311,16 +319,22 @@ export const filters: FilterMap = {
     } else if (directive === 'isExists') {
       fn = value => typeof value !== 'undefined';
     } else if (directive === 'equals' || directive === 'equal') {
-      arg1 = arg1 ? getStrOrVariable(arg1, this.data) : '';
+      arg1 = arg1
+        ? getStrOrVariable(arg1, this.data, this.filter?.args[2])
+        : '';
       fn = value => arg1 == value;
     } else if (directive === 'isIn') {
-      let list: any = arg1 ? getStrOrVariable(arg1, this.data) : [];
+      let list: any = arg1
+        ? getStrOrVariable(arg1, this.data, this.filter?.args[2])
+        : [];
 
       list = str2array(list);
       list = Array.isArray(list) ? list : list ? [list] : [];
       fn = value => (list.length ? !!~list.indexOf(value) : true);
     } else if (directive === 'notIn') {
-      let list: Array<any> = arg1 ? getStrOrVariable(arg1, this.data) : [];
+      let list: Array<any> = arg1
+        ? getStrOrVariable(arg1, this.data, this.filter?.args[2])
+        : [];
       list = str2array(list);
       list = Array.isArray(list) ? list : list ? [list] : [];
       fn = value => !~list.indexOf(value);
@@ -329,7 +343,9 @@ export const filters: FilterMap = {
         directive = 'match';
         arg1 = expOrDirective;
       }
-      arg1 = arg1 ? getStrOrVariable(arg1, this.data) : '';
+      arg1 = arg1
+        ? getStrOrVariable(arg1, this.data, this.filter?.args[2])
+        : '';
 
       // 比对的值是空时直接返回。
       if (!arg1) {
@@ -407,7 +423,9 @@ export const filters: FilterMap = {
   },
   isMatch(input, matchArg, trueValue, falseValue) {
     const hasAlternate = arguments.length > 3;
-    matchArg = getStrOrVariable(matchArg, this.data as any) ?? matchArg;
+    matchArg =
+      getStrOrVariable(matchArg, this.data as any, this.filter?.args[0]) ??
+      matchArg;
     return conditionalFilter(
       input,
       hasAlternate,
@@ -419,7 +437,9 @@ export const filters: FilterMap = {
   },
   notMatch(input, matchArg, trueValue, falseValue) {
     const hasAlternate = arguments.length > 3;
-    matchArg = getStrOrVariable(matchArg, this.data as any) ?? matchArg;
+    matchArg =
+      getStrOrVariable(matchArg, this.data as any, this.filter?.args[0]) ??
+      matchArg;
     return conditionalFilter(
       input,
       hasAlternate,
@@ -431,7 +451,8 @@ export const filters: FilterMap = {
   },
   isEquals(input, equalsValue, trueValue, falseValue) {
     equalsValue =
-      getStrOrVariable(equalsValue, this.data as any) ?? equalsValue;
+      getStrOrVariable(equalsValue, this.data as any, this.filter?.args[0]) ??
+      equalsValue;
 
     const hasAlternate = arguments.length > 3;
     return conditionalFilter(
@@ -445,7 +466,8 @@ export const filters: FilterMap = {
   },
   notEquals(input, equalsValue, trueValue, falseValue) {
     equalsValue =
-      getStrOrVariable(equalsValue, this.data as any) ?? equalsValue;
+      getStrOrVariable(equalsValue, this.data as any, this.filter?.args[0]) ??
+      equalsValue;
 
     const hasAlternate = arguments.length > 3;
     return conditionalFilter(
@@ -469,9 +491,12 @@ function conditionalFilter(
 ) {
   (hasAlternate || test) && skipRestTest(filterContext.restFilters);
   const result = test ? trueValue : falseValue;
+  const ast = test
+    ? filterContext.filter?.args[1]
+    : filterContext.filter?.args[2];
 
   return test || hasAlternate
-    ? getStrOrVariable(result, filterContext.data) ?? result
+    ? getStrOrVariable(result, filterContext.data, ast) ?? result
     : input;
 }
 
@@ -482,7 +507,13 @@ function conditionalFilter(
  * @param value 传入字符
  * @param data 数据域
  */
-function getStrOrVariable(value: any, data: any) {
+function getStrOrVariable(value: any, data: any, ast?: any) {
+  // 通过读取 ast 来判断，只有 literal 才可能是变量，也可能是字符串
+  // 其他的直接返回值即可。
+  if (ast?.type && ast.type !== 'literal') {
+    return value;
+  }
+
   return typeof value === 'string' && /,/.test(value)
     ? value.split(/\s*,\s*/).filter(item => item)
     : typeof value === 'string'

@@ -19,6 +19,10 @@ export interface FunctionMap {
 
 export interface FilterContext {
   data: Object;
+  filter?: {
+    name: string;
+    args: Array<any>;
+  };
   restFilters: Array<{
     name: string;
     args: Array<any>;
@@ -122,7 +126,8 @@ export class Evaluator {
   }) {
     let input = this.evalute(ast.input);
     const filters = ast.filters.concat();
-    const context = {
+    const context: FilterContext = {
+      filter: undefined,
       data: this.context,
       restFilters: filters
     };
@@ -133,6 +138,7 @@ export class Evaluator {
       if (!fn) {
         throw new Error(`filter \`${filter.name}\` not exits`);
       }
+      context.filter = filter;
       input = fn.apply(
         context,
         [input].concat(
