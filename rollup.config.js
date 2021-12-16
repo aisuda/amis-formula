@@ -49,6 +49,11 @@ export default {
     'lodash/uniqBy',
     'lodash/uniq',
     'lodash/isPlainObject',
+    'lodash/padStart',
+    'lodash/upperFirst',
+    'lodash/capitalize',
+    'lodash/escape',
+    'lodash/truncate',
     'moment',
     'tslib'
   ],
