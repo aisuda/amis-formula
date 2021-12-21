@@ -321,3 +321,11 @@ test('evalute:literal', () => {
     })
   ).toMatchObject([1, 2, `2alpha2`, {a: 1, 0: 2, [`2`]: '3'}]);
 });
+
+test('evalute:variable-name', () => {
+  const data = {
+    'a-b': '233'
+  };
+
+  expect(evaluate('${a-b}', data)).toBe('233');
+});

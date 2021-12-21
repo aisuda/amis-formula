@@ -812,7 +812,9 @@ export function lexer(input: string, options?: LexerOptions) {
     while (i < input.length) {
       const ch = input[i];
       if (
-        /^[\u4e00-\u9fa5A-Za-z_$@][\u4e00-\u9fa5A-Za-z0-9_]*$/.test(chunk + ch)
+        /^[\u4e00-\u9fa5A-Za-z_$@][\u4e00-\u9fa5A-Za-z0-9_\-]*$/.test(
+          chunk + ch
+        )
       ) {
         chunk += ch;
         i++;
