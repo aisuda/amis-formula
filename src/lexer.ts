@@ -313,21 +313,14 @@ export function lexer(input: string, options?: LexerOptions) {
             break;
           } else {
             // 支持旧的 $varName 的取值方法
-            let j = i + 2;
-            while (
-              /^[a-zA-Z0-9_][a-zA-Z0-9_]*$/.test(input.substring(i + 1, j)) &&
-              j <= input.length
-            ) {
-              j++;
-            }
-
-            if (j - i > 2) {
+            const match = /^[a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)*/.exec(input.substring(i + 1));
+            if (match) {
               tokenCache.push({
                 type: TokenName[TokenEnum.Variable],
-                value: input.substring(i + 1, j - 1),
-                raw: input.substring(i, j - 1),
+                value: match[0],
+                raw:  match[0],
                 start: position(input.substring(index, i)),
-                end: position(input.substring(index, j - 1))
+                end: position(input.substring(index, i + 1 +  match[0].length))
               });
               break;
             }

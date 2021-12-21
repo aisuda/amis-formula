@@ -129,9 +129,17 @@ test('evalute:oldVariable', () => {
       a: 4
     })
   ).toBe('b is ');
+
+  expect(
+    evaluate('a.b is $a.b', {
+      a: {
+        b: 233
+      }
+    })
+  ).toBe('a.b is 233');
 });
 
-test('evalute:oldVariable2', () => {
+test('evalute:ariable2', () => {
   expect(
     evaluate('a is $$', {
       a: 4
@@ -139,7 +147,7 @@ test('evalute:oldVariable2', () => {
   ).toBe('a is [object Object]');
 });
 
-test('evalute:oldVariable3', () => {
+test('evalute:ariable3', () => {
   expect(
     evaluate(
       '$$',
