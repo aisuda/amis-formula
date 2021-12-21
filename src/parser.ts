@@ -89,8 +89,7 @@ export function parse(input: string, options?: ParserOptions) {
 
   function fatal() {
     throw TypeError(
-      `Unexpected token ${token!.value} in ${token!.start.line}:${
-        token!.start.column
+      `Unexpected token ${token!.value} in ${token!.start.line}:${token!.start.column
       }`
     );
   }
@@ -187,9 +186,9 @@ export function parse(input: string, options?: ParserOptions) {
         args.push(
           Array.isArray(argContents)
             ? {
-                type: 'mixed',
-                body: argContents
-              }
+              type: 'mixed',
+              body: argContents
+            }
             : argContents
         );
       }
@@ -714,10 +713,16 @@ export function parse(input: string, options?: ParserOptions) {
     next();
     return {
       type: 'script',
-      body: {
-        type: 'variable',
-        name: prevToken.value
-      }
+      body: prevToken.value.split('.').reduce((prev: any, key: string) => {
+        return prev ? {
+          type: 'getter',
+          host: prev,
+          key
+        } : {
+          type: 'variable',
+          name: key
+        }
+      }, null)
     };
   }
 
@@ -725,8 +730,8 @@ export function parse(input: string, options?: ParserOptions) {
   const ast = options?.variableMode
     ? postfixExpression(variable)
     : options?.evalMode
-    ? expression()
-    : contents();
+      ? expression()
+      : contents();
 
   assert(token!?.type === TokenName[TokenEnum.EOF]);
 
