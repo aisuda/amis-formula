@@ -764,9 +764,9 @@ export function lexer(input: string, options?: LexerOptions) {
   }
 
   function identifier() {
-    // 因为 number 的判断在前面，所以
-    // number 的优先级比这个高
-    // 变量允许数字打头没问题。
+    // 变量模式是 resolveVariable 的时候使用的
+    // 这个纯变量获取模式，不支持其他什么表达式
+    // 仅仅支持 xxx.xxx 或者 xxx[ exression ] 这类语法
     const reg = options?.variableMode
       ? /^[\u4e00-\u9fa5A-Za-z0-9_$@][\u4e00-\u9fa5A-Za-z0-9_\-]*/
       : /^(?:[\u4e00-\u9fa5A-Za-z_$@][\u4e00-\u9fa5A-Za-z0-9_\-]*|\d+[\u4e00-\u9fa5A-Za-z_][\u4e00-\u9fa5A-Za-z0-9_\-]*)/;
