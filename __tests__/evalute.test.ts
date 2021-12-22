@@ -330,12 +330,30 @@ test('evalute:literal', () => {
   ).toMatchObject([1, 2, `2alpha2`, {a: 1, 0: 2, [`2`]: '3'}]);
 });
 
-test('evalute:variable-name', () => {
+test('evalute:variableName', () => {
   const data = {
-    'a-b': '233'
+    'a-b': 'c',
+    '222': 222,
+    '222_221': 233,
+    '222_abcde': 'abcde',
+    '222-221': 333
   };
 
-  expect(evaluate('${a-b}', data)).toBe('233');
+  expect(evaluate('${a-b}', data)).toBe('c');
+  expect(evaluate('${222}', data)).toBe(222);
+  expect(evaluate('${222_221}', data)).toBe('233');
+  expect(evaluate('${222-221}', data)).toBe(1);
+  expect(evaluate('${222_abcde}', data)).toBe('abcde');
+  expect(
+    evaluate('${&["222-221"]}', data, {
+      defaultFilter: 'raw'
+    })
+  ).toBe(333);
+  expect(
+    evaluate('222', data, {
+      variableMode: true
+    })
+  ).toBe(222);
 });
 
 test('evalute:3-1', () => {
