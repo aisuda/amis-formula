@@ -374,8 +374,12 @@ exports[`parser:number 1`] = `
 Object {
   "left": Object {
     "left": Object {
-      "type": "literal",
-      "value": -1,
+      "op": "-",
+      "type": "unary",
+      "value": Object {
+        "type": "literal",
+        "value": 1,
+      },
     },
     "op": "+",
     "right": Object {

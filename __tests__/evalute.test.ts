@@ -337,3 +337,14 @@ test('evalute:variable-name', () => {
 
   expect(evaluate('${a-b}', data)).toBe('233');
 });
+
+test('evalute:3-1', () => {
+  const data = {};
+
+  expect(evaluate('${3-1}', data)).toBe(2);
+  expect(evaluate('${-1 + 2.5 + 3}', data)).toBe(4.5);
+  expect(evaluate('${-1 + -1}', data)).toBe(-2);
+  expect(evaluate('${3 * -1}', data)).toBe(-3);
+
+  expect(evaluate('${3 + +1}', data)).toBe(4);
+});

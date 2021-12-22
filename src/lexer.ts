@@ -107,13 +107,11 @@ const rawStates = {
 
 const numberStates = {
   START: 0,
-  MINUS: 1,
-  ZERO: 2,
-  DIGIT: 3,
-  POINT: 4,
-  DIGIT_FRACTION: 5,
-  EXP: 6,
-  EXP_DIGIT_OR_SIGN: 7
+  ZERO: 1,
+  DIGIT: 2,
+  POINT: 3,
+  DIGIT_FRACTION: 4,
+  EXP: 5
 };
 
 const stringStates = {
@@ -313,14 +311,16 @@ export function lexer(input: string, options?: LexerOptions) {
             break;
           } else {
             // 支持旧的 $varName 的取值方法
-            const match = /^[a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)*/.exec(input.substring(i + 1));
+            const match = /^[a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)*/.exec(
+              input.substring(i + 1)
+            );
             if (match) {
               tokenCache.push({
                 type: TokenName[TokenEnum.Variable],
                 value: match[0],
-                raw:  match[0],
+                raw: match[0],
                 start: position(input.substring(index, i)),
-                end: position(input.substring(index, i + 1 +  match[0].length))
+                end: position(input.substring(index, i + 1 + match[0].length))
               });
               break;
             }
@@ -640,21 +640,6 @@ export function lexer(input: string, options?: LexerOptions) {
 
       switch (state) {
         case numberStates.START: {
-          if (char === '-') {
-            state = numberStates.MINUS;
-          } else if (char === '0') {
-            passedValueIndex = i + 1;
-            state = numberStates.ZERO;
-          } else if (isDigit1to9(char)) {
-            passedValueIndex = i + 1;
-            state = numberStates.DIGIT;
-          } else {
-            return null;
-          }
-          break;
-        }
-
-        case numberStates.MINUS: {
           if (char === '0') {
             passedValueIndex = i + 1;
             state = numberStates.ZERO;
@@ -706,27 +691,6 @@ export function lexer(input: string, options?: LexerOptions) {
             passedValueIndex = i + 1;
           } else if (isExp(char)) {
             state = numberStates.EXP;
-          } else {
-            break iterator;
-          }
-          break;
-        }
-
-        case numberStates.EXP: {
-          if (char === '+' || char === '-') {
-            state = numberStates.EXP_DIGIT_OR_SIGN;
-          } else if (isDigit(char)) {
-            passedValueIndex = i + 1;
-            state = numberStates.EXP_DIGIT_OR_SIGN;
-          } else {
-            break iterator;
-          }
-          break;
-        }
-
-        case numberStates.EXP_DIGIT_OR_SIGN: {
-          if (isDigit(char)) {
-            passedValueIndex = i + 1;
           } else {
             break iterator;
           }
