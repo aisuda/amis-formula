@@ -333,7 +333,7 @@ test('evalute:literal', () => {
 test('evalute:variableName', () => {
   const data = {
     'a-b': 'c',
-    '222': 222,
+    '222': 10222,
     '222_221': 233,
     '222_abcde': 'abcde',
     '222-221': 333
@@ -353,7 +353,7 @@ test('evalute:variableName', () => {
     evaluate('222', data, {
       variableMode: true
     })
-  ).toBe(222);
+  ).toBe(10222);
 });
 
 test('evalute:3-1', () => {
