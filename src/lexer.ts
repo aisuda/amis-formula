@@ -764,28 +764,22 @@ export function lexer(input: string, options?: LexerOptions) {
   }
 
   function identifier() {
-    let i = index;
-    let chunk = '';
-    while (i < input.length) {
-      const ch = input[i];
-      if (
-        /^[\u4e00-\u9fa5A-Za-z_$@][\u4e00-\u9fa5A-Za-z0-9_\-]*$/.test(
-          chunk + ch
-        )
-      ) {
-        chunk += ch;
-        i++;
-      } else {
-        break;
-      }
-    }
-    if (i > index) {
-      const value = input.substring(index, i);
+    // 因为 number 的判断在前面，所以
+    // number 的优先级比这个高
+    // 变量允许数字打头没问题。
+    const reg = options?.variableMode
+      ? /^[\u4e00-\u9fa5A-Za-z0-9_$@][\u4e00-\u9fa5A-Za-z0-9_\-]*/
+      : /^(?:[\u4e00-\u9fa5A-Za-z_$@][\u4e00-\u9fa5A-Za-z0-9_\-]*|\d+[\u4e00-\u9fa5A-Za-z_][\u4e00-\u9fa5A-Za-z0-9_\-]*)/;
+
+    const match = reg.exec(
+      input.substring(index, index + 256) // 变量长度不能超过 256
+    );
+    if (match) {
       return {
         type: TokenName[TokenEnum.Identifier],
-        value: value,
+        value: match[0],
         start: position(),
-        end: position(value)
+        end: position(match[0])
       };
     }
     return null;
