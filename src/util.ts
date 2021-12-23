@@ -394,13 +394,13 @@ export function pickValues(names: string, data: object) {
 }
 
 export function resolveVariable(path?: string, data: any = {}): any {
-  if (path === '&') {
+  if (path === '&' || path == '$$') {
     return data;
   } else if (!path || typeof path !== 'string') {
     return undefined;
   } else if (!~path.indexOf(':')) {
     // 简单用法直接用 getVariable
-    return getVariable(data, path);
+    return getVariable(data, path[0] === '$' ? path.substring(1) : path);
   }
 
   // window:xxx  ls:xxx.xxx
