@@ -1,5 +1,5 @@
 import moment from 'moment';
-import {resolveVariableAndFilter} from '../src';
+import {resolveVariable, resolveVariableAndFilter} from '../src';
 
 const filters = [
   {
@@ -621,4 +621,19 @@ test(`compat:numberVariable`, () => {
 test(`compat:test`, () => {
   const result = resolveVariableAndFilter('', {}, '| raw');
   expect(result).toEqual(undefined);
+});
+
+test(`compat:test2`, () => {
+  const data = {
+    '123': 123,
+    '123.123': 123,
+    '中文': 123,
+    'obj': {
+      x: 123
+    }
+  };
+  expect(resolveVariable('123', data)).toEqual(123);
+  expect(resolveVariable('123.123', data)).toEqual(123);
+  expect(resolveVariable('中文', data)).toEqual(123);
+  expect(resolveVariable('obj.x', data)).toEqual(123);
 });
