@@ -366,3 +366,16 @@ test('evalute:3-1', () => {
 
   expect(evaluate('${3 + +1}', data)).toBe(4);
 });
+
+
+test('evalute:variable:com.xxx.xx', () => {
+  const data = {
+    'com.xxx.xx': 'abc',
+    'com xxx%xx': 'cde',
+    'com[xxx]': 'eee'
+  };
+
+  expect(evaluate('${com\\.xxx\\.xx}', data)).toBe('abc');
+  expect(evaluate('${com\\ xxx\\%xx}', data)).toBe('cde');
+  expect(evaluate('${com\\[xxx\\]}', data)).toBe('eee');
+});
