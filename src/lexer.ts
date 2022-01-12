@@ -767,9 +767,10 @@ export function lexer(input: string, options?: LexerOptions) {
     // 变量模式是 resolveVariable 的时候使用的
     // 这个纯变量获取模式，不支持其他什么表达式
     // 仅仅支持 xxx.xxx 或者 xxx[ exression ] 这类语法
+    // 所以纯变量模式支持纯数字作为变量名
     const reg = options?.variableMode
-      ? /^[\u4e00-\u9fa5A-Za-z0-9_$@][\u4e00-\u9fa5A-Za-z0-9_\-]*/
-      : /^(?:[\u4e00-\u9fa5A-Za-z_$@][\u4e00-\u9fa5A-Za-z0-9_\-]*|\d+[\u4e00-\u9fa5A-Za-z_][\u4e00-\u9fa5A-Za-z0-9_\-]*)/;
+      ? /^[\u4e00-\u9fa5A-Za-z0-9_$@][\u4e00-\u9fa5A-Za-z0-9_\-$@]*/
+      : /^(?:[\u4e00-\u9fa5A-Za-z_$@]([\u4e00-\u9fa5A-Za-z0-9_\-$@]|\\(?:\.|\[|\]|\(|\)|\{|\}|\s|=|!|>|<|\||&|\+|-|\*|\/|\^|~|%|&|\?|:|;|,))*|\d+[\u4e00-\u9fa5A-Za-z_$@](?:[\u4e00-\u9fa5A-Za-z0-9_\-$@]|\\(?:\.|\[|\]|\(|\)|\{|\}|\s|=|!|>|<|\||&|\+|-|\*|\/|\^|~|%|&|\?|:|;|,))*)/;
 
     const match = reg.exec(
       input.substring(index, index + 256) // 变量长度不能超过 256
@@ -777,7 +778,10 @@ export function lexer(input: string, options?: LexerOptions) {
     if (match) {
       return {
         type: TokenName[TokenEnum.Identifier],
-        value: match[0],
+        value: match[0].replace(
+          /\\(\.|\[|\]|\(|\)|\{|\}|\s|=|!|>|<|\||&|\+|-|\*|\/|\^|~|%|&|\?|:|;|,)/g,
+          (_, v) => v
+        ),
         start: position(),
         end: position(match[0])
       };

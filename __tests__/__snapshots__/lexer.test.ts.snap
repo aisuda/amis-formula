@@ -12,11 +12,7 @@ Array [
   "<Char>  ",
   "<Identifier> YYYY-MM-DD",
   "<Char>  ",
-  "<Identifier> HH",
-  "<Char> :",
-  "<Identifier> mm",
-  "<Char> :",
-  "<Identifier> ss",
+  "<Identifier> HH:mm:ss",
   "<CloseScript> }",
   "<EOF> undefined",
 ]
