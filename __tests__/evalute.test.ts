@@ -367,6 +367,9 @@ test('evalute:3-1', () => {
   expect(evaluate('${3 + +1}', data)).toBe(4);
 });
 
+test('evalate:0.1+0.2', () => {
+  expect(evaluate('${0.1 + 0.2}', {})).toBe(0.3);
+});
 
 test('evalute:variable:com.xxx.xx', () => {
   const data = {
