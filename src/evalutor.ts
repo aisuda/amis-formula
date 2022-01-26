@@ -8,6 +8,7 @@ import padStart from 'lodash/padStart';
 import capitalize from 'lodash/capitalize';
 import escape from 'lodash/escape';
 import truncate from 'lodash/truncate';
+import {stripNumber} from './util';
 
 export interface FilterMap {
   [propName: string]: (this: FilterContext, input: any, ...args: any[]) => any;
@@ -242,13 +243,13 @@ export class Evaluator {
   multiply(ast: {left: any; right: any}) {
     const left = this.evalute(ast.left);
     const right = this.evalute(ast.right);
-    return this.formatNumber(left) * this.formatNumber(right);
+    return stripNumber(this.formatNumber(left) * this.formatNumber(right));
   }
 
   divide(ast: {left: any; right: any}) {
     const left = this.evalute(ast.left);
     const right = this.evalute(ast.right);
-    return this.formatNumber(left) / this.formatNumber(right);
+    return stripNumber(this.formatNumber(left) / this.formatNumber(right));
   }
 
   remainder(ast: {left: any; right: any}) {
@@ -260,13 +261,13 @@ export class Evaluator {
   add(ast: {left: any; right: any}) {
     const left = this.evalute(ast.left);
     const right = this.evalute(ast.right);
-    return this.formatNumber(left) + this.formatNumber(right);
+    return stripNumber(this.formatNumber(left) + this.formatNumber(right));
   }
 
   minus(ast: {left: any; right: any}) {
     const left = this.evalute(ast.left);
     const right = this.evalute(ast.right);
-    return this.formatNumber(left) - this.formatNumber(right);
+    return stripNumber(this.formatNumber(left) - this.formatNumber(right));
   }
 
   shift(ast: {op: '<<' | '>>' | '>>>'; left: any; right: any}) {
