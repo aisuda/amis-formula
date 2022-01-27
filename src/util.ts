@@ -202,15 +202,20 @@ export const tokenize = (
     return str;
   }
 
-  const ast = parse(str, {
-    evalMode: false,
-    allowFilter: true
-  });
-  const result = new Evaluator(data, {
-    defaultFilter
-  }).evalute(ast);
-
-  return `${result == null ? '' : result}`;
+  try {
+    const ast = parse(str, {
+      evalMode: false,
+      allowFilter: true
+    });
+    const result = new Evaluator(data, {
+      defaultFilter
+    }).evalute(ast);
+  
+    return `${result == null ? '' : result}`;
+  } catch (e) {
+    console.warn(e);
+    return str;
+  }
 };
 
 const UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
