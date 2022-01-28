@@ -922,6 +922,19 @@ export class Evaluator {
     return Math.random();
   }
 
+  /**
+   * 取数据最后一个
+   *
+   * @example LAST(array)
+   * @param {...number} arr - 要处理的数组
+   * @namespace 数学函数
+   *
+   * @returns {any} 最后一个值
+   */
+  fnLAST(arr: Array<any>) {
+    return arr.length ? arr[arr.length - 1] : null;
+  }
+
   // 文本函数
 
   normalizeText(raw: any) {
@@ -1356,6 +1369,24 @@ export class Evaluator {
   fnMID(text: string, from: number, len: number) {
     text = this.normalizeText(text);
     return text.substring(from, from + len);
+  }
+
+  /**
+   * 返回路径中的文件名
+   *
+   * 示例：`/home/amis/a.json`
+   *
+   * 返回：a.json`
+   *
+   * @example BASENAME(text)
+   * @param {string} text - 要处理的文本
+   * @namespace 文本函数
+   *
+   * @returns {string}  文件名
+   */
+  fnBASENAME(text: string) {
+    text = this.normalizeText(text);
+    return text.split(/[\\/]/).pop();
   }
 
   // 日期函数

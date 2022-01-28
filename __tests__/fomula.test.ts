@@ -184,3 +184,11 @@ test('formula:date', () => {
   );
   expect(evalFormual('YEAR(STRTODATE("2021-10-24 10:10:10"))')).toBe(2021);
 });
+
+test('formula:last', () => {
+  expect(evalFormual('LAST([1, 2, 3])')).toBe(3);
+});
+
+test('formula:basename', () => {
+  expect(evalFormual('BASENAME("/home/amis/a.json")')).toBe('a.json');
+});
