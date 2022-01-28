@@ -202,15 +202,20 @@ export const tokenize = (
     return str;
   }
 
-  const ast = parse(str, {
-    evalMode: false,
-    allowFilter: true
-  });
-  const result = new Evaluator(data, {
-    defaultFilter
-  }).evalute(ast);
+  try {
+    const ast = parse(str, {
+      evalMode: false,
+      allowFilter: true
+    });
+    const result = new Evaluator(data, {
+      defaultFilter
+    }).evalute(ast);
 
-  return `${result == null ? '' : result}`;
+    return `${result == null ? '' : result}`;
+  } catch (e) {
+    console.warn(e);
+    return str;
+  }
 };
 
 const UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
@@ -434,16 +439,21 @@ export const resolveVariableAndFilter = (
     return undefined;
   }
 
-  const ast = parse(path, {
-    evalMode: false,
-    allowFilter: true
-  });
+  try {
+    const ast = parse(path, {
+      evalMode: false,
+      allowFilter: true
+    });
 
-  const ret = new Evaluator(data, {
-    defaultFilter
-  }).evalute(ast);
+    const ret = new Evaluator(data, {
+      defaultFilter
+    }).evalute(ast);
 
-  return ret == null && !~path.indexOf('default') && !~path.indexOf('now')
-    ? fallbackValue(ret)
-    : ret;
+    return ret == null && !~path.indexOf('default') && !~path.indexOf('now')
+      ? fallbackValue(ret)
+      : ret;
+  } catch (e) {
+    console.warn(e);
+    return undefined;
+  }
 };
