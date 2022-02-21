@@ -309,7 +309,11 @@ export const filterDate = (
   }
 
   // todo
-  value = tokenize(value, data);
+  const date = new Date();
+  value = tokenize(value, createObject(data, {
+    now: mm().toDate(),
+    today: mm([date.getFullYear(), date.getMonth(), date.getDate()])
+  }), '| raw');
 
   if (value && typeof value === 'string' && (m = relativeValueRe.exec(value))) {
     const date = new Date();
@@ -339,7 +343,8 @@ export const filterDate = (
     const date = new Date();
     return mm([date.getFullYear(), date.getMonth(), date.getDate()]);
   } else {
-    return mm(value, format);
+    const result = mm(value);
+    return result.isValid() ? result : mm(value, format);
   }
 };
 
