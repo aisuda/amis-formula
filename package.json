@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "npm run clean-dist && NODE_ENV=production rollup -c && npm run declaration && npm run genDoc",
+    "lib": "npm run clean-dist && NODE_ENV=lib rollup -c",
     "clean-dist": "rimraf dist/*",
     "declaration": "tsc --allowJs --declaration --emitDeclarationOnly --declarationDir ./dist --rootDir ./src",
     "test": "jest",

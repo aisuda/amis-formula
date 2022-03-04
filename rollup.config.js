@@ -8,6 +8,8 @@ import license from 'rollup-plugin-license';
 import {name, version, main, module, browser, author} from './package.json';
 
 const isProduction = process.env.NODE_ENV === 'production';
+const isForLib = process.env.NODE_ENV === 'lib';
+
 
 const settings = {
   globals: {
@@ -18,16 +20,19 @@ const settings = {
 };
 
 export default {
-  input: './src/index.ts',
+  input: isForLib ? './scripts/lib.ts' : './src/index.ts',
   output: [
     {
-      file: main,
-      name: main,
+      file: isForLib ? 'dist/formula.js' : main,
+      name: isForLib ? 'formula' : main,
       ...settings,
-      format: 'cjs',
+      format: isForLib ? 'iife' : 'cjs',
       plugins: [
-        /*isProduction && terser()*/
-      ]
+        isForLib && terser()
+      ],
+      footer: isForLib ? `var evaluate = formula.evaluate;
+      var momentFormat = formula.momentFormat;
+      var parse = formula.parse;` : '',
     }
     // {
     //   file: module,
@@ -42,7 +47,7 @@ export default {
     //   format: 'umd'
     // }
   ],
-  external: [
+  external: isForLib ? [] : [
     'lodash',
     'lodash/transform',
     'lodash/groupBy',
