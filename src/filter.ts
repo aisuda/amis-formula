@@ -42,10 +42,11 @@ function makeSorter(
 }
 
 export const filters: FilterMap = {
-  map: (input: Array<unknown>, fn: string, ...arg: any) =>
-    Array.isArray(input) && filters[fn]
+  map(input: Array<unknown>, fn: string, ...arg: any) {
+    return Array.isArray(input) && filters[fn]
       ? input.map(item => filters[fn].call(this, item, ...arg))
-      : input,
+      : input
+  },
   html: (input: string) => {
     if (input == null) {
       return input;
