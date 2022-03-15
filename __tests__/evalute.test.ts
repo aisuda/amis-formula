@@ -382,3 +382,43 @@ test('evalute:variable:com.xxx.xx', () => {
   expect(evaluate('${com\\ xxx\\%xx}', data)).toBe('cde');
   expect(evaluate('${com\\[xxx\\]}', data)).toBe('eee');
 });
+
+test('evalute:anonymous:function', () => {
+  const data = {
+    arr: [1, 2, 3], 
+    arr2: [
+      {
+        a: 1
+      },
+      {
+        a: 2
+      },
+      {
+        a: 3
+      }
+    ],
+    outter: 4
+  };
+
+  expect(evaluate('${() => 233}', data)).toMatchObject({
+    args: [],
+    return: {type: 'literal', value: 233},
+    type: 'anonymous_function'
+  });
+
+  expect(evaluate('${ARRAYMAP(arr, () => 1)}', data)).toMatchObject([1, 1, 1]);
+  expect(evaluate('${ARRAYMAP(arr, item => item)}', data)).toMatchObject([1, 2, 3]);
+  expect(evaluate('${ARRAYMAP(arr, item => item * 2)}', data)).toMatchObject([2, 4, 6]);
+  expect(evaluate('${ARRAYMAP(arr2, (item, index) => `a${item.a}${index}`)}', data)).toMatchObject(['a10', 'a21', 'a32']);
+  expect(evaluate('${ARRAYMAP(arr2, (item, index) => `a${item.a}${index}${outter}`)}', data)).toMatchObject(['a104', 'a214', 'a324']);
+  expect(evaluate('${ARRAYMAP(arr2, (item, index) => {x: item.a, index: index})}', data)).toMatchObject([{
+    x: 1,
+    index: 0
+  }, {
+    x: 2,
+    index: 1
+  }, {
+    x: 3,
+    index: 2
+  }]);
+});

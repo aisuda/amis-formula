@@ -1,5 +1,70 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`parser:anonymous-function 1`] = `
+Object {
+  "args": Array [],
+  "return": Object {
+    "type": "literal",
+    "value": 1,
+  },
+  "type": "anonymous_function",
+}
+`;
+
+exports[`parser:anonymous-function 2`] = `
+Object {
+  "args": Array [],
+  "return": Object {
+    "type": "string",
+    "value": "string",
+  },
+  "type": "anonymous_function",
+}
+`;
+
+exports[`parser:anonymous-function 3`] = `
+Object {
+  "args": Array [
+    Object {
+      "name": "a",
+      "type": "variable",
+    },
+  ],
+  "return": Object {
+    "body": Array [
+      Object {
+        "host": Object {
+          "name": "a",
+          "type": "variable",
+        },
+        "key": Object {
+          "name": "a",
+          "type": "identifier",
+        },
+        "type": "getter",
+      },
+      Object {
+        "type": "template_raw",
+        "value": "---",
+      },
+      Object {
+        "host": Object {
+          "name": "a",
+          "type": "variable",
+        },
+        "key": Object {
+          "name": "b",
+          "type": "identifier",
+        },
+        "type": "getter",
+      },
+    ],
+    "type": "template",
+  },
+  "type": "anonymous_function",
+}
+`;
+
 exports[`parser:array-literall 1`] = `
 Object {
   "members": Array [
