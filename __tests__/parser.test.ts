@@ -174,6 +174,28 @@ test('parser:unary-expression', () => {
   ).toMatchSnapshot();
 });
 
+test('parser:anonymous-function', () => {
+  expect(
+    parse('() => 1', {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
+
+  expect(
+    parse('() => "string"', {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
+
+  expect(
+    parse('(a) => `${a.a}---${a.b}`', {
+      evalMode: true
+    })
+  ).toMatchSnapshot();
+});
+
 // test('parser:test', () => {
-//   console.log(JSON.stringify(parse('${window:document.title}', {}), null, 2));
+//   console.log(JSON.stringify(parse('ARRAYMAP(arr, (item) => item.abc)', {
+//     evalMode: true
+//   }), null, 2));
 // });

@@ -31,7 +31,8 @@ export interface ParserOptions {
 
 const argListStates = {
   START: 0,
-  COMMA: 1
+  COMMA: 1,
+  SET: 2
 };
 
 const tempalteStates = {
@@ -89,7 +90,8 @@ export function parse(input: string, options?: ParserOptions) {
 
   function fatal() {
     throw TypeError(
-      `Unexpected token ${token!.value} in ${token!.start.line}:${token!.start.column
+      `Unexpected token ${token!.value} in ${token!.start.line}:${
+        token!.start.column
       }`
     );
   }
@@ -186,9 +188,9 @@ export function parse(input: string, options?: ParserOptions) {
         args.push(
           Array.isArray(argContents)
             ? {
-              type: 'mixed',
-              body: argContents
-            }
+                type: 'mixed',
+                body: argContents
+              }
             : argContents
         );
       }
@@ -204,6 +206,34 @@ export function parse(input: string, options?: ParserOptions) {
         input: ast,
         filters
       };
+    }
+
+    return ast;
+  }
+
+  function arrowFunction(): any {
+    let ast: any = argList() || variable();
+    let args: Array<any> = [];
+
+    if (ast?.type === 'variable') {
+      args = [ast];
+    } else if (ast?.type === 'arg-list') {
+      args = ast.body;
+    }
+
+    if (Array.isArray(args) && matchPunctuator('=')) {
+      next();
+      if (matchPunctuator('>')) {
+        next();
+        const body = assert(expression());
+        return {
+          type: 'anonymous_function',
+          args: args,
+          return: body
+        };
+      } else {
+        back();
+      }
     }
 
     return ast;
@@ -385,7 +415,7 @@ export function parse(input: string, options?: ParserOptions) {
   }
 
   function leftHandSideExpression() {
-    return functionCall() || primaryExpression();
+    return functionCall() || arrowFunction() || primaryExpression();
   }
 
   function varibleKey(allowVariable = false, inObject = false) {
@@ -580,6 +610,53 @@ export function parse(input: string, options?: ParserOptions) {
     return null;
   }
 
+  function argList(startOP = '(', endOp = ')') {
+    let count = 0;
+    let rollback = () => {
+      while (count-- > 0) {
+        back();
+      }
+      return null;
+    };
+    if (matchPunctuator(startOP)) {
+      next();
+      count++;
+      const args: Array<any> = [];
+      let state = argListStates.START;
+
+      while (!matchPunctuator(endOp)) {
+        if (state === argListStates.COMMA || state === argListStates.START) {
+          const arg = variable(false);
+
+          if (!arg) {
+            return rollback();
+          }
+
+          count++;
+          args.push(arg);
+          state = argListStates.SET;
+        } else if (state === argListStates.SET && matchPunctuator(',')) {
+          next();
+          count++;
+          state = argListStates.COMMA;
+        } else {
+          return rollback();
+        }
+      }
+
+      if (matchPunctuator(endOp)) {
+        next();
+        return {
+          type: 'arg-list',
+          body: args
+        };
+      } else {
+        return rollback();
+      }
+    }
+    return null;
+  }
+
   function objectLiteral() {
     if (matchPunctuator('{')) {
       next();
@@ -676,12 +753,16 @@ export function parse(input: string, options?: ParserOptions) {
     };
   }
 
-  function variable() {
+  function variable(allowNameSpace = true) {
     if (token.type === TokenName[TokenEnum.Identifier]) {
       const cToken = token;
       next();
 
-      if (matchPunctuator(':') && ~variableNamespaces.indexOf(cToken.value)) {
+      if (
+        allowNameSpace &&
+        matchPunctuator(':') &&
+        ~variableNamespaces.indexOf(cToken.value)
+      ) {
         next();
         const body = assert(postfixExpression());
         return {
@@ -714,14 +795,16 @@ export function parse(input: string, options?: ParserOptions) {
     return {
       type: 'script',
       body: prevToken.value.split('.').reduce((prev: any, key: string) => {
-        return prev ? {
-          type: 'getter',
-          host: prev,
-          key
-        } : {
-          type: 'variable',
-          name: key
-        }
+        return prev
+          ? {
+              type: 'getter',
+              host: prev,
+              key
+            }
+          : {
+              type: 'variable',
+              name: key
+            };
       }, null)
     };
   }
@@ -730,8 +813,8 @@ export function parse(input: string, options?: ParserOptions) {
   const ast = options?.variableMode
     ? postfixExpression(variable)
     : options?.evalMode
-      ? expression()
-      : contents();
+    ? expression()
+    : contents();
 
   assert(token!?.type === TokenName[TokenEnum.EOF]);
 

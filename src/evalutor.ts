@@ -8,7 +8,7 @@ import padStart from 'lodash/padStart';
 import capitalize from 'lodash/capitalize';
 import escape from 'lodash/escape';
 import truncate from 'lodash/truncate';
-import {stripNumber} from './util';
+import {createObject, stripNumber} from './util';
 
 export interface FilterMap {
   [propName: string]: (this: FilterContext, input: any, ...args: any[]) => any;
@@ -473,6 +473,35 @@ export class Evaluator {
     }
 
     return fn.apply(this, args);
+  }
+
+  anonymousFunction(ast: any) {
+    return ast;
+  }
+
+  callAnonymousFunction(
+    ast: {
+      args: any[];
+      return: any;
+    },
+    args: Array<any>
+  ) {
+    const ctx: any = createObject(
+      this.contextStack[this.contextStack.length - 1]('&') || {},
+      {}
+    );
+    ast.args.forEach((arg: any) => {
+      if (arg.type !== 'variable') {
+        throw new Error('expected a variable as argument');
+      }
+      ctx[arg.name] = args.shift();
+    });
+    this.contextStack.push((varName: string) =>
+      varName === '&' ? ctx : ctx[varName]
+    );
+    const result = this.evalute(ast.return);
+    this.contextStack.pop();
+    return result;
   }
 
   /**
@@ -1757,6 +1786,25 @@ export class Evaluator {
    */
   fnCOUNT(value: any) {
     return Array.isArray(value) ? value.length : value ? 1 : 0;
+  }
+
+  /**
+   * 数组做数据转换，需要搭配箭头函数一起使用，注意箭头函数只支持单表达式用法。
+   *
+   * @param {Array<any>} arr 数组
+   * @param {Function<any>} iterator 箭头函数
+   * @namespace 其他
+   * @example ARRAYMAP(arr, item => item)
+   * @returns {boolean} 结果
+   */
+  fnARRAYMAP(value: any, iterator: any) {
+    if (!iterator || iterator.type !== 'anonymous_function') {
+      throw new Error('expected an anonymous function get ' + iterator);
+    }
+
+    return (Array.isArray(value) ? value : []).map((item, index) =>
+      this.callAnonymousFunction(iterator, [item, index])
+    );
   }
 }
 
