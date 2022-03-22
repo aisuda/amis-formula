@@ -422,3 +422,12 @@ test('evalute:anonymous:function', () => {
     index: 2
   }]);
 });
+
+test('evalute:anonymous:function', () => {
+  const data = {
+    arr: [1, 2, 3]
+  };
+
+  
+  expect(evaluate('${ARRAYMAP(ARRAYMAP(arr, item => item * 2), item => item + 2)}', data)).toMatchObject([4, 6, 8]);
+});
