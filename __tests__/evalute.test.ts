@@ -385,7 +385,7 @@ test('evalute:variable:com.xxx.xx', () => {
 
 test('evalute:anonymous:function', () => {
   const data = {
-    arr: [1, 2, 3], 
+    arr: [1, 2, 3],
     arr2: [
       {
         a: 1
@@ -407,27 +407,84 @@ test('evalute:anonymous:function', () => {
   });
 
   expect(evaluate('${ARRAYMAP(arr, () => 1)}', data)).toMatchObject([1, 1, 1]);
-  expect(evaluate('${ARRAYMAP(arr, item => item)}', data)).toMatchObject([1, 2, 3]);
-  expect(evaluate('${ARRAYMAP(arr, item => item * 2)}', data)).toMatchObject([2, 4, 6]);
-  expect(evaluate('${ARRAYMAP(arr2, (item, index) => `a${item.a}${index}`)}', data)).toMatchObject(['a10', 'a21', 'a32']);
-  expect(evaluate('${ARRAYMAP(arr2, (item, index) => `a${item.a}${index}${outter}`)}', data)).toMatchObject(['a104', 'a214', 'a324']);
-  expect(evaluate('${ARRAYMAP(arr2, (item, index) => {x: item.a, index: index})}', data)).toMatchObject([{
-    x: 1,
-    index: 0
-  }, {
-    x: 2,
-    index: 1
-  }, {
-    x: 3,
-    index: 2
-  }]);
+  expect(evaluate('${ARRAYMAP(arr, item => item)}', data)).toMatchObject([
+    1, 2, 3
+  ]);
+  expect(evaluate('${ARRAYMAP(arr, item => item * 2)}', data)).toMatchObject([
+    2, 4, 6
+  ]);
+  expect(
+    evaluate('${ARRAYMAP(arr2, (item, index) => `a${item.a}${index}`)}', data)
+  ).toMatchObject(['a10', 'a21', 'a32']);
+  expect(
+    evaluate(
+      '${ARRAYMAP(arr2, (item, index) => `a${item.a}${index}${outter}`)}',
+      data
+    )
+  ).toMatchObject(['a104', 'a214', 'a324']);
+  expect(
+    evaluate(
+      '${ARRAYMAP(arr2, (item, index) => {x: item.a, index: index})}',
+      data
+    )
+  ).toMatchObject([
+    {
+      x: 1,
+      index: 0
+    },
+    {
+      x: 2,
+      index: 1
+    },
+    {
+      x: 3,
+      index: 2
+    }
+  ]);
 });
 
-test('evalute:anonymous:function', () => {
+test('evalute:anonymous:function2', () => {
   const data = {
-    arr: [1, 2, 3]
+    arr: [1, 2, 3],
+    arr2: [
+      {
+        x: 1,
+        y: [
+          {
+            z: 1
+          },
+          {
+            z: 1
+          }
+        ]
+      },
+      {
+        x: 2,
+        y: [
+          {
+            z: 2
+          },
+          {
+            z: 2
+          }
+        ]
+      }
+    ]
   };
 
+  expect(
+    evaluate(
+      '${ARRAYMAP(ARRAYMAP(arr, item => item * 2), item => item + 2)}',
+      data
+    )
+  ).toMatchObject([4, 6, 8]);
+
+  expect(
+    evaluate(
+      '${ARRAYMAP(arr2, item => ARRAYMAP(item.y, i => i.z))}',
+      data
+    )
+  ).toMatchObject([[1, 1], [2, 2]]);
+
   
-  expect(evaluate('${ARRAYMAP(ARRAYMAP(arr, item => item * 2), item => item + 2)}', data)).toMatchObject([4, 6, 8]);
 });
