@@ -1,5 +1,6 @@
 import {
   lexer as createLexer,
+  Position,
   Token,
   TokenEnum,
   TokenName,
@@ -29,6 +30,15 @@ export interface ParserOptions {
   variableNamespaces?: Array<string>;
 }
 
+export interface ASTNode {
+  type: string;
+  start: Position;
+  end: Position;
+  [propname: string]: any;
+}
+
+export type ASTNodeOrNull = ASTNode | null;
+
 const argListStates = {
   START: 0,
   COMMA: 1,
@@ -48,7 +58,7 @@ const objectStates = {
   COMMA: 4
 };
 
-export function parse(input: string, options?: ParserOptions) {
+export function parse(input: string, options?: ParserOptions): ASTNode {
   let token: Token;
   const lexer = createLexer(input, options);
   const tokens: Array<Token> = [];
@@ -103,7 +113,7 @@ export function parse(input: string, options?: ParserOptions) {
     return result;
   }
 
-  function expression() {
+  function expression(): ASTNodeOrNull {
     return assignmentExpression();
   }
 
@@ -161,7 +171,7 @@ export function parse(input: string, options?: ParserOptions) {
     return arg;
   }
 
-  function complexExpression() {
+  function complexExpression(): ASTNodeOrNull {
     let ast = expression();
 
     const filters: Array<any> = [];
@@ -204,20 +214,25 @@ export function parse(input: string, options?: ParserOptions) {
       ast = {
         type: 'filter',
         input: ast,
-        filters
+        filters,
+        start: ast!.start,
+        end: filters[filters.length - 1].end
       };
     }
 
     return ast;
   }
 
-  function arrowFunction(): any {
+  function arrowFunction(): ASTNodeOrNull {
     let ast: any = argList() || variable();
     let args: Array<any> = [];
+    let start: Position;
 
     if (ast?.type === 'variable') {
       args = [ast];
+      start = ast.start;
     } else if (ast?.type === 'arg-list') {
+      start = ast.start;
       args = ast.body;
     }
 
@@ -229,7 +244,9 @@ export function parse(input: string, options?: ParserOptions) {
         return {
           type: 'anonymous_function',
           args: args,
-          return: body
+          return: body,
+          start: start!,
+          end: body.end
         };
       } else {
         back();
@@ -239,7 +256,7 @@ export function parse(input: string, options?: ParserOptions) {
     return ast;
   }
 
-  function conditionalExpression(): any {
+  function conditionalExpression(): ASTNodeOrNull {
     const ast = logicalOrExpression();
 
     if (!ast) {
@@ -260,7 +277,9 @@ export function parse(input: string, options?: ParserOptions) {
         type: 'conditional',
         test: ast,
         consequent: consequent,
-        alternate: alternate
+        alternate: alternate,
+        start: ast.start,
+        end: alternate!.end
       };
     }
 
@@ -289,7 +308,9 @@ export function parse(input: string, options?: ParserOptions) {
           type: type,
           op: operator,
           [leftKey]: ast,
-          [rightKey]: right
+          [rightKey]: right,
+          start: ast.start,
+          end: right.end
         };
       }
     }
@@ -297,27 +318,27 @@ export function parse(input: string, options?: ParserOptions) {
     return ast;
   }
 
-  function logicalOrExpression() {
+  function logicalOrExpression(): ASTNodeOrNull {
     return binaryExpressionParser('or', '||', logicalAndExpression);
   }
 
-  function logicalAndExpression() {
+  function logicalAndExpression(): ASTNodeOrNull {
     return binaryExpressionParser('and', '&&', bitwiseOrExpression);
   }
 
-  function bitwiseOrExpression() {
+  function bitwiseOrExpression(): ASTNodeOrNull {
     return binaryExpressionParser('binary', '|', bitwiseXOrExpression);
   }
 
-  function bitwiseXOrExpression() {
+  function bitwiseXOrExpression(): ASTNodeOrNull {
     return binaryExpressionParser('binary', '^', bitwiseAndExpression);
   }
 
-  function bitwiseAndExpression() {
+  function bitwiseAndExpression(): ASTNodeOrNull {
     return binaryExpressionParser('binary', '&', equalityExpression);
   }
 
-  function equalityExpression() {
+  function equalityExpression(): ASTNodeOrNull {
     return binaryExpressionParser('eq', '==', () =>
       binaryExpressionParser('ne', '!=', () =>
         binaryExpressionParser('streq', '===', () =>
@@ -327,7 +348,7 @@ export function parse(input: string, options?: ParserOptions) {
     );
   }
 
-  function relationalExpression() {
+  function relationalExpression(): ASTNodeOrNull {
     return binaryExpressionParser('lt', '<', () =>
       binaryExpressionParser('gt', '>', () =>
         binaryExpressionParser('le', '<=', () =>
@@ -337,7 +358,7 @@ export function parse(input: string, options?: ParserOptions) {
     );
   }
 
-  function shiftExpression() {
+  function shiftExpression(): ASTNodeOrNull {
     return binaryExpressionParser('shift', '<<', () =>
       binaryExpressionParser('shift', '>>', () =>
         binaryExpressionParser('shift', '>>>', additiveExpression)
@@ -345,13 +366,13 @@ export function parse(input: string, options?: ParserOptions) {
     );
   }
 
-  function additiveExpression() {
+  function additiveExpression(): ASTNodeOrNull {
     return binaryExpressionParser('add', '+', () =>
       binaryExpressionParser('minus', '-', multiplicativeExpression)
     );
   }
 
-  function multiplicativeExpression() {
+  function multiplicativeExpression(): ASTNodeOrNull {
     return binaryExpressionParser('multiply', '*', () =>
       binaryExpressionParser('divide', '/', () =>
         binaryExpressionParser('remainder', '%', powerExpression)
@@ -359,11 +380,11 @@ export function parse(input: string, options?: ParserOptions) {
     );
   }
 
-  function powerExpression() {
+  function powerExpression(): ASTNodeOrNull {
     return binaryExpressionParser('power', '**', unaryExpression);
   }
 
-  function unaryExpression() {
+  function unaryExpression(): ASTNodeOrNull {
     const unaryOperators = ['+', '-', '~', '!'];
     const stack: Array<any> = [];
     while (matchPunctuator(unaryOperators)) {
@@ -378,7 +399,9 @@ export function parse(input: string, options?: ParserOptions) {
       ast = {
         type: 'unary',
         op: op.value,
-        value: ast
+        value: ast,
+        start: op.start,
+        end: op.end,
       };
     }
     return ast;
@@ -386,7 +409,7 @@ export function parse(input: string, options?: ParserOptions) {
 
   function postfixExpression(
     parseFunction: () => any = leftHandSideExpression
-  ) {
+  ): ASTNodeOrNull {
     let ast = parseFunction();
     if (!ast) {
       return null;
@@ -407,18 +430,20 @@ export function parse(input: string, options?: ParserOptions) {
       ast = {
         type: 'getter',
         host: ast,
-        key: right
+        key: right,
+        start: ast.start,
+        end: right.end
       };
     }
 
     return ast;
   }
 
-  function leftHandSideExpression() {
+  function leftHandSideExpression(): ASTNodeOrNull {
     return functionCall() || arrowFunction() || primaryExpression();
   }
 
-  function varibleKey(allowVariable = false, inObject = false) {
+  function varibleKey(allowVariable = false, inObject = false): ASTNodeOrNull {
     return (
       (allowVariable ? variable() : identifier()) ||
       stringLiteral() ||
@@ -427,7 +452,7 @@ export function parse(input: string, options?: ParserOptions) {
     );
   }
 
-  function objectTemplateKey() {
+  function objectTemplateKey(): ASTNodeOrNull {
     if (matchPunctuator('[')) {
       next();
       const key = assert(template());
@@ -438,38 +463,47 @@ export function parse(input: string, options?: ParserOptions) {
     return null;
   }
 
-  function stringLiteral() {
+  function stringLiteral(): ASTNodeOrNull {
     if (token.type === TokenName[TokenEnum.StringLiteral]) {
       const cToken = token;
       next();
       return {
         type: 'string',
-        value: cToken.value
+        value: cToken.value,
+        start: cToken.start,
+        end: cToken.end
       };
     }
     return null;
   }
 
-  function numberLiteral() {
+  function numberLiteral(): ASTNodeOrNull {
     if (token.type === TokenName[TokenEnum.NumericLiteral]) {
       const value = token.value;
+      const cToken = token;
       next();
       return {
         type: 'literal',
-        value: value
+        value: value,
+        start: cToken.start,
+        end: cToken.end
       };
     }
 
     return null;
   }
 
-  function template() {
+  function template(): ASTNodeOrNull {
     if (matchPunctuator('`')) {
+      const start = token;
+      let end = start;
       next();
       let state = tempalteStates.START;
-      const ast: any = {
+      const ast: ASTNode = {
         type: 'template',
-        body: []
+        body: [],
+        start: start.start,
+        end: start.end
       };
       while (true) {
         if (state === tempalteStates.SCRIPTING) {
@@ -480,6 +514,7 @@ export function parse(input: string, options?: ParserOptions) {
           state = tempalteStates.START;
         } else {
           if (matchPunctuator('`')) {
+            end = token;
             next();
             break;
           } else if (token.type === TokenName[TokenEnum.TemplateLeftBrace]) {
@@ -488,7 +523,9 @@ export function parse(input: string, options?: ParserOptions) {
           } else if (token.type === TokenName[TokenEnum.TemplateRaw]) {
             ast.body.push({
               type: 'template_raw',
-              value: token.value
+              value: token.value,
+              start: token.start,
+              end: token.end
             });
             next();
           } else {
@@ -497,24 +534,27 @@ export function parse(input: string, options?: ParserOptions) {
         }
       }
 
+      ast.end = end.end;
       return ast;
     }
     return null;
   }
 
-  function identifier() {
+  function identifier(): ASTNodeOrNull {
     if (token.type === TokenName[TokenEnum.Identifier]) {
       const cToken = token;
       next();
       return {
         type: 'identifier',
-        name: cToken.value
+        name: cToken.value,
+        start: cToken.start,
+        end: cToken.end
       };
     }
     return null;
   }
 
-  function primaryExpression() {
+  function primaryExpression(): ASTNodeOrNull {
     return (
       variable() ||
       literal() ||
@@ -536,32 +576,38 @@ export function parse(input: string, options?: ParserOptions) {
     );
   }
 
-  function literal() {
+  function literal(): ASTNodeOrNull {
     if (
       token.type === TokenName[TokenEnum.Literal] ||
       token.type === TokenName[TokenEnum.BooleanLiteral]
     ) {
       const value = token.value;
+      const cToken = token;
       next();
       return {
         type: 'literal',
-        value: value
+        value: value,
+        start: cToken.start,
+        end: cToken.end
       };
     }
 
     return null;
   }
 
-  function functionCall() {
+  function functionCall(): ASTNodeOrNull {
     if (token.type === TokenName[TokenEnum.Identifier]) {
       const id = token;
       next();
       if (matchPunctuator('(')) {
         const argList = expressionList();
+        assert(argList);
         return {
           type: 'func_call',
           identifier: id.value,
-          args: argList?.body
+          args: argList?.body,
+          start: id.start,
+          end: argList!.end
         };
       } else {
         back();
@@ -570,19 +616,24 @@ export function parse(input: string, options?: ParserOptions) {
     return null;
   }
 
-  function arrayLiteral() {
+  function arrayLiteral(): ASTNodeOrNull {
     if (matchPunctuator('[')) {
       const argList = expressionList('[', ']');
+      assert(argList);
       return {
         type: 'array',
-        members: argList?.body
+        members: argList?.body,
+        start: argList!.start,
+        end: argList!.end
       };
     }
     return null;
   }
 
-  function expressionList(startOP = '(', endOp = ')') {
+  function expressionList(startOP = '(', endOp = ')'): ASTNodeOrNull {
     if (matchPunctuator(startOP)) {
+      const start = token;
+      let end: Token;
       next();
       const args: Array<any> = [];
       let state = argListStates.START;
@@ -598,19 +649,22 @@ export function parse(input: string, options?: ParserOptions) {
             state = argListStates.COMMA;
           }
         } else if (matchPunctuator(endOp)) {
+          end = token;
           next();
           break;
         }
       }
       return {
         type: 'expression-list',
-        body: args
+        body: args,
+        start: start.start,
+        end: end!.end
       };
     }
     return null;
   }
 
-  function argList(startOP = '(', endOp = ')') {
+  function argList(startOP = '(', endOp = ')'): ASTNodeOrNull {
     let count = 0;
     let rollback = () => {
       while (count-- > 0) {
@@ -619,6 +673,8 @@ export function parse(input: string, options?: ParserOptions) {
       return null;
     };
     if (matchPunctuator(startOP)) {
+      const start = token;
+      let end: Token = start;
       next();
       count++;
       const args: Array<any> = [];
@@ -645,10 +701,13 @@ export function parse(input: string, options?: ParserOptions) {
       }
 
       if (matchPunctuator(endOp)) {
+        end = token;
         next();
         return {
           type: 'arg-list',
-          body: args
+          body: args,
+          start: start.start,
+          end: end.end
         };
       } else {
         return rollback();
@@ -657,12 +716,16 @@ export function parse(input: string, options?: ParserOptions) {
     return null;
   }
 
-  function objectLiteral() {
+  function objectLiteral(): ASTNodeOrNull {
     if (matchPunctuator('{')) {
+      const start = token;
+      let end = start;
       next();
-      let ast: any = {
+      let ast: ASTNode = {
         type: 'object',
-        members: []
+        members: [],
+        start: start.start,
+        end: start.end
       };
       let state = objectStates.START;
       let key: any, value: any;
@@ -683,6 +746,7 @@ export function parse(input: string, options?: ParserOptions) {
             next();
             state = objectStates.COMMA;
           } else if (matchPunctuator('}')) {
+            end = token;
             next();
             break;
           } else {
@@ -690,6 +754,7 @@ export function parse(input: string, options?: ParserOptions) {
           }
         } else {
           if (state != objectStates.COMMA && matchPunctuator('}')) {
+            end = token;
             next();
             break;
           }
@@ -699,19 +764,22 @@ export function parse(input: string, options?: ParserOptions) {
         }
       }
 
+      ast.end = end.end;
       return ast;
     }
     return null;
   }
 
-  function assignmentExpression() {
+  function assignmentExpression(): ASTNodeOrNull {
     return conditionalExpression();
   }
 
-  function contents() {
-    const node: any = {
+  function contents(): ASTNodeOrNull {
+    const node: ASTNode = {
       type: 'document',
-      body: []
+      body: [],
+      start: token.start,
+      end: token.end
     };
     while (token.type !== TokenName[TokenEnum.EOF]) {
       const ast = raw() || rawScript() || oldVariable();
@@ -721,10 +789,13 @@ export function parse(input: string, options?: ParserOptions) {
       }
       node.body.push(ast);
     }
+    if (node.body.length) {
+      node.end = node.body[node.body.length - 1].end;
+    }
     return node;
   }
 
-  function raw() {
+  function raw(): ASTNodeOrNull {
     if (token.type !== TokenName[TokenEnum.RAW]) {
       return null;
     }
@@ -733,27 +804,34 @@ export function parse(input: string, options?: ParserOptions) {
     next();
     return {
       type: 'raw',
-      value: cToken.value
+      value: cToken.value,
+      start: cToken.start,
+      end: cToken.end
     };
   }
 
-  function rawScript() {
+  function rawScript(): ASTNodeOrNull {
     if (token.type !== TokenName[TokenEnum.OpenScript]) {
       return null;
     }
 
+    const start = token;
+    let end = start;
     next();
     const exp = assert(complexExpression());
     assert(token.type === TokenName[TokenEnum.CloseScript]);
+    end = token;
     next();
 
     return {
       type: 'script',
-      body: exp
+      body: exp,
+      start: start.start,
+      end: end.end
     };
   }
 
-  function variable(allowNameSpace = true) {
+  function variable(allowNameSpace = true): ASTNodeOrNull {
     if (token.type === TokenName[TokenEnum.Identifier]) {
       const cToken = token;
       next();
@@ -768,25 +846,32 @@ export function parse(input: string, options?: ParserOptions) {
         return {
           type: 'ns-variable',
           namespace: cToken.value,
-          body
+          body,
+          start: cToken.start,
+          end: body.end
         };
       }
 
       return {
         type: 'variable',
-        name: cToken.value
+        name: cToken.value,
+        start: cToken.start,
+        end: cToken.end
       };
     } else if (matchPunctuator('&')) {
+      const v = token;
       next();
       return {
         type: 'variable',
-        name: '&'
+        name: '&',
+        start: v.start,
+        end: v.end
       };
     }
     return null;
   }
 
-  function oldVariable() {
+  function oldVariable(): ASTNodeOrNull {
     if (token.type !== TokenName[TokenEnum.Variable]) {
       return null;
     }
@@ -799,13 +884,19 @@ export function parse(input: string, options?: ParserOptions) {
           ? {
               type: 'getter',
               host: prev,
-              key
+              key,
+              start: prevToken.start,
+              end: prevToken.end
             }
           : {
               type: 'variable',
-              name: key
+              name: key,
+              start: prevToken.start,
+              end: prevToken.end
             };
-      }, null)
+      }, null),
+      start: prevToken.start,
+      end: prevToken.end
     };
   }
 
@@ -818,5 +909,5 @@ export function parse(input: string, options?: ParserOptions) {
 
   assert(token!?.type === TokenName[TokenEnum.EOF]);
 
-  return ast;
+  return ast!;
 }
