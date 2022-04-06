@@ -618,7 +618,7 @@ export class Evaluator {
   }
 
   /**
-   * 获取最大值
+   * 获取最大值，如果只有一个参数且是数组，则计算这个数组内的值
    *
    * @example MAX(num1, num2, ...numN)
    * @param {...number} num - 数值
@@ -627,14 +627,18 @@ export class Evaluator {
    * @returns {number} 所有传入值中最大的那个
    */
   fnMAX(...args: Array<any>) {
+    let arr = args;
+    if (args.length === 1 && Array.isArray(args[0])) {
+      arr = args[0];
+    }
     return Math.max.apply(
       Math,
-      args.map(item => this.formatNumber(item))
+      arr.map(item => this.formatNumber(item))
     );
   }
 
   /**
-   * 获取最小值
+   * 获取最小值，如果只有一个参数且是数组，则计算这个数组内的值
    *
    * @example MIN(num1, num2, ...numN)
    * @param {...number} num - 数值
@@ -643,14 +647,18 @@ export class Evaluator {
    * @returns {number} 所有传入值中最小的那个
    */
   fnMIN(...args: Array<number>) {
+    let arr = args;
+    if (args.length === 1 && Array.isArray(args[0])) {
+      arr = args[0];
+    }
     return Math.min.apply(
       Math,
-      args.map(item => this.formatNumber(item))
+      arr.map(item => this.formatNumber(item))
     );
   }
 
   /**
-   * 求和
+   * 求和，如果只有一个参数且是数组，则计算这个数组内的值
    *
    * @example SUM(num1, num2, ...numN)
    * @param {...number} num - 数值
@@ -659,7 +667,11 @@ export class Evaluator {
    * @returns {number} 所有传入数值的总和
    */
   fnSUM(...args: Array<number>) {
-    return args.reduce((sum, a) => sum + this.formatNumber(a) || 0, 0);
+    let arr = args;
+    if (args.length === 1 && Array.isArray(args[0])) {
+      arr = args[0];
+    }
+    return arr.reduce((sum, a) => sum + this.formatNumber(a) || 0, 0);
   }
 
   /**
@@ -784,7 +796,7 @@ export class Evaluator {
   }
 
   /**
-   * 返回所有参数的平均值
+   * 返回所有参数的平均值，如果只有一个参数且是数组，则计算这个数组内的值
    *
    * @example AVG(num1, num2, ...numN)
    * @param {...number} num - 要处理的数字
@@ -793,16 +805,20 @@ export class Evaluator {
    * @returns {number} 所有数值的平均值
    */
   fnAVG(...args: Array<any>) {
+    let arr = args;
+    if (args.length === 1 && Array.isArray(args[0])) {
+      arr = args[0];
+    }
     return (
       this.fnSUM.apply(
         this,
-        args.map(item => this.formatNumber(item))
-      ) / args.length
+        arr.map(item => this.formatNumber(item))
+      ) / arr.length
     );
   }
 
   /**
-   * 返回数据点与数据均值点之差（数据偏差）的平方和
+   * 返回数据点与数据均值点之差（数据偏差）的平方和，如果只有一个参数且是数组，则计算这个数组内的值
    *
    * @example DEVSQ(num1, num2, ...numN)
    * @param {...number} num - 要处理的数字
@@ -814,7 +830,12 @@ export class Evaluator {
     if (args.length === 0) {
       return null;
     }
-    const nums = args.map(item => this.formatNumber(item));
+    let arr = args;
+    if (args.length === 1 && Array.isArray(args[0])) {
+      arr = args[0];
+    }
+
+    const nums = arr.map(item => this.formatNumber(item));
     const sum = nums.reduce((sum, a) => sum + a || 0, 0);
     const mean = sum / nums.length;
     let result = 0;
@@ -837,7 +858,11 @@ export class Evaluator {
     if (args.length === 0) {
       return null;
     }
-    const nums = args.map(item => this.formatNumber(item));
+    let arr = args;
+    if (args.length === 1 && Array.isArray(args[0])) {
+      arr = args[0];
+    }
+    const nums = arr.map(item => this.formatNumber(item));
     const sum = nums.reduce((sum, a) => sum + a || 0, 0);
     const mean = sum / nums.length;
     let result = 0;
@@ -848,7 +873,7 @@ export class Evaluator {
   }
 
   /**
-   * 数据点的调和平均值
+   * 数据点的调和平均值，如果只有一个参数且是数组，则计算这个数组内的值
    *
    * @example HARMEAN(num1, num2, ...numN)
    * @param {...number} num - 要处理的数字
@@ -860,7 +885,11 @@ export class Evaluator {
     if (args.length === 0) {
       return null;
     }
-    const nums = args.map(item => this.formatNumber(item));
+    let arr = args;
+    if (args.length === 1 && Array.isArray(args[0])) {
+      arr = args[0];
+    }
+    const nums = arr.map(item => this.formatNumber(item));
     let den = 0;
     for (const num of nums) {
       den += 1 / num;
@@ -1780,7 +1809,7 @@ export class Evaluator {
    * 返回数组的长度
    *
    * @param {Array<any>} arr 数组
-   * @namespace 其他
+   * @namespace 数组
    * @example COUNT(arr)
    * @returns {boolean} 结果
    */
@@ -1793,7 +1822,7 @@ export class Evaluator {
    *
    * @param {Array<any>} arr 数组
    * @param {Function<any>} iterator 箭头函数
-   * @namespace 其他
+   * @namespace 数组
    * @example ARRAYMAP(arr, item => item)
    * @returns {boolean} 结果
    */
@@ -1805,6 +1834,54 @@ export class Evaluator {
     return (Array.isArray(value) ? value : []).map((item, index) =>
       this.callAnonymousFunction(iterator, [item, index])
     );
+  }
+
+  /**
+   * 数组过滤掉 false、null、0 和 ""
+   *
+   * 示例：
+   *
+   * COMPACT([0, 1, false, 2, '', 3]) 得到 [1, 2, 3]
+   *
+   * @param {Array<any>} arr 数组
+   * @namespace 数组
+   * @example COMPACT(arr)
+   * @returns {Array<any>} 结果
+   */
+  fnCOMPACT(arr: any[]) {
+    if (Array.isArray(arr)) {
+      let resIndex = 0;
+      const result = [];
+      for (const item of arr) {
+        if (item) {
+          result[resIndex++] = item;
+        }
+      }
+      return result;
+    } else {
+      return [];
+    }
+  }
+
+  /**
+   * 数组转成字符串
+   *
+   * 示例：
+   *
+   * JOIN(['a', 'b', 'c'], '~') 得到 'a~b~c'
+   *
+   * @param {Array<any>} arr 数组
+   * @param { String} separator 分隔符
+   * @namespace 数组
+   * @example JOIN(arr, string)
+   * @returns {String} 结果
+   */
+  fnJOIN(arr: any[], separator = '') {
+    if (Array.isArray(arr)) {
+      return arr.join(separator);
+    } else {
+      return '';
+    }
   }
 }
 

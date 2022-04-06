@@ -480,11 +480,34 @@ test('evalute:anonymous:function2', () => {
   ).toMatchObject([4, 6, 8]);
 
   expect(
-    evaluate(
-      '${ARRAYMAP(arr2, item => ARRAYMAP(item.y, i => i.z))}',
-      data
-    )
-  ).toMatchObject([[1, 1], [2, 2]]);
+    evaluate('${ARRAYMAP(arr2, item => ARRAYMAP(item.y, i => i.z))}', data)
+  ).toMatchObject([
+    [1, 1],
+    [2, 2]
+  ]);
+});
 
-  
+test('evalute:array:func', () => {
+  const data = {
+    arr1: [0, 1, false, 2, '', 3],
+    arr2: ['a', 'b', 'c'],
+    arr3: [1, 2, 3],
+    arr4: [2, 4, 6]
+  };
+
+  expect(evaluate('${COMPACT(arr1)}', data)).toMatchObject([1, 2, 3]);
+
+  expect(evaluate("${COMPACT([0, 1, false, 2, '', 3])}", data)).toMatchObject([
+    1, 2, 3
+  ]);
+
+  expect(evaluate('${JOIN(arr2, "~")}', data)).toMatch('a~b~c');
+
+  expect(evaluate('${SUM(arr3)}', data)).toBe(6);
+
+  expect(evaluate('${AVG(arr4)}', data)).toBe(4);
+
+  expect(evaluate('${MIN(arr4)}', data)).toBe(2);
+
+  expect(evaluate('${MAX(arr4)}', data)).toBe(6);
 });
