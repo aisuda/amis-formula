@@ -506,4 +506,8 @@ test('evalute:array:func', () => {
   expect(evaluate('${SUM(arr3)}', data)).toBe(6);
 
   expect(evaluate('${AVG(arr4)}', data)).toBe(4);
+
+  expect(evaluate('${MIN(arr4)}', data)).toBe(2);
+
+  expect(evaluate('${MAX(arr4)}', data)).toBe(6);
 });

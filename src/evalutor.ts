@@ -618,7 +618,7 @@ export class Evaluator {
   }
 
   /**
-   * 获取最大值
+   * 获取最大值，如果只有一个参数且是数组，则计算这个数组内的值
    *
    * @example MAX(num1, num2, ...numN)
    * @param {...number} num - 数值
@@ -627,14 +627,18 @@ export class Evaluator {
    * @returns {number} 所有传入值中最大的那个
    */
   fnMAX(...args: Array<any>) {
+    let arr = args;
+    if (args.length === 1 && Array.isArray(args[0])) {
+      arr = args[0];
+    }
     return Math.max.apply(
       Math,
-      args.map(item => this.formatNumber(item))
+      arr.map(item => this.formatNumber(item))
     );
   }
 
   /**
-   * 获取最小值
+   * 获取最小值，如果只有一个参数且是数组，则计算这个数组内的值
    *
    * @example MIN(num1, num2, ...numN)
    * @param {...number} num - 数值
@@ -643,14 +647,18 @@ export class Evaluator {
    * @returns {number} 所有传入值中最小的那个
    */
   fnMIN(...args: Array<number>) {
+    let arr = args;
+    if (args.length === 1 && Array.isArray(args[0])) {
+      arr = args[0];
+    }
     return Math.min.apply(
       Math,
-      args.map(item => this.formatNumber(item))
+      arr.map(item => this.formatNumber(item))
     );
   }
 
   /**
-   * 求和，如果只有一个值且是数组，则计算这个数组的值
+   * 求和，如果只有一个参数且是数组，则计算这个数组内的值
    *
    * @example SUM(num1, num2, ...numN)
    * @param {...number} num - 数值
@@ -788,7 +796,7 @@ export class Evaluator {
   }
 
   /**
-   * 返回所有参数的平均值，如果只有一个参数且是数组，则计算这个数组的值
+   * 返回所有参数的平均值，如果只有一个参数且是数组，则计算这个数组内的值
    *
    * @example AVG(num1, num2, ...numN)
    * @param {...number} num - 要处理的数字
@@ -810,7 +818,7 @@ export class Evaluator {
   }
 
   /**
-   * 返回数据点与数据均值点之差（数据偏差）的平方和
+   * 返回数据点与数据均值点之差（数据偏差）的平方和，如果只有一个参数且是数组，则计算这个数组内的值
    *
    * @example DEVSQ(num1, num2, ...numN)
    * @param {...number} num - 要处理的数字
@@ -865,7 +873,7 @@ export class Evaluator {
   }
 
   /**
-   * 数据点的调和平均值
+   * 数据点的调和平均值，如果只有一个参数且是数组，则计算这个数组内的值
    *
    * @example HARMEAN(num1, num2, ...numN)
    * @param {...number} num - 要处理的数字
