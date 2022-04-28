@@ -400,6 +400,13 @@ export class Evaluator {
             : localStorage.getItem(name);
 
         if (typeof raw === 'string') {
+          // 判断字符串是否一个纯数字字符串，如果是，则对比parse后的值和原值是否相同，
+          // 如果不同则返回原值，因为原值如果是一个很长的纯数字字符串，则 parse 后可能会丢失精度
+          if (/^\d+$/.test(raw)) {
+            const parsed = JSON.parse(raw);
+            return `${parsed}` === raw ? parsed : raw;
+          }
+
           return parseJson(raw, raw);
         }
 
