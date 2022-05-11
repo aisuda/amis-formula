@@ -4,6 +4,8 @@ import {
 } from '../src';
 import moment from 'moment';
 
+import 'core-js/actual/array/find';
+
 export function momentFormat(
   input: any,
   inputFormat: string,

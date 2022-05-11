@@ -30,6 +30,7 @@ export default {
       plugins: [
         isForLib && terser()
       ],
+      strict: !isForLib,
       footer: isForLib ? `var evaluate = formula.evaluate;
       var momentFormat = formula.momentFormat;
       var parse = formula.parse;` : '',
@@ -67,7 +68,8 @@ export default {
     json(),
     resolve({
       jsnext: true,
-      main: true
+      main: true,
+      browser: true
     }),
     typescript({
       typescript: require('typescript')
