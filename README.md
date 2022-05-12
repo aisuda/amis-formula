@@ -1,4 +1,4 @@
-# amis-tpl
+# amis-formula
 
 负责 amis 里面的表达式、公式及模板的实现
 
