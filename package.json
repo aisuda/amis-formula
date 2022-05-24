@@ -29,7 +29,6 @@
   },
   "homepage": "https://github.com/aisuda/amis-tpl#readme",
   "dependencies": {
-    "core-js": "3.22.5",
     "lodash": "^4.17.15",
     "moment": "^2.29.1",
     "tslib": "^2.3.1"
